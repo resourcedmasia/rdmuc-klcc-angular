@@ -1,0 +1,58 @@
+<div class="modal-header">
+    <h5 class="modal-title">
+        Add New User<br>
+        <small class="text-muted">Please enter the user details.</small>
+    </h5>
+  </div>
+  <div class="modal-body">
+    <form [formGroup]="createUserForm">
+      <div class="form-group">
+        <label class="form-label">Username</label>
+        <input type="text" formControlName="username" class="form-control" [class.is-invalid]="createUserForm.get('username').touched && createUserForm.get('username').errors" placeholder="Username" [pattern]="'^[a-zA-Z0-9\_]+$'">
+        <small class="invalid-feedback">
+          This field is required.
+        </small>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Password</label>
+        <input type="text" formControlName="password" class="form-control" [class.is-invalid]="createUserForm.get('password').touched && createUserForm.get('password').errors?.required" placeholder="Password">
+        <small class="invalid-feedback">
+          This field is required.
+        </small>
+      </div> 
+      <div class="form-group">
+        <label class="form-label">Full Name</label>
+        <input type="text" formControlName="name" class="form-control" [class.is-invalid]="createUserForm.get('name').touched && createUserForm.get('name').errors?.required" placeholder="Full Name">
+        <small class="invalid-feedback">
+          This field is required.
+        </small>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Email</label>
+        <input type="text" formControlName="email" class="form-control" [class.is-invalid]="createUserForm.get('email').touched && createUserForm.get('email').errors?.email" placeholder="example@domain.com">
+        <small class="invalid-feedback">
+          Please enter a valid email address.
+        </small>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Role</label>
+        <ng-select [items]="role_selectOptions"
+          [multiple]="false"
+          [closeOnSelect]="true"
+          bindLabel="label"
+          bindValue="value"
+          placeholder="Select User Role"
+          formControlName="role"
+          [hideSelected]="true"
+          [class.is-invalid]="createUserForm.get('role').touched && createUserForm.get('role').errors?.required">
+        </ng-select>
+        <small class="invalid-feedback">
+          This field is required.
+        </small>
+      </div> 
+    </form>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-default" (click)="activeModal.dismiss('cancel');">Cancel</button>
+    <button type="button" class="btn btn-primary" [disabled]="!createUserForm.valid" (click)="activeModal.dismiss('save'); this.createUser()">Save</button>
+</div>

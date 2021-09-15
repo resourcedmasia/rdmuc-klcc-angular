@@ -1,0 +1,24 @@
+<div class="ui-bordered px-4 pt-4 mb-4">
+  <div class="form-row">
+    <div class="col-md-4 mb-4">
+      <ng-select placeholder="Select Month" [items]="monthRange" [(ngModel)]="selectedMonth" [clearable]="false" (change)="onMonthChange($event)"></ng-select>
+    </div>
+  </div>
+</div>
+
+
+<div class="card col-md-12 px-2" *ngIf="dailyIndexReportChart">
+  <div class="card-header">
+    <i class="ion ion-md-rainy"></i>&nbsp;&nbsp;&nbsp;Daily & Monthly Carbon Emissions - <strong>tCO₂</strong>
+  </div>
+  <div class="card-body">
+    <div class="row">
+      <div class="col-md-6">
+        <div id="chartdiv1" style="width: 100%; height: 500px;"></div>
+      </div>
+      <div class="col-md-6">
+        <div id="chartdiv2" style="width: 100%; height: 500px;"></div>
+      </div>
+    </div>
+  </div>
+</div>

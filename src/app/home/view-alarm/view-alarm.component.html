@@ -1,0 +1,103 @@
+<div class="modal-header">
+    <h5 class="modal-title">
+        View Alarm Information<br>
+        <small class="text-muted">Additional alarm and rule information.</small>
+    </h5>
+  </div>
+  <div class="modal-body">
+    <ngb-tabset class="nav-tabs-top mb-4 customtabset">
+      <ngb-tab>
+        <ng-template ngbTabTitle>
+          <h6 style="margin-bottom: 0px !important">
+            Overview
+          </h6>
+        </ng-template>
+        <ng-template ngbTabContent>
+          <div class="customtab">
+          <form [formGroup]="viewAlarmForm">
+            <div class="form-group">
+              <label class="form-label">Site</label>
+              <input type="text" formControlName="site" class="form-control" placeholder="Hospital Ipoh" readonly>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Controller</label>
+              <input type="text" formControlName="controller" class="form-control" placeholder="M1-901" readonly>
+            </div> 
+            <div class="form-group">
+              <label class="form-label">Asset</label>
+              <input type="text" formControlName="title" class="form-control" placeholder="Chiller" readonly>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Related Asset IDs</label>
+              <ng-select [items]="selectOptions"
+                [multiple]="true"
+                [closeOnSelect]="false"
+                bindLabel="label"
+                bindValue="id"
+                placeholder="Select Asset IDs"
+                formControlName="assetids"
+                [hideSelected]="true"
+                [clearable]="false"
+                [searchable]="false"
+                [isOpen]="false">
+              </ng-select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Reason</label>
+              <input type="text" formControlName="reason" class="form-control" placeholder="Over Temperature" readonly>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Mitigation</label>
+              <textarea formControlName="mitigation" class="form-control is-valid" placeholder="Action to be taken" readonly autosize></textarea>
+            </div>
+          </form>
+        </div>
+        </ng-template>
+      </ngb-tab>
+
+      <ngb-tab>
+        <ng-template ngbTabTitle>
+          <h6 style="margin-bottom: 0px !important">
+            Related Alarms <div class="badge badge-warning">{{ this.related_alarm_counter }}</div>
+          </h6>
+        </ng-template>
+        <ng-template ngbTabContent>
+          <div class="customtab_related_alarms card-ngx-datatable table-responsive">
+            <ngx-datatable #table
+                        [rows]="rows"
+                        [loadingIndicator]="loadingIndicator"
+                        [columnMode]="'force'"
+                        [headerHeight]="43"
+                        [footerHeight]="'auto'"
+                        [rowHeight]="'auto'"
+                        [reorderable]="false"
+                        [selectionType]="'row'"
+                        [limit]="10">
+            <ngx-datatable-column name="ID" [maxWidth]="100"></ngx-datatable-column>
+            <ngx-datatable-column name="Occurred" [maxWidth]="180"></ngx-datatable-column>
+            <ngx-datatable-column name="Site" prop="siteid"></ngx-datatable-column>
+            <ngx-datatable-column name="Controller" [maxWidth]="120"></ngx-datatable-column>
+            <ngx-datatable-column name="Asset" prop="title"></ngx-datatable-column>
+            <ngx-datatable-column name="Reason"></ngx-datatable-column>
+            </ngx-datatable>
+          </div>
+        </ng-template>
+      </ngb-tab>
+
+      <ngb-tab>
+        <ng-template ngbTabTitle>
+          <h6 style="margin-bottom: 0px !important">
+            Asset Information <div class="badge badge-primary">{{ this.asset_information_counter }}</div>
+          </h6>
+        </ng-template>
+        <ng-template ngbTabContent>
+          <div class="customtab">
+            <div class="card"><div class="card-body"><i class="ion ion-md-close text-danger"></i>&nbsp;&nbsp;This feature is not available at the moment.</div></div>
+          </div>
+        </ng-template>
+      </ngb-tab>
+    </ngb-tabset>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-primary" (click)="activeModal.dismiss('cancel');">Close</button>
+</div>

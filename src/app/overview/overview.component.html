@@ -1,0 +1,57 @@
+<!-- Page Header -->
+<div class="row">
+	<div class="col-md-10">
+		<h4 class="font-weight-bold py-3 mb-4">
+  			<i class="ion ion-md-contact"></i>&nbsp;&nbsp;<span class="text-muted font-weight-light">Hospital Raja Permaisuri Bainun ACC Building /</span> Dashboard <span class="text-muted font-weight-light">/ {{ currentDate | amDateFormat: 'LLLL' }}</span>
+		</h4>
+	</div>
+	<div class="col-md-2 py-3">
+		<div class="btn btn-lrg btn-primary float-right" (click)="togglePage()">
+			<strong><i class="ion ion-md-arrow-round-forward"></i></strong>
+		</div>
+	</div>
+</div>
+<hr class="border-light container-m--x mt-0 mb-4">
+
+<!-- Main overview tab -->
+<div *ngIf="currentPage === 1">
+	<div class="row mb-4">
+		<div class="col-md-3">
+			<widget-gauge name="Building Electricity Cost (RM)" *ngIf="overviewData" value="{{overviewData.total_energy_rm}}" maxvalue="{{overviewData.total_energy_rm_max}}" label="RM {{overviewData.total_energy_rm}}" color="#02bc77" cid="chartdiv" clickroute="/energy/dashboard"></widget-gauge>
+		</div>
+		<div class="col-md-3">
+			<widget-gauge name="Building Energy Consumption (MWh)" *ngIf="overviewData" value="{{overviewData.total_energy}}" maxvalue="{{overviewData.total_energy_max}}" label="{{overviewData.total_energy}} MWh" color="#ffd950" cid="chartdiv2" clickroute="/energy/dashboard"></widget-gauge>
+		</div>
+		<div class="col-md-3">
+			<widget-gauge name="Building Energy Intensity (kWh/m²/yr)" *ngIf="overviewData" value="{{overviewData.total_bei}}" maxvalue="{{overviewData.total_bei_max}}" label="{{overviewData.total_bei}} kWh/m²" color="#4c84ff" cid="chartdiv3" clickroute="/energy/energyindex"></widget-gauge>
+		</div>
+		<div class="col-md-3">
+			<widget-gauge name="Carbon Emission (tCO₂)" *ngIf="overviewData" value="{{overviewData.total_carbon}}" maxvalue="{{overviewData.total_carbon_max}}" label="{{overviewData.total_carbon}} tCO₂" color="#d9534f" cid="chartdiv4" clickroute="/energy/carbonemission"></widget-gauge>
+		</div>
+	</div>
+	<div class="row">
+		<div class="col-md-3">
+			<widget-donut name="Previous Month Consumption (kWh)" *ngIf="overviewData" [values]="overviewData.previous_month_energy_breakdown" cid="chartdiv5" value="value" category="assettype" label="{{overviewData.previous_month_energy_breakdown_total}} kWh"></widget-donut>
+		</div>
+		<div class="col-md-3">
+			<widget-donut name="Current Month Consumption (kWh)" *ngIf="overviewData" cid="chartdiv6" [values]="overviewData.current_month_energy_breakdown" value="value" category="assettype" label="{{overviewData.current_month_energy_breakdown_total}} kWh"></widget-donut>
+		</div>
+		<div class="col-md-6">
+			<widget-heatmap name="Energy Consumption Heatmap (kWh)" *ngIf="overviewData" cid="chartdiv7" [values]="overviewData.kwh_heatmap"></widget-heatmap>
+		</div>
+	</div>
+</div>
+
+<!-- Alarms overview tab -->
+<div *ngIf="currentPage === 2">
+	<div class="row">
+		<div class="col-md-12">
+			<alarm-stats></alarm-stats>
+		</div>
+	</div>
+	<div class="row">
+		<div class="col-md-12">
+			<widget-alarm-counters></widget-alarm-counters>
+		</div>
+	</div>
+</div>

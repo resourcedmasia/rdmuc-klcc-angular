@@ -1,0 +1,59 @@
+<div class="card mb-4">
+	<div class="card-header">
+		<i class="ion ion-md-calendar"></i>&nbsp;&nbsp;&nbsp;Date Range
+	</div>
+	<div class="card-body">
+		<div class="row">
+			<div class="col-md-12">
+				<nouislider class="noUi-primary" #dateRangeSlider [config]="dateSliderConfig" [(ngModel)]="currentDateRange" (change)="dateChange($event)"></nouislider>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div class="card mb-4">
+	<div class="card-header" (click)="toggleAssets()">
+		<i class="ion ion-md-cube"></i>&nbsp;&nbsp;&nbsp;Asset / {{ currentAsset }}
+	</div>
+	<div class="card-body" *ngIf="assetListShow">
+		<div class="row">
+			<div class="px-1" *ngFor="let asset of assetList">
+				<button class="btn btn-sm btn-primary data-analytics-btn" (click)="onAssetSelection(asset)">{{ asset.name }} / {{ asset.additional_info }}</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div class="card mb-4" *ngIf="controllerListEnabled">
+	<div class="card-header" (click)="toggleControllers()">
+		<i class="ion ion-md-cube"></i>&nbsp;&nbsp;&nbsp;Controller / {{ currentController }}
+	</div>
+	<div class="card-body" *ngIf="controllerListShow">
+		<div class="row">
+			<div class="px-1" *ngFor="let controller of controllerList">
+				<button class="btn btn-sm btn-success data-analytics-btn" (click)="onControllerSelection(controller.name)">{{ controller.name }}</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div class="card mb-4" *ngIf="keyListEnabled">
+	<div class="card-header" (click)="toggleKeys()">
+		<i class="ion ion-md-cube"></i>&nbsp;&nbsp;&nbsp;Key
+	</div>
+	<div class="card-body" *ngIf="keyListShow">
+		<div class="row" style="padding: 0 2rem">
+			<div class="col-md-2" *ngFor="let key of keyList">
+				<input value="{{currentController + key}}" type="checkbox" class="form-check-input" id={{currentController+key}} (click)="onKeySelection({'controller': currentController, 'key': key, 'id': currentController+key})">
+				<label class="form-check-label" for="{{currentController+key}}">{{ key }}</label>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div class="card mb-4" *ngIf="chartEnabled">
+	<div class="card-header">
+		<i class="ion ion-md-cube"></i>&nbsp;&nbsp;&nbsp;Chart<button class="btn btn-sm btn-primary data-analytics-clear-btn float-right" (click)="clearAll()">Clear</button>
+	</div>
+	<div class="chartdiv" style="height: 35rem;"></div>
+</div>

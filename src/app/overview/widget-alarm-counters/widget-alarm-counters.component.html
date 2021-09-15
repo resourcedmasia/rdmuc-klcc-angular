@@ -1,0 +1,101 @@
+<div class="row">
+	<div class="col-md-4">
+	<div class="card mb-4">
+		<div class="card-body">
+        <div class="d-flex align-items-center">
+          <div class="lnr lnr-clock display-4 text-success"></div>
+          <div class="ml-3">
+            <div class="text-muted small">Historic Alarms</div>
+            <div class="text-large text-success" *ngIf="alarmCounters">{{ alarmCounters.historic_alarm_count }}</div>
+          </div>
+        </div>
+      </div>
+	</div>
+	</div>
+
+	<div class="col-md-4">
+	<div class="card mb-4">
+		<div class="card-body">
+        <div class="d-flex align-items-center">
+          <div class="lnr lnr-thumbs-up display-4 text-success"></div>
+          <div class="ml-3">
+            <div class="text-muted small">Alarms Cleared / 24 Hours</div>
+            <div class="text-large text-success" *ngIf="alarmCounters">{{ alarmCounters.daily_cleared_alarm_count }}</div>
+          </div>
+        </div>
+      </div>
+	</div>
+	</div>
+
+	<div class="col-md-4">
+	<div class="card mb-4">
+		<div class="card-body">
+        <div class="d-flex align-items-center">
+          <div class="display-4 text-danger"></div>
+          <div class="ml-3">
+            <div class="text-muted small">Current Active Alarms</div>
+            <div class="text-large text-danger" *ngIf="alarmCounters">{{ alarmCounters.active_alarm_count }}</div>
+          </div>
+        </div>
+      </div>
+	</div>
+	</div>
+</div>
+
+<div class="row">
+	<div class="col-md-4">
+	<div class="card mb-4">
+		<div class="card-body">
+        <div class="d-flex align-items-center">
+          <div class="lnr lnr-alarm display-4 text-danger"></div>
+          <div class="ml-3">
+            <div class="text-muted small">Current Month Alarms</div>
+            <div class="text-large text-danger" *ngIf="alarmCounters">{{ alarmCounters.current_month_alarm_count }}</div>
+          </div>
+        </div>
+      </div>
+	</div>
+	</div>
+
+	<div class="col-md-4">
+	<div class="card mb-4">
+		<div class="card-body">
+        <div class="d-flex align-items-center">
+          <div class="lnr lnr-alarm display-4 text-danger"></div>
+          <div class="ml-3">
+            <div class="text-muted small">Alarms Raised / 24 Hours</div>
+            <div class="text-large text-danger" *ngIf="alarmCounters">{{ alarmCounters.daily_raised_alarm_count }}</div>
+          </div>
+        </div>
+      </div>
+	</div>
+	</div>
+
+	<div class="col-md-2">
+	<div class="card mb-4">
+		<div class="card-body">
+        <div class="d-flex align-items-center">
+          <div class="display-4 text-danger"></div>
+          <div class="ml-3">
+            <div class="text-muted small">Critical Alarms</div>
+            <div class="text-large text-danger" *ngIf="alarmCounters"><h4 class="mb-0"><span class="badge badge-danger">{{ alarmCounters.active_critical_alarm_count }}</span></h4></div>
+          </div>
+        </div>
+      </div>
+	</div>
+	</div>
+
+	<div class="col-md-2">
+	<div class="card mb-4">
+		<div class="card-body">
+        <div class="d-flex align-items-center">
+          <div class="display-4 text-danger"></div>
+          <div class="ml-3">
+            <div class="text-muted small">Non-critical Alarms</div>
+            <div class="text-large text-warning" *ngIf="alarmCounters"><h4 class="mb-0"><span class="badge badge-warning">{{ alarmCounters.active_noncritical_alarm_count }}</span></h4></div>
+          </div>
+        </div>
+      </div>
+	</div>
+	</div>
+</div>

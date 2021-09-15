@@ -1,0 +1,31 @@
+<div class="ui-bordered px-4 pt-4 mb-4">
+  <div class="form-row">
+    <div class="col-md mb-4">
+      <ng-select placeholder="Select Asset Type" [items]="assetTypes" [(ngModel)]="selectedAssetType" [clearable]="false" (change)="onAssetTypeChange($event)"></ng-select>
+    </div>
+    <div class="col-md mb-6">
+      <div class="input-group">
+        <input class="form-control" placeholder="Select Date" name="dp"
+          ngbDatepicker
+          [minDate]="minDateStart"
+          [maxDate]="maxDateStart"
+          #d="ngbDatepicker"
+          [(ngModel)]="dateStart"
+          (dateSelect)="onDateSelect($event)"
+          (click)="d.toggle()">
+      </div>
+    </div>
+  </div>
+
+  <div class="card mb-4" *ngIf="assetPerformanceReportData">
+    <div class="card-body">
+      <div class="row">
+        <div *ngFor="let asset of assetPerformanceReportData" class="col-md-4">
+          <button [ngClass]="asset.btnClass" class="btn asset-performance-btn" (click)="displayAssetInfo($event, asset)" style="padding: 0px !important">{{ asset.name }}<br>{{ asset.additional_info }}</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+</div>

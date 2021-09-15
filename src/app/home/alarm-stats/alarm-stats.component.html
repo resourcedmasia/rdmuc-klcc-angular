@@ -1,0 +1,38 @@
+<div class="card mb-4">
+  <h4 class="card-header">
+      Alarm Trends
+    </h4>
+  <div class="row no-gutters row-bordered row-border-light">
+
+    <div class="d-flex col-md-8 col-lg-12 col-xl-8 align-items-center p-4">
+      <div class="w-100" style="height: 230px">
+        <canvas baseChart height="230"
+        [datasets]="chart1Data"
+        [labels]="chart1Labels"
+        [options]="chart1Options"
+        [chartType]="'line'"
+        [colors]="chart1Colors"></canvas>
+      </div>
+    </div>
+
+    
+    <div class="col-md-4 col-lg-12 col-xl-4 px-4 pt-5">
+          <div class="d-flex align-items-center position-relative mt-4" style="height:110px;">
+            <div class="w-100 position-absolute" style="height:110px;top:0">
+              <canvas baseChart height="230"
+                [datasets]="chart3Data"
+                [options]="chart3Options"
+                [chartType]="'doughnut'"
+                [colors]="chart3Colors">
+              </canvas>
+            </div>
+            <div class="w-100 text-center text-large">{{ alarmCount.percentage }}</div>
+          </div>
+          <div class="text-center pb-2 my-3">
+            <strong>% Total Alarms Cleared / 24 Hours</strong>
+          </div>
+    </div>
+    
+
+  </div>
+</div>
