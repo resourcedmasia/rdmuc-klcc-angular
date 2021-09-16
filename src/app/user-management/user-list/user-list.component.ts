@@ -67,7 +67,7 @@ export class UserListComponent implements OnInit {
       this.getUsers();
     });
   }
-
+ 
   // ngx-datatable row manipulation
   deleteUserRow(row: any, event) {
     event.target.parentElement.parentElement.blur(); // Fix for error on modal open

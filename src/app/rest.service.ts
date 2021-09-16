@@ -9,18 +9,19 @@ export class RestService {
   constructor(private httpClient: HttpClient) { }
 
   // API Endpoint
-  private baseUrl = 'https://www.rdmuc.com/api/api.php';
-  //private baseUrl = 'http://127.0.0.1:8080/api/api.php';
+  // private baseUrl = 'https://www.rdmuc.com/api/api.php';
+  private baseUrl = 'http://127.0.0.1:8080/api/api.php';
+
   
   // Method exports
   postData(method, token = null, data = null) {
-  	return this.httpClient.post(
-  		this.baseUrl,
-  		{
-  			method: method,
-  			token: token,
-  			data: data
-  		});
+    return this.httpClient.post(
+      this.baseUrl,
+      {
+        method: method,
+        token: token,
+        data: data
+      });
   }
 
   getConfig() {
@@ -28,7 +29,7 @@ export class RestService {
       this.baseUrl,
       {
         observe: 'body',
-        responseType: 'json'      
+        responseType: 'json'
       })
   }
 }

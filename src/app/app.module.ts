@@ -33,6 +33,7 @@ import { MomentModule } from 'angular2-moment';
 // REST service
 import { RestService } from './rest.service';
 
+
 // *******************************************************************************
 // Pages
 
@@ -51,6 +52,12 @@ import { AssetPerformanceComponent } from './asset-performance/asset-performance
 import { EnergyIndexComponent } from './energy-index/energy-index.component';
 import { CarbonEmissionComponent } from './carbon-emission/carbon-emission.component';
 import { OverviewComponent } from './overview/overview.component';
+// import { MxgraphEditComponent } from './mxgraph-edit/mxgraph-edit.component';
+
+import { MxgraphEditModule } from '../app/mxgraph-edit/mxgraph-edit.module';
+import { NgxDatatableModule } from '@swimlane/ngx-datatable';
+import { NgSelectModule } from '@ng-select/ng-select';
+import { VisualizationComponent } from './visualization/visualization.component';
 
 // *******************************************************************************
 //
@@ -75,15 +82,19 @@ import { OverviewComponent } from './overview/overview.component';
     EnergyIndexComponent,
     CarbonEmissionComponent,
     OverviewComponent,
+    VisualizationComponent,
   ],
 
   imports: [
+
     BrowserModule,
     BrowserAnimationsModule,
-    NgbModule.forRoot(),
+    NgbModule,
     FormsModule,
     HttpClientModule,
-    
+    NgxDatatableModule,
+    NgSelectModule,
+
     // App
     AppRoutingModule,
     LayoutModule,
@@ -92,6 +103,7 @@ import { OverviewComponent } from './overview/overview.component';
     AlarmRulesModule,
     AlarmHistoricModule,
     UserManagementModule,
+    MxgraphEditModule,
     ReportGenerationModule,
     EnergyManagementModule,
     AssetPerformanceModule,
@@ -102,7 +114,6 @@ import { OverviewComponent } from './overview/overview.component';
     ReactiveFormsModule,
     MomentModule,
   ],
-
   providers: [
     Title,
     AppService,
@@ -113,4 +124,4 @@ import { OverviewComponent } from './overview/overview.component';
     AppComponent
   ]
 })
-export class AppModule {}
+export class AppModule { }

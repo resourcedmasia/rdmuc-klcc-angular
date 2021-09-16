@@ -25,6 +25,8 @@ import { EnergyIndexComponent } from './energy-index/energy-index.component';
 import { CarbonEmissionComponent } from './carbon-emission/carbon-emission.component';
 import { OverviewComponent } from './overview/overview.component';
 
+import { VisualizationComponent } from './visualization/visualization.component';
+
 // Authentication
 import { AuthService } from './auth.service';
 import { AuthGuard } from './auth.guard';
@@ -34,80 +36,118 @@ import { AuthGuard } from './auth.guard';
 
 const routes: Routes = [
   // Home
-  { path: '', component: Layout2Component, pathMatch: 'full', canActivate: [AuthGuard], runGuardsAndResolvers: 'always', children: [
-    { path: '', component: OverviewComponent },
-  ]},
+  {
+    path: '', component: Layout2Component, pathMatch: 'full', canActivate: [AuthGuard], runGuardsAndResolvers: 'always', children: [
+      { path: '', component: OverviewComponent },
+    ]
+  },
 
   // Alarm Dashboard
-  { path: 'alarm/dashboard', component: Layout2Component, canActivate: [AuthGuard], runGuardsAndResolvers: 'always', children: [
-    { path: '', component: HomeComponent},
-  ]},
+  {
+    path: 'alarm/dashboard', component: Layout2Component, canActivate: [AuthGuard], runGuardsAndResolvers: 'always', children: [
+      { path: '', component: HomeComponent },
+    ]
+  },
 
 
   // Rule Engine
-  { path: 'alarm/rules', component: Layout2Component, canActivate: [AuthGuard], runGuardsAndResolvers: 'always', children: [
-    { path: '', component: AlarmRulesComponent},
-  ]},
+  {
+    path: 'alarm/rules', component: Layout2Component, canActivate: [AuthGuard], runGuardsAndResolvers: 'always', children: [
+      { path: '', component: AlarmRulesComponent },
+    ]
+  },
 
   // Asset Management
-  { path: 'asset/manage', component: Layout2Component, canActivate: [AuthGuard], runGuardsAndResolvers: 'always', children: [
-    { path: '', component: AssetManagementComponent},
-  ]},
+  {
+    path: 'asset/manage', component: Layout2Component, canActivate: [AuthGuard], runGuardsAndResolvers: 'always', children: [
+      { path: '', component: AssetManagementComponent },
+    ]
+  },
 
   // Alarm History
-  { path: 'alarm/historic', component: Layout2Component, canActivate: [AuthGuard], runGuardsAndResolvers: 'always', children: [
-    { path: '', component: AlarmHistoricComponent },
-  ]},
+  {
+    path: 'alarm/historic', component: Layout2Component, canActivate: [AuthGuard], runGuardsAndResolvers: 'always', children: [
+      { path: '', component: AlarmHistoricComponent },
+    ]
+  },
 
   // User Management
-  { path: 'user/manage', component: Layout2Component, canActivate: [AuthGuard], runGuardsAndResolvers: 'always', children: [
-    { path: '', component: UserManagementComponent },
-  ]},
+  {
+    path: 'user/manage', component: Layout2Component, canActivate: [AuthGuard], runGuardsAndResolvers: 'always', children: [
+      { path: '', component: UserManagementComponent },
+    ]
+  },
 
   // Workorder Management Dashboard
-  { path: 'workorder/dashboard', component: Layout2Component, canActivate: [AuthGuard], runGuardsAndResolvers: 'always', children: [
-    { path: '', component: WorkorderManagementComponent },
-  ]},
+  {
+    path: 'workorder/dashboard', component: Layout2Component, canActivate: [AuthGuard], runGuardsAndResolvers: 'always', children: [
+      { path: '', component: WorkorderManagementComponent },
+    ]
+  },
 
   // Energy Management Dashboard
-  { path: 'energy/dashboard', component: Layout2Component, canActivate: [AuthGuard], runGuardsAndResolvers: 'always', children: [
-    { path: '', component: EnergyManagementComponent },
-  ]},
+  {
+    path: 'energy/dashboard', component: Layout2Component, canActivate: [AuthGuard], runGuardsAndResolvers: 'always', children: [
+      { path: '', component: EnergyManagementComponent },
+    ]
+  },
 
   // Report Generation
-  { path: 'report/generate', component: Layout2Component, canActivate: [AuthGuard], runGuardsAndResolvers: 'always', children: [
-    { path: '', component: ReportGenerationComponent },
-  ]},
+  {
+    path: 'report/generate', component: Layout2Component, canActivate: [AuthGuard], runGuardsAndResolvers: 'always', children: [
+      { path: '', component: ReportGenerationComponent },
+    ]
+  },
 
   // Report Generation
-  { path: 'eod/generate', component: Layout2Component, canActivate: [AuthGuard], runGuardsAndResolvers: 'always', children: [
-    { path: '', component: ReportGenerationComponent },
-  ]},
+  {
+    path: 'eod/generate', component: Layout2Component, canActivate: [AuthGuard], runGuardsAndResolvers: 'always', children: [
+      { path: '', component: ReportGenerationComponent },
+    ]
+  },
 
   // Report Generation
-  { path: 'alarm/generate', component: Layout2Component, canActivate: [AuthGuard], runGuardsAndResolvers: 'always', children: [
-    { path: '', component: ReportGenerationComponent },
-  ]},
+  {
+    path: 'alarm/generate', component: Layout2Component, canActivate: [AuthGuard], runGuardsAndResolvers: 'always', children: [
+      { path: '', component: ReportGenerationComponent },
+    ]
+  },
 
   // Data Analytics
-  { path: 'eod/analytics', component: Layout2Component, canActivate: [AuthGuard], runGuardsAndResolvers: 'always', children: [
-    { path: '', component: DataAnalyticsComponent },
-  ]},
+  {
+    path: 'eod/analytics', component: Layout2Component, canActivate: [AuthGuard], runGuardsAndResolvers: 'always', children: [
+      { path: '', component: DataAnalyticsComponent },
+    ]
+  },
 
   // Asset Performance
-  { path: 'eod/assetperformance', component: Layout2Component, canActivate: [AuthGuard], runGuardsAndResolvers: 'always', children: [
-    { path: '', component: AssetPerformanceComponent },
-  ]},
+  {
+    path: 'eod/assetperformance', component: Layout2Component, canActivate: [AuthGuard], runGuardsAndResolvers: 'always', children: [
+      { path: '', component: AssetPerformanceComponent },
+    ]
+  },
 
   // Energy Management - Energy Index
-  { path: 'energy/energyindex', component: Layout2Component, canActivate: [AuthGuard], runGuardsAndResolvers: 'always', children: [
-    { path: '', component: EnergyIndexComponent },
-  ]},
+  {
+    path: 'energy/energyindex', component: Layout2Component, canActivate: [AuthGuard], runGuardsAndResolvers: 'always', children: [
+      { path: '', component: EnergyIndexComponent },
+    ]
+  },
 
   // Energy Management - Carbon Emission
-  { path: 'energy/carbonemission', component: Layout2Component, canActivate: [AuthGuard], runGuardsAndResolvers: 'always', children: [
-    { path: '', component: CarbonEmissionComponent },
-  ]},
+  {
+    path: 'energy/carbonemission', component: Layout2Component, canActivate: [AuthGuard], runGuardsAndResolvers: 'always', children: [
+      { path: '', component: CarbonEmissionComponent },
+    ]
+  },
+
+  // visualization 
+  {
+    path: 'visualization', component: Layout2Component, canActivate: [AuthGuard], runGuardsAndResolvers: 'always', children: [
+      { path: '', component: VisualizationComponent },
+    ]
+  },
+
 
   // Login
   { path: 'login', component: LoginComponent },
@@ -122,8 +162,8 @@ const routes: Routes = [
 //
 
 @NgModule({
-  imports: [RouterModule.forRoot(routes, {onSameUrlNavigation: 'reload'})],
+  imports: [RouterModule.forRoot(routes, { onSameUrlNavigation: 'reload' })],
   exports: [RouterModule],
   providers: [AuthService, AuthGuard]
 })
-export class AppRoutingModule {}
+export class AppRoutingModule { }

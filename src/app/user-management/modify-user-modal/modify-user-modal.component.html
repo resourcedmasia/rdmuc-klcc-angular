@@ -1,58 +1,61 @@
 <div class="modal-header">
-    <h5 class="modal-title">
-        Modify Existing User<br>
-        <small class="text-muted">Please enter the user details.</small>
-    </h5>
-  </div>
-  <div class="modal-body">
-    <form [formGroup]="modifyUserForm">
-      <div class="form-group">
-        <label class="form-label">Username</label>
-        <input type="text" formControlName="username" class="form-control" [class.is-invalid]="modifyUserForm.get('username').touched && modifyUserForm.get('username').errors" placeholder="Username" readonly>
-        <small class="invalid-feedback">
-          This field is required.
-        </small>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Password</label>
-        <input type="text" formControlName="password" class="form-control" [class.is-invalid]="modifyUserForm.get('password').touched && modifyUserForm.get('password').errors?.required" placeholder="Password">
-        <small class="invalid-feedback">
-          This field is required.
-        </small>
-      </div> 
-      <div class="form-group">
-        <label class="form-label">Full Name</label>
-        <input type="text" formControlName="name" class="form-control" [class.is-invalid]="modifyUserForm.get('name').touched && modifyUserForm.get('name').errors?.required" placeholder="Full Name">
-        <small class="invalid-feedback">
-          This field is required.
-        </small>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Email</label>
-        <input type="text" formControlName="email" class="form-control" [class.is-invalid]="modifyUserForm.get('email').touched && modifyUserForm.get('email').errors?.email" placeholder="example@domain.com">
-        <small class="invalid-feedback">
-          Please enter a valid email address.
-        </small>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Role</label>
-        <ng-select [items]="role_selectOptions"
-          [multiple]="false"
-          [closeOnSelect]="true"
-          bindLabel="label"
-          bindValue="value"
-          placeholder="Select User Role"
-          formControlName="role"
-          [hideSelected]="true"
-          [class.is-invalid]="modifyUserForm.get('role').touched && modifyUserForm.get('role').errors?.required">
-        </ng-select>
-        <small class="invalid-feedback">
-          This field is required.
-        </small>
-      </div> 
-    </form>
-  </div>
-  <div class="modal-footer">
-    <button type="button" class="btn btn-default" (click)="activeModal.dismiss('cancel');">Cancel</button>
-    <button type="button" class="btn btn-primary" [disabled]="!modifyUserForm.valid" (click)="activeModal.dismiss('save'); this.updateUser()">Save</button>
+  <h5 class="modal-title">
+    Modify Existing User<br>
+    <small class="text-muted">Please enter the user details.</small>
+  </h5>
+</div>
+<div class="modal-body">
+  <form [formGroup]="modifyUserForm">
+    <div class="form-group">
+      <label class="form-label">Username</label>
+      <input type="text" formControlName="username" class="form-control"
+        [class.is-invalid]="modifyUserForm.get('username').touched && modifyUserForm.get('username').errors"
+        placeholder="Username" readonly>
+      <small class="invalid-feedback">
+        This field is required.
+      </small>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Password</label>
+      <input type="text" formControlName="password" class="form-control"
+        [class.is-invalid]="modifyUserForm.get('password').touched && modifyUserForm.get('password').errors?.required"
+        placeholder="Password">
+      <small class="invalid-feedback">
+        This field is required.
+      </small>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Full Name</label>
+      <input type="text" formControlName="name" class="form-control"
+        [class.is-invalid]="modifyUserForm.get('name').touched && modifyUserForm.get('name').errors?.required"
+        placeholder="Full Name">
+      <small class="invalid-feedback">
+        This field is required.
+      </small>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Email</label>
+      <input type="text" formControlName="email" class="form-control"
+        [class.is-invalid]="modifyUserForm.get('email').touched && modifyUserForm.get('email').errors?.email"
+        placeholder="example@domain.com">
+      <small class="invalid-feedback">
+        Please enter a valid email address.
+      </small>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Role</label>
+      <ng-select [items]="role_selectOptions" [multiple]="false" [closeOnSelect]="true" bindLabel="label"
+        bindValue="value" placeholder="Select User Role" formControlName="role" [hideSelected]="true"
+        [class.is-invalid]="modifyUserForm.get('role').touched && modifyUserForm.get('role').errors?.required">
+      </ng-select>
+      <small class="invalid-feedback">
+        This field is required.
+      </small>
+    </div>
+  </form>
+</div>
+<div class="modal-footer">
+  <button type="button" class="btn btn-default" (click)="activeModal.dismiss('cancel');">Cancel</button>
+  <button type="button" class="btn btn-primary" [disabled]="!modifyUserForm.valid"
+    (click)="activeModal.dismiss('save'); this.updateUser()">Save</button>
 </div>

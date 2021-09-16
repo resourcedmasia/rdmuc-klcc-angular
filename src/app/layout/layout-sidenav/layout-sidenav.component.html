@@ -23,6 +23,10 @@
       <sidenav-router-link icon="ion ion-md-today" route="/workorder/dashboard" [active]="isActive('/workorder/dashboard')">WO Dashboard</sidenav-router-link>
     </sidenav-menu>
 
+    <sidenav-menu icon="ion ion-md-today" text="Visualization" [active]="isMenuActive('/visualization')" [open]="isMenuOpen('/visualization')">
+      <sidenav-router-link icon="ion ion-md-today" route="/visualization" [active]="isActive('/visualization')">Dashboard</sidenav-router-link>
+    </sidenav-menu>
+
     <sidenav-menu icon="ion ion-md-paper" text="EOD" [active]="isMenuActive('/eod')" [open]="isMenuOpen('/eod')">
       <sidenav-router-link icon="ion ion-md-paper" route="/eod/generate" [queryParams]="{ type: 'eod'}" [active]="isActive('/eod/generate?type=eod')">EOD Report</sidenav-router-link>
       <sidenav-router-link icon="ion ion-md-analytics" route="/eod/analytics" [active]="isActive('/eod/analytics')">Data Analytics</sidenav-router-link>
