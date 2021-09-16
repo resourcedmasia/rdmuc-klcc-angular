@@ -25,9 +25,11 @@
             "assets": [
               "src/favicon.ico",
               "src/assets",
-              {"glob": "favicon.ico", "input": "/src", "output": "/" },
-              {"glob": "**/*", "input": "src/assets/", "output": "/assets/" },
-              {"glob": "**/*", "input": "./node_modules/mxgraph/javascript/src", "output": "/mxgraph"}
+              {
+                "glob": "**/*",
+                "input": "./node_modules/mxgraph/javascript/src",
+                "output": "/assets/mxgraph"
+              }
             ],
             "styles": [
               "src/styles.scss",
@@ -38,7 +40,6 @@
               "src/vendor/styles/uikit.scss"
             ],
             "scripts": [
-              "src/assets/js/mxgraph.conf.js",
               "node_modules/mxgraph/javascript/mxClient.js"
             ]
           },
@@ -96,16 +97,10 @@
             "styles": [
               "src/styles.scss"
             ],
-            "scripts": [
-              "src/assets/js/mxgraph.conf.js",
-              "node_modules/mxgraph/javascript/mxClient.js"
-            ],
+            "scripts": [],
             "assets": [
               "src/favicon.ico",
-              "src/assets",
-              {"glob": "favicon.ico", "input": "/src", "output": "/" },
-              {"glob": "**/*", "input": "src/assets/", "output": "/assets/" },
-              {"glob": "**/*", "input": "./node_modules/mxgraph/javascript/src", "output": "/mxgraph"}
+              "src/assets"
             ]
           }
         },
