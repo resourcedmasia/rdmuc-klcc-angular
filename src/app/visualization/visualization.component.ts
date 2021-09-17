@@ -102,7 +102,7 @@ export class VisualizationComponent implements OnInit, OnDestroy {
     });
 
     //this.getUsers();
-    this.getWriteSlaveList();
+    //this.getWriteSlaveList();
     //this.getReadSlaveList();
 
     // Prepare initial graph

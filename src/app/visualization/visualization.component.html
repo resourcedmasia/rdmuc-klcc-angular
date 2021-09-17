@@ -14,12 +14,8 @@
     <ng-select placeholder="Select Graph" [clearable]="false" [items]="selectedMxGraph" bindLabel="mxgraph_name"
         [(ngModel)]="selectedGraph" (change)="onSelectGraph($event)">
       </ng-select>
+      <div #graphContainer id="graphContainer"></div>
   </div>
-</div>
-
-
-<div class="ui-bordered px-4 pt-4 mb-4">
-  <div #graphContainer id="graphContainer"></div>
 </div>
 
 <div class="card mb-4">
