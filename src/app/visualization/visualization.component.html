@@ -1,179 +1,153 @@
 <!-- Page Header -->
 <h4 class="font-weight-bold py-3 mb-4">
-  <i class="ion ion-md-today"></i>&nbsp;&nbsp;<span class="text-muted font-weight-light">MxGraph Visualization</span>
+  <i class="ion ion-md-analytics"></i>&nbsp;&nbsp;<span class="text-muted font-weight-light">Graph Visualization</span>
   <span class="text-muted font-weight-light">/ {{ currentDate | amDateFormat: 'LLLL' }}</span>
 </h4>
 <hr class="border-light container-m--x mt-0 mb-4">
 
 
-<div class="ui-bordered px-4 pt-4 mb-4">
-  <div class="form-row">
-    <div class="col-md mb-4">
-      <i class="ion ion-md-today"></i>&nbsp;&nbsp; MxGraph Selection
-    </div>
-    <div class="col-md mb-4">
-      <ng-select placeholder="Select MxGraph" [clearable]="false" [items]="selected" bindLabel="mxgraph_name"
+<div class="card mb-4">
+  <h4 class="card-header">
+    <i class="ion ion-md-analytics"></i>&nbsp;&nbsp; Graph Selection
+  </h4>
+  <div class="card-body">
+    <ng-select placeholder="Select Graph" [clearable]="false" [items]="selectedMxGraph" bindLabel="mxgraph_name"
         [(ngModel)]="selectedGraph" (change)="onSelectGraph($event)">
       </ng-select>
-    </div>
   </div>
 </div>
 
 
-<div class="ui-bordered px-4 pt-4 mb-4" *ngIf="mainGraph">
-  <div #graphContainer id="graphContainer"></div>
-</div>
-
-<div class="ui-bordered px-4 pt-4 mb-4" *ngIf="childGraph">
-  <div #graphContainer id="graphContainer"></div>
-</div>
-
-<div class="ui-bordered px-4 pt-4 mb-4" *ngIf="updateGraph">
-  <div #graphContainer id="graphContainer"></div>
-</div>
-
-<div class="ui-bordered px-4 pt-4 mb-4" *ngIf="tableGraph">
-  <div #graphContainer id="graphContainer"></div>
-</div>
-
-
-<h4 class="font-weight-bold py-3 mb-4">
-  <i class="ion ion-md-today"></i>&nbsp;&nbsp;<span class="text-muted font-weight-light">Add Mxgraph </span>
-</h4>
-
-<div class="modal-body">
-  <form [formGroup]="mxgrapgForm">
-    <div class="form-group">
-
-      <input type="text" formControlName="mxgraph_value" class="form-control" placeholder="Enter mxgraph name">
-      <br>
-      <textarea type="text" formControlName="mxgraph_code" class="form-control" placeholder="Enter mxgraph code">
-      </textarea>
-    </div>
-  </form>
-  <button type="button" class="btn btn-primary" (click)="this.mxgraphInsert()">Save</button>
-</div>
-
-
-<h4 class="font-weight-bold py-3 mb-4">
-  <i class="ion ion-md-today"></i>&nbsp;&nbsp;<span class="text-muted font-weight-light">Writing Configuration </span>
-</h4>
-
 <div class="ui-bordered px-4 pt-4 mb-4">
-  <div class="form-row">
-    <div class="col-md mb-4">
-      <ng-select placeholder="Select Slave" [clearable]="false" [items]="writeSlaveType" bindLabel="type"
-        [(ngModel)]="selectedValue" (change)="writeSlaveChange($event)">
-      </ng-select>
-    </div>
-    <div class="col-md mb-4" *ngIf="writeName">
-      <ng-select placeholder="Select Name" [clearable]="false" [items]="writeTableData['Item']" bindLabel="Name"
-        [(ngModel)]="selectedAssetType" (change)="writeModel($event)">
-      </ng-select>
-    </div>
-    <div class="col-md mb-4" *ngIf="writeValue">
-      <ng-select placeholder="Select Temperature" [clearable]="false" [items]="writeTableData['Item']" bindLabel="Value"
-        [(ngModel)]="selectedAssetType">
-      </ng-select>
-    </div>
-    <div class="col-md mb-4" *ngIf="writeUnits">
-      <ng-select placeholder="Select Status" [clearable]="false" [items]="writeTableData['Item']" bindLabel="Units"
-        [(ngModel)]="selectedAssetType">
-      </ng-select>
-    </div>
+  <div #graphContainer id="graphContainer"></div>
+</div>
 
-    <div class="col-md mb-4" *ngIf="writeCellID">
-      <ng-select placeholder="Select Status" [clearable]="false" [items]="mxcellID" bindLabel="value"
-        [(ngModel)]="selectedpe">
-      </ng-select>
-    </div>
-    <div class="col-md mb-4">
-      <button type="button" class="btn btn-primary" (click)="writeInsert()">Save</button>
-    </div>
-
+<div class="card mb-4">
+  <h4 class="card-header">
+    <i class="ion ion-md-today"></i>&nbsp;&nbsp;<span class="text-muted font-weight-light">Add / Edit Graph Configuration</span>
+    <button class="float-sm-right btn btn-primary" (click)="this.mxGraphInsert()"><i class="ion ion-md-add"></i>&nbsp;<b>Save Configuration</b></button>
+  </h4>
+  
+  <div class="card-body">
+    <form [formGroup]="mxGraphForm">
+      <div class="form-group">
+  
+        <input type="text" formControlName="mxgraph_value" class="form-control" placeholder="Graph Name (eg. Floor LG, HVAC, VAV Level 1, ..)">
+        <br>
+        <textarea type="text" formControlName="mxgraph_code" class="form-control" placeholder="Enter mxGraph XML (eg. <root> <mxCell id=..)">
+        </textarea>
+      </div>
+    </form>
   </div>
 </div>
 
-
-
-<h4 class="font-weight-bold py-3 mb-4">
-  <i class="ion ion-md-today"></i>&nbsp;&nbsp;<span class="text-muted font-weight-light">Reading Configuration </span>
-
-</h4>
-
-<div class="ui-bordered px-4 pt-4 mb-4">
-  <div class="form-row">
-    <div class="col-md mb-4">
-      <ng-select placeholder="Select Slave" [clearable]="false" [items]="readSlaveType" bindLabel="type"
-        [(ngModel)]="readvalue" (change)="readSlaveChange($event)">
-      </ng-select>
-    </div>
-    <div class="col-md mb-4" *ngIf="readName">
-      <ng-select placeholder="Select Name" [clearable]="false" [items]="readTableData['Item']" bindLabel="Name"
-        [(ngModel)]="readSelectedValue" (change)="readModal($event)">
-      </ng-select>
-    </div>
-    <!-- <div class="col-md mb-4" *ngIf="readValue">
-      <ng-select placeholder="Select Temperature" [clearable]="false" [items]="readTableData['Item']" bindLabel="Value"
-        [(ngModel)]="readSelectedValue">
-      </ng-select>
-    </div> -->
-
-
-    <div class="col-md mb-4" *ngIf="readCellID">
-      <ng-select placeholder="Select Status" [clearable]="false" [items]="mxcellID" bindLabel="value"
-        [(ngModel)]="readSelectedCell">
-      </ng-select>
-    </div>
-    <div class="col-md mb-4">
-      <button type="button" class="btn btn-primary" (click)="readInsert()">Save</button>
-    </div>
-
-  </div>
-</div>
-
-
-<h4 class="font-weight-bold py-3 mb-4">
-  <i class="ion ion-md-today"></i>&nbsp;&nbsp;<span class="text-muted font-weight-light">Link Mapping </span>
-</h4>
-
-<div class="ui-bordered px-4 pt-4 mb-4">
-  <div class="form-row">
+<div class="card mb-4">
+  <h4 class="card-header">
+    <i class="ion ion-md-eye"></i>&nbsp;&nbsp;<span class="text-muted font-weight-light">Read Configuration</span>
+  </h4>
+  
+  <div class="card-body">
     <div class="form-row">
-      <div class="col-md mb-4" *ngIf="writeName">
-        <ng-select placeholder="Select Name" [clearable]="false" [items]="writeTableData['Item']" bindLabel="Name"
-          [(ngModel)]="selectedAssetType" disabled="true">
+      <div class="col-md mb-4">
+        <ng-select placeholder="Select Slave" [clearable]="false" [items]="readSlaveType" bindLabel="type"
+          [(ngModel)]="readvalue" (change)="readSlaveChange($event)">
         </ng-select>
       </div>
+      <div class="col-md mb-4" *ngIf="readName">
+        <ng-select placeholder="Select Name" [clearable]="false" [items]="readTableData['Item']" bindLabel="Name"
+          [(ngModel)]="readSelectedValue" (change)="readModal($event)">
+        </ng-select>
+      </div>
+      <!-- <div class="col-md mb-4" *ngIf="readValue">
+        <ng-select placeholder="Select Temperature" [clearable]="false" [items]="readTableData['Item']" bindLabel="Value"
+          [(ngModel)]="readSelectedValue">
+        </ng-select>
+      </div> -->
+  
+  
+      <div class="col-md mb-4" *ngIf="readCellID">
+        <ng-select placeholder="Select Status" [clearable]="false" [items]="mxcellID" bindLabel="value"
+          [(ngModel)]="readSelectedCell">
+        </ng-select>
+      </div>
+      <div class="col-md mb-4">
+        <button type="button" class="btn btn-primary" (click)="readInsert()">Save</button>
+      </div>
+  
+    </div>
+  </div>
+</div>
 
+
+<div class="card mb-4">
+  <h4 class="card-header">
+    <i class="ion ion-md-save"></i>&nbsp;&nbsp;<span class="text-muted font-weight-light">Write Configuration</span>
+  </h4>
+  
+  <div class="card-body">
+    <div class="form-row">
+      <div class="col-md mb-4">
+        <ng-select placeholder="Select Slave" [clearable]="false" [items]="writeSlaveType" bindLabel="type"
+          [(ngModel)]="selectedValue" (change)="writeSlaveChange($event)">
+        </ng-select>
+      </div>
+      <div class="col-md mb-4" *ngIf="writeName">
+        <ng-select placeholder="Select Name" [clearable]="false" [items]="writeTableData['Item']" bindLabel="Name"
+          [(ngModel)]="selectedAssetType" (change)="writeModel($event)">
+        </ng-select>
+      </div>
+      <div class="col-md mb-4" *ngIf="writeValue">
+        <ng-select placeholder="Select Temperature" [clearable]="false" [items]="writeTableData['Item']" bindLabel="Value"
+          [(ngModel)]="selectedAssetType">
+        </ng-select>
+      </div>
+      <div class="col-md mb-4" *ngIf="writeUnits">
+        <ng-select placeholder="Select Status" [clearable]="false" [items]="writeTableData['Item']" bindLabel="Units"
+          [(ngModel)]="selectedAssetType">
+        </ng-select>
+      </div>
+  
       <div class="col-md mb-4" *ngIf="writeCellID">
         <ng-select placeholder="Select Status" [clearable]="false" [items]="mxcellID" bindLabel="value"
           [(ngModel)]="selectedpe">
         </ng-select>
       </div>
-
-  
-
       <div class="col-md mb-4">
-        <button type="button" class="btn btn-primary" (click)="linkInsert()">Save</button>
+        <button type="button" class="btn btn-primary" (click)="writeInsert()">Save</button>
       </div>
+  
     </div>
   </div>
-
 </div>
 
-<h4 class="card-header">
-  <span class="badge badge-primary">Slave Details</span>
 
-</h4>
-<div class="card-ngx-datatable table-responsive">
-  <ngx-datatable #table style="min-width: 550px" [rows]="items" [loadingIndicator]="loadingIndicator"
-    [columnMode]="'force'" [headerHeight]="43" [footerHeight]="'auto'" [rowHeight]="'auto'" [reorderable]="false"
-    [selectionType]="'row'" [limit]="20" (activate)="onActivate($event)">
-    <ngx-datatable-column name="Name" [maxWidth]="250" prop="Name"></ngx-datatable-column>
-    <ngx-datatable-column name="Description" prop="Units"></ngx-datatable-column>
-    <ngx-datatable-column name="Temperature" prop="Value"></ngx-datatable-column>
-    <ngx-datatable-column name="Status" prop="Class"></ngx-datatable-column>
-
-  </ngx-datatable>
+<div class="card">
+  <h4 class="card-header">
+    <i class="ion ion-md-link"></i>&nbsp;&nbsp;<span class="text-muted font-weight-light">Link Mapping </span>
+  </h4>
+  
+  <div class="card-body">
+    <div class="form-row">
+      <div class="form-row">
+        <div class="col-md mb-4" *ngIf="writeName">
+          <ng-select placeholder="Select Name" [clearable]="false" [items]="writeTableData['Item']" bindLabel="Name"
+            [(ngModel)]="selectedAssetType" disabled="true">
+          </ng-select>
+        </div>
+  
+        <div class="col-md mb-4" *ngIf="writeCellID">
+          <ng-select placeholder="Select Status" [clearable]="false" [items]="mxcellID" bindLabel="value"
+            [(ngModel)]="selectedpe">
+          </ng-select>
+        </div>
+  
+    
+  
+        <div class="col-md mb-4">
+          <button type="button" class="btn btn-primary" (click)="linkInsert()">Save</button>
+        </div>
+      </div>
+    </div>
+  
+  </div>
 </div>

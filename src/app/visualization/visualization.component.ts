@@ -14,6 +14,7 @@ import { deserialize } from 'chartist';
 declare var mxUtils: any;
 declare var mxCodec: any;
 declare var mxGraph: any;
+declare var mxGraphModel: any;
 declare var cellName: any;
 
 @Component({
@@ -30,7 +31,10 @@ export class VisualizationComponent implements OnInit, OnDestroy {
 
   rows = [];
   rows1 = [];
-  selected = [];
+  // Selected MxGraph dropdown
+  selectedGraph;
+  selectedMxGraph = [];
+  graph ;
 
   temp = [];
   loadingIndicator = true;
@@ -39,11 +43,6 @@ export class VisualizationComponent implements OnInit, OnDestroy {
 
   writeSlaveType = [];
   readSlaveType = [];
-
-  childGraph = true;
-  mainGraph = true;
-  updateGraph = true;
-  tableGraph = true;
 
   readTableData = [];
   writeTableData = [];
@@ -68,7 +67,8 @@ export class VisualizationComponent implements OnInit, OnDestroy {
 
 
 
-  mxgrapgForm = new FormGroup({
+  // Add / Edit Graph Configuration Form
+  mxGraphForm = new FormGroup({
     mxgraph_value: new FormControl(''),
     mxgraph_code: new FormControl('')
   });
@@ -79,7 +79,7 @@ export class VisualizationComponent implements OnInit, OnDestroy {
   });
 
   constructor(private modalService: NgbModal, private appService: AppService, private restService: RestService, private authService: AuthService) {
-    this.appService.pageTitle = 'Workorder Dashboard';
+    this.appService.pageTitle = 'Visualization Dashboard';
     modalService = this.modalService;
 
   }
@@ -88,22 +88,52 @@ export class VisualizationComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
 
-    this.childGraph = false;
-    this.updateGraph = false;
-    this.tableGraph = false;
-    var CircularJSON = require('circular-json');
+    let CircularJSON = require('circular-json');
+
+    // Retrieve stored mxGraphs from database and populate dropdown selection
+    this.getMxGraphList();
 
     this.subscription = timer(0, 10000).pipe().subscribe(() => {
       console.log("every 5 sec");
-      this.getUsers();
-      this.select();
+      //this.getUsers();
+
+      // Retrieve stored mxGraphs from database and populate dropdown selection
+      //this.getMxGraphList();
     });
 
-    this.getUsers();
+    //this.getUsers();
     this.getWriteSlaveList();
-    this.getReadSlaveList();
+    //this.getReadSlaveList();
 
+    // Prepare initial graph
+    this.graph = new mxGraph(this.graphContainer.nativeElement);
+    let xml = ' <root> <mxCell id="0" /> <mxCell id="1" parent="0" /> <mxCell id="5cqd6Tq56_ArgYoLdoSi-1" value="No mxGraph selected." style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1"> <mxGeometry x="40" y="40" width="760" height="40" as="geometry" /> </mxCell> </root>';
+    
+    let doc = mxUtils.parseXml(xml);
+    let codec = new mxCodec(doc);
+    let elt = doc.documentElement.firstChild;
+    let cells = [];
+
+    while (elt != null) {
+      cells.push(codec.decodeCell(elt));
+      elt = elt.nextSibling;
+    }
+    
+    this.graph.addCells(cells);
+
+    // Disable mxGraph editing
+    this.graph.setEnabled(false);
+
+    // Enable HTML markup on labels (https://jgraph.github.io/mxgraph/docs/js-api/files/view/mxGraph-js.html#mxGraph.htmlLabels)
+    this.graph.htmlLabels = true;
+
+    this.graph.dblClick = function (evt, cell) {
+      console.log(evt);
+      console.log(cell);
+    }
+    
     // Get Active Alarms
+    /*
     this.restService.postData("getMxCellAlarms", this.authService.getToken())
       .subscribe(data => {
         // Success
@@ -175,51 +205,65 @@ export class VisualizationComponent implements OnInit, OnDestroy {
             }
 
           }
-          this.loadingIndicator = false;
         }
       });
+      */
 
+    // Disable loading indicator on table
+    this.loadingIndicator = false;
   }
 
   ngOnDestroy() {
     this.subscription.unsubscribe();
   }
 
-  select() {
-    this.restService.postData("getMxCellAlarms", this.authService.getToken())
+  /*  Function: Retrieve stored mxGraph data from MySQL database (id, mxgraph_name, mxgraph_code), populate 'this.selected' dropdown list */
+  getMxGraphList() {
+    this.restService.postData("getMxGraphList", this.authService.getToken())
       .subscribe(data => {
         // Success
         if (data["status"] == 200) {
-          this.selected = data["data"].rows;
+          this.selectedMxGraph = data["data"].rows;
         }
       });
   }
 
+  /* Function: Event triggered when mxGraph is selected from UI dropdown */
   onSelectGraph(event) {
+    // Clear the existing graph
+    this.graph.getModel().clear();
 
-    this.childGraph = false;
-    this.mainGraph = false;
-    this.updateGraph = false;
-    this.tableGraph = true;
+    // Retrieve graph XML by ID
+    this.restService.postData("getMxGraphCodeByID", this.authService.getToken(), {
+      id: event.Id
+    }).subscribe(data => {
+      // Success
+      if (data["status"] == 200) {
+        let mxgraphData = data["data"].rows[0];
 
-    let graph = new mxGraph(this.graphContainer.nativeElement);
-    graph.getModel().clear();
+        let doc = mxUtils.parseXml(mxgraphData["mxgraph_code"]);
+        let codec = new mxCodec(doc);
+        let elt = doc.documentElement.firstChild;
+        let cells = [];
+    
+    
+        while (elt != null) {
+          cells.push(codec.decodeCell(elt));
+          elt = elt.nextSibling;
+        }
+    
+        this.graph.addCells(cells);
+        
+        // Disable mxGraph editing
+        this.graph.setEnabled(false);
+    
+        
+        this.mxGraphForm.patchValue({
+          mxgraph_value: event.mxgraph_name
+        });
+      }
+    });
 
-    localStorage.setItem('graphID', event.Id);
-
-    var doc = mxUtils.parseXml(event.mxgraph_code);
-    var codec = new mxCodec(doc);
-    var elt = doc.documentElement.firstChild;
-    var cells = [];
-
-
-    while (elt != null) {
-      cells.push(codec.decodeCell(elt));
-      graph.refresh();
-      elt = elt.nextSibling;
-    }
-
-    graph.addCells(cells);
   }
 
   writeInsert() {
@@ -237,8 +281,8 @@ export class VisualizationComponent implements OnInit, OnDestroy {
         // Successful login
         if (data["status"] == 200) {
           console.log("graph success");
-          // this.mxgrapgForm.reset();
-          // this.mxgrapgForm.emit("getRulesEvent");
+          // this.mxGraphForm.reset();
+          // this.mxGraphForm.emit("getRulesEvent");
         }
       })
   }
@@ -258,8 +302,8 @@ export class VisualizationComponent implements OnInit, OnDestroy {
         // Successful login
         if (data["status"] == 200) {
           console.log("graph success");
-          // this.mxgrapgForm.reset();
-          // this.mxgrapgForm.emit("getRulesEvent");
+          // this.mxGraphForm.reset();
+          // this.mxGraphForm.emit("getRulesEvent");
         }
       })
   }
@@ -279,49 +323,39 @@ export class VisualizationComponent implements OnInit, OnDestroy {
         // Successful login
         if (data["status"] == 200) {
           console.log("graph success");
-          // this.mxgrapgForm.reset();
-          // this.mxgrapgForm.emit("getRulesEvent");
+          // this.mxGraphForm.reset();
+          // this.mxGraphForm.emit("getRulesEvent");
         }
       })
 
   }
 
-  mxgraphInsert() {
-    this.childGraph = false;
-    this.mainGraph = false;
-    this.tableGraph = false;
-    this.updateGraph = true;
-
-
-    let graph = new mxGraph(this.graphContainer.nativeElement);
-
-    var xml = this.mxgrapgForm.value.mxgraph_code
-
-    var doc = mxUtils.parseXml(xml);
-    var codec = new mxCodec(doc);
-    var elt = doc.documentElement.firstChild;
-    var cells = [];
-    while (elt != null) {
-      cells.push(codec.decodeCell(elt));
-      graph.refresh();
-      elt = elt.nextSibling;
-    }
-
-    graph.addCells(cells);
-
-    this.restService.postData("mxgraphUpdate", this.authService.getToken(), { id: this.mxgrapgForm.value.mxgraph_value, site: this.mxgrapgForm.value.mxgraph_code })
+  /*
+    Function: Event triggered when mxGraph Save Configuration button is selected 
+    Inserts mxGraph name & code into backend database
+  */
+  mxGraphInsert() {
+    this.restService.postData("mxGraphUpdate", this.authService.getToken(), { mxgraph_name: this.mxGraphForm.value.mxgraph_value, mxgraph_code: this.mxGraphForm.value.mxgraph_code })
       .subscribe(data => {
-        // Successful login
+        // Success
         if (data["status"] == 200) {
-          console.log("graph success");
-          this.mxgrapgForm.reset();
-          // this.mxgrapgForm.emit("getRulesEvent");
+          // Reset Add / Edit form data
+          this.mxGraphForm.reset();
+
+          // Refresh mxGraph selection list
+          this.restService.postData("getMxGraphList", this.authService.getToken())
+          .subscribe(data => {
+            // Success
+            if (data["status"] == 200) {
+              // Update selected mxGraph dropdown list
+              this.selectedMxGraph = data["data"].rows;
+              // Select first row in selected mxGraph dropdown list
+              this.selectedGraph = this.selectedMxGraph[0]["mxgraph_name"];
+              this.onSelectGraph({Id: this.selectedMxGraph[0]["Id"], mxgraph_name: this.selectedMxGraph[0]["mxgraph_name"]});
+            }
+          });
         }
       })
-
-    this.mxgrapgForm.reset()
-
-
 
   }
 
@@ -445,12 +479,6 @@ export class VisualizationComponent implements OnInit, OnDestroy {
     var CircularJSON = require('circular-json');
 
 
-    this.mainGraph = false;
-    this.updateGraph = false;
-    this.tableGraph = false;
-    this.childGraph = true;
-
-
     this.selectedReportType = event;
     var myData = localStorage.getItem('myData');
 
@@ -559,12 +587,6 @@ export class VisualizationComponent implements OnInit, OnDestroy {
 
 
     var CircularJSON = require('circular-json');
-
-
-    this.mainGraph = false;
-    this.updateGraph = false;
-    this.tableGraph = false;
-    this.childGraph = true;
 
 
     this.selectedReportType = event;
