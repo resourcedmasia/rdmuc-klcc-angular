@@ -14,7 +14,7 @@ import { deserialize } from 'chartist';
 declare var mxUtils: any;
 declare var mxCodec: any;
 declare var mxGraph: any;
-declare var mxGraphModel: any;
+declare var mxEvent: any;
 declare var cellName: any;
 
 @Component({
@@ -34,7 +34,7 @@ export class VisualizationComponent implements OnInit, OnDestroy {
   // Selected MxGraph dropdown
   selectedGraph;
   selectedMxGraph = [];
-  graph ;
+  graph;
 
   temp = [];
   loadingIndicator = true;
@@ -65,8 +65,6 @@ export class VisualizationComponent implements OnInit, OnDestroy {
   readCellID;
 
 
-
-
   // Add / Edit Graph Configuration Form
   mxGraphForm = new FormGroup({
     mxgraph_value: new FormControl(''),
@@ -74,9 +72,9 @@ export class VisualizationComponent implements OnInit, OnDestroy {
   });
 
   cellForm = new FormGroup({
-    cellName: new FormControl('',),
-    cellID: new FormControl('',),
+    cell_code: new FormControl('')
   });
+
 
   constructor(private modalService: NgbModal, private appService: AppService, private restService: RestService, private authService: AuthService) {
     this.appService.pageTitle = 'Visualization Dashboard';
@@ -87,6 +85,8 @@ export class VisualizationComponent implements OnInit, OnDestroy {
   subscription: Subscription;
 
   ngOnInit() {
+
+
 
     let CircularJSON = require('circular-json');
 
@@ -103,12 +103,12 @@ export class VisualizationComponent implements OnInit, OnDestroy {
 
     //this.getUsers();
     //this.getWriteSlaveList();
-    //this.getReadSlaveList();
+    this.getReadSlaveList();
 
     // Prepare initial graph
     this.graph = new mxGraph(this.graphContainer.nativeElement);
     let xml = ' <root> <mxCell id="0" /> <mxCell id="1" parent="0" /> <mxCell id="5cqd6Tq56_ArgYoLdoSi-1" value="No mxGraph selected." style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1"> <mxGeometry x="40" y="40" width="760" height="40" as="geometry" /> </mxCell> </root>';
-    
+
     let doc = mxUtils.parseXml(xml);
     let codec = new mxCodec(doc);
     let elt = doc.documentElement.firstChild;
@@ -118,7 +118,7 @@ export class VisualizationComponent implements OnInit, OnDestroy {
       cells.push(codec.decodeCell(elt));
       elt = elt.nextSibling;
     }
-    
+
     this.graph.addCells(cells);
 
     // Disable mxGraph editing
@@ -127,11 +127,19 @@ export class VisualizationComponent implements OnInit, OnDestroy {
     // Enable HTML markup on labels (https://jgraph.github.io/mxgraph/docs/js-api/files/view/mxGraph-js.html#mxGraph.htmlLabels)
     this.graph.htmlLabels = true;
 
-    this.graph.dblClick = function (evt, cell) {
-      console.log(evt);
-      console.log(cell);
-    }
-    
+    // this.cellForm.patchValue({
+    //   cell_code: "test"
+    // });
+    this.graph.addListener(mxEvent.CLICK, function (sender, evt) {
+
+      console.log("selected");
+      var cell = evt.getProperty("cell");
+      var userName = cell.id;
+
+      return userName;
+
+    });
+
     // Get Active Alarms
     /*
     this.restService.postData("getMxCellAlarms", this.authService.getToken())
@@ -217,6 +225,7 @@ export class VisualizationComponent implements OnInit, OnDestroy {
     this.subscription.unsubscribe();
   }
 
+
   /*  Function: Retrieve stored mxGraph data from MySQL database (id, mxgraph_name, mxgraph_code), populate 'this.selected' dropdown list */
   getMxGraphList() {
     this.restService.postData("getMxGraphList", this.authService.getToken())
@@ -245,19 +254,19 @@ export class VisualizationComponent implements OnInit, OnDestroy {
         let codec = new mxCodec(doc);
         let elt = doc.documentElement.firstChild;
         let cells = [];
-    
-    
+
+
         while (elt != null) {
           cells.push(codec.decodeCell(elt));
           elt = elt.nextSibling;
         }
-    
+
         this.graph.addCells(cells);
-        
+
         // Disable mxGraph editing
         this.graph.setEnabled(false);
-    
-        
+
+
         this.mxGraphForm.patchValue({
           mxgraph_value: event.mxgraph_name
         });
@@ -344,16 +353,16 @@ export class VisualizationComponent implements OnInit, OnDestroy {
 
           // Refresh mxGraph selection list
           this.restService.postData("getMxGraphList", this.authService.getToken())
-          .subscribe(data => {
-            // Success
-            if (data["status"] == 200) {
-              // Update selected mxGraph dropdown list
-              this.selectedMxGraph = data["data"].rows;
-              // Select first row in selected mxGraph dropdown list
-              this.selectedGraph = this.selectedMxGraph[0]["mxgraph_name"];
-              this.onSelectGraph({Id: this.selectedMxGraph[0]["Id"], mxgraph_name: this.selectedMxGraph[0]["mxgraph_name"]});
-            }
-          });
+            .subscribe(data => {
+              // Success
+              if (data["status"] == 200) {
+                // Update selected mxGraph dropdown list
+                this.selectedMxGraph = data["data"].rows;
+                // Select first row in selected mxGraph dropdown list
+                this.selectedGraph = this.selectedMxGraph[0]["mxgraph_name"];
+                this.onSelectGraph({ Id: this.selectedMxGraph[0]["Id"], mxgraph_name: this.selectedMxGraph[0]["mxgraph_name"] });
+              }
+            });
         }
       })
 
@@ -458,6 +467,7 @@ export class VisualizationComponent implements OnInit, OnDestroy {
   readSlaveChange(event) {
 
     localStorage.setItem('myData', event);
+    var code_test = localStorage.getItem('code');
 
     this.restService.postData("getSlave", this.authService.getToken(), { type: event }).subscribe(data => {
       // Success

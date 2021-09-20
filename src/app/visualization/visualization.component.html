@@ -1,4 +1,5 @@
-<!-- Page Header -->
+
+
 <h4 class="font-weight-bold py-3 mb-4">
   <i class="ion ion-md-analytics"></i>&nbsp;&nbsp;<span class="text-muted font-weight-light">Graph Visualization</span>
   <span class="text-muted font-weight-light">/ {{ currentDate | amDateFormat: 'LLLL' }}</span>
@@ -12,26 +13,49 @@
   </h4>
   <div class="card-body">
     <ng-select placeholder="Select Graph" [clearable]="false" [items]="selectedMxGraph" bindLabel="mxgraph_name"
-        [(ngModel)]="selectedGraph" (change)="onSelectGraph($event)">
-      </ng-select>
-      <div #graphContainer id="graphContainer"></div>
+      [(ngModel)]="selectedGraph" (change)="onSelectGraph($event)">
+    </ng-select>
+    <div #graphContainer id="graphContainer"></div>
+  </div>
+</div>
+
+
+
+<div class="card mb-4">
+  <h4 class="card-header">
+    <i class="ion ion-md-today"></i>&nbsp;&nbsp;<span class="text-muted font-weight-light">Add / Edit Graph
+      Configuration</span>
+    <button class="float-sm-right btn btn-primary" (click)="this.mxGraphInsert()"><i
+        class="ion ion-md-add"></i>&nbsp;<b>Save Configuration</b></button>
+  </h4>
+
+  <div class="card-body">
+    <form [formGroup]="mxGraphForm">
+      <div class="form-group">
+
+        <input type="text" formControlName="mxgraph_value" class="form-control"
+          placeholder="Graph Name (eg. Floor LG, HVAC, VAV Level 1, ..)">
+        <br>
+        <textarea type="text" formControlName="mxgraph_code" class="form-control"
+          placeholder="Enter mxGraph XML (eg. <root> <mxCell id=..)">
+        </textarea>
+      </div>
+    </form>
   </div>
 </div>
 
 <div class="card mb-4">
   <h4 class="card-header">
-    <i class="ion ion-md-today"></i>&nbsp;&nbsp;<span class="text-muted font-weight-light">Add / Edit Graph Configuration</span>
-    <button class="float-sm-right btn btn-primary" (click)="this.mxGraphInsert()"><i class="ion ion-md-add"></i>&nbsp;<b>Save Configuration</b></button>
+    <i class="ion ion-md-today"></i>&nbsp;&nbsp;<span class="text-muted font-weight-light">Selected Cell Information
+    </span>
+
   </h4>
-  
   <div class="card-body">
-    <form [formGroup]="mxGraphForm">
+    <form [formGroup]="cellForm">
       <div class="form-group">
-  
-        <input type="text" formControlName="mxgraph_value" class="form-control" placeholder="Graph Name (eg. Floor LG, HVAC, VAV Level 1, ..)">
-        <br>
-        <textarea type="text" formControlName="mxgraph_code" class="form-control" placeholder="Enter mxGraph XML (eg. <root> <mxCell id=..)">
-        </textarea>
+
+        <input type="text" formControlName="cell_code" class="form-control" placeholder="Graph Code">
+
       </div>
     </form>
   </div>
@@ -41,7 +65,7 @@
   <h4 class="card-header">
     <i class="ion ion-md-eye"></i>&nbsp;&nbsp;<span class="text-muted font-weight-light">Read Configuration</span>
   </h4>
-  
+
   <div class="card-body">
     <div class="form-row">
       <div class="col-md mb-4">
@@ -54,22 +78,11 @@
           [(ngModel)]="readSelectedValue" (change)="readModal($event)">
         </ng-select>
       </div>
-      <!-- <div class="col-md mb-4" *ngIf="readValue">
-        <ng-select placeholder="Select Temperature" [clearable]="false" [items]="readTableData['Item']" bindLabel="Value"
-          [(ngModel)]="readSelectedValue">
-        </ng-select>
-      </div> -->
-  
-  
-      <div class="col-md mb-4" *ngIf="readCellID">
-        <ng-select placeholder="Select Status" [clearable]="false" [items]="mxcellID" bindLabel="value"
-          [(ngModel)]="readSelectedCell">
-        </ng-select>
-      </div>
+
       <div class="col-md mb-4">
         <button type="button" class="btn btn-primary" (click)="readInsert()">Save</button>
       </div>
-  
+
     </div>
   </div>
 </div>
@@ -79,7 +92,7 @@
   <h4 class="card-header">
     <i class="ion ion-md-save"></i>&nbsp;&nbsp;<span class="text-muted font-weight-light">Write Configuration</span>
   </h4>
-  
+
   <div class="card-body">
     <div class="form-row">
       <div class="col-md mb-4">
@@ -93,8 +106,8 @@
         </ng-select>
       </div>
       <div class="col-md mb-4" *ngIf="writeValue">
-        <ng-select placeholder="Select Temperature" [clearable]="false" [items]="writeTableData['Item']" bindLabel="Value"
-          [(ngModel)]="selectedAssetType">
+        <ng-select placeholder="Select Temperature" [clearable]="false" [items]="writeTableData['Item']"
+          bindLabel="Value" [(ngModel)]="selectedAssetType">
         </ng-select>
       </div>
       <div class="col-md mb-4" *ngIf="writeUnits">
@@ -102,7 +115,7 @@
           [(ngModel)]="selectedAssetType">
         </ng-select>
       </div>
-  
+
       <div class="col-md mb-4" *ngIf="writeCellID">
         <ng-select placeholder="Select Status" [clearable]="false" [items]="mxcellID" bindLabel="value"
           [(ngModel)]="selectedpe">
@@ -111,7 +124,7 @@
       <div class="col-md mb-4">
         <button type="button" class="btn btn-primary" (click)="writeInsert()">Save</button>
       </div>
-  
+
     </div>
   </div>
 </div>
@@ -121,7 +134,7 @@
   <h4 class="card-header">
     <i class="ion ion-md-link"></i>&nbsp;&nbsp;<span class="text-muted font-weight-light">Link Mapping </span>
   </h4>
-  
+
   <div class="card-body">
     <div class="form-row">
       <div class="form-row">
@@ -130,20 +143,20 @@
             [(ngModel)]="selectedAssetType" disabled="true">
           </ng-select>
         </div>
-  
+
         <div class="col-md mb-4" *ngIf="writeCellID">
           <ng-select placeholder="Select Status" [clearable]="false" [items]="mxcellID" bindLabel="value"
             [(ngModel)]="selectedpe">
           </ng-select>
         </div>
-  
-    
-  
+
+
+
         <div class="col-md mb-4">
           <button type="button" class="btn btn-primary" (click)="linkInsert()">Save</button>
         </div>
       </div>
     </div>
-  
+
   </div>
 </div>
