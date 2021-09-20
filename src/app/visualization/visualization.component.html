@@ -54,7 +54,7 @@
     <form [formGroup]="cellForm">
       <div class="form-group">
 
-        <input type="text" formControlName="cell_code" class="form-control" placeholder="Graph Code">
+        <input type="text" formControlName="cell_code" class="form-control" [ngModel]="selectedCellId" placeholder="Graph Code">
 
       </div>
     </form>

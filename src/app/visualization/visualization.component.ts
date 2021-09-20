@@ -31,10 +31,13 @@ export class VisualizationComponent implements OnInit, OnDestroy {
 
   rows = [];
   rows1 = [];
-  // Selected MxGraph dropdown
+  // Selected mxGraph dropdown
   selectedGraph;
   selectedMxGraph = [];
   graph;
+
+  // Selected mxGraph cell ID (ngModel binding)
+  selectedCellId;
 
   temp = [];
   loadingIndicator = true;
@@ -119,6 +122,7 @@ export class VisualizationComponent implements OnInit, OnDestroy {
       elt = elt.nextSibling;
     }
 
+
     this.graph.addCells(cells);
 
     // Disable mxGraph editing
@@ -127,17 +131,19 @@ export class VisualizationComponent implements OnInit, OnDestroy {
     // Enable HTML markup on labels (https://jgraph.github.io/mxgraph/docs/js-api/files/view/mxGraph-js.html#mxGraph.htmlLabels)
     this.graph.htmlLabels = true;
 
-    // this.cellForm.patchValue({
-    //   cell_code: "test"
-    // });
-    this.graph.addListener(mxEvent.CLICK, function (sender, evt) {
+    // Store current context (this) in variable (thisContext)
+    let thisContext = this;
 
-      console.log("selected");
-      var cell = evt.getProperty("cell");
-      var userName = cell.id;
+    // On Click event ...
+    this.graph.addListener(mxEvent.CLICK, function (sender, evt) {    
+      // Get event 'cell' property, 'id' subproperty (cell ID)
+      let cellId = evt.getProperty("cell").id;
 
-      return userName;
+      // Log to console
+      console.log("Selected " + cellId);
 
+      // Update ngModel binding with selected cell ID
+      thisContext.selectedCellId = cellId;
     });
 
     // Get Active Alarms
