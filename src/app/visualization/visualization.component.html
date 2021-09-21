@@ -1,5 +1,3 @@
-
-
 <h4 class="font-weight-bold py-3 mb-4">
   <i class="ion ion-md-analytics"></i>&nbsp;&nbsp;<span class="text-muted font-weight-light">Graph Visualization</span>
   <span class="text-muted font-weight-light">/ {{ currentDate | amDateFormat: 'LLLL' }}</span>
@@ -46,23 +44,6 @@
 
 <div class="card mb-4">
   <h4 class="card-header">
-    <i class="ion ion-md-today"></i>&nbsp;&nbsp;<span class="text-muted font-weight-light">Selected Cell Information
-    </span>
-
-  </h4>
-  <div class="card-body">
-    <form [formGroup]="cellForm">
-      <div class="form-group">
-
-        <input type="text" formControlName="cell_code" class="form-control" [ngModel]="selectedCellId" placeholder="Graph Code">
-
-      </div>
-    </form>
-  </div>
-</div>
-
-<div class="card mb-4">
-  <h4 class="card-header">
     <i class="ion ion-md-eye"></i>&nbsp;&nbsp;<span class="text-muted font-weight-light">Read Configuration</span>
   </h4>
 
@@ -80,7 +61,18 @@
       </div>
 
       <div class="col-md mb-4">
-        <button type="button" class="btn btn-primary" (click)="readInsert()">Save</button>
+        <form [formGroup]="cellForm">
+          <div class="form-group">
+
+            <input type="text" formControlName="cell_code" class="form-control" [ngModel]="selectedCellId"
+              placeholder="Graph Code">
+
+          </div>
+        </form>
+      </div>
+
+      <div class="col-md mb-4">
+        <button type="button" class="btn btn-primary" (click)="readInsert()">Update</button>
       </div>
 
     </div>

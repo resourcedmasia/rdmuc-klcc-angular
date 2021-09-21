@@ -135,7 +135,7 @@ export class VisualizationComponent implements OnInit, OnDestroy {
     let thisContext = this;
 
     // On Click event ...
-    this.graph.addListener(mxEvent.CLICK, function (sender, evt) {    
+    this.graph.addListener(mxEvent.CLICK, function (sender, evt) {
       // Get event 'cell' property, 'id' subproperty (cell ID)
       let cellId = evt.getProperty("cell").id;
 
@@ -146,82 +146,7 @@ export class VisualizationComponent implements OnInit, OnDestroy {
       thisContext.selectedCellId = cellId;
     });
 
-    // Get Active Alarms
-    /*
-    this.restService.postData("getMxCellAlarms", this.authService.getToken())
-      .subscribe(data => {
-        // Success
-        if (data["status"] == 200) {
-          this.rows = data["data"].rows;
 
-          let graph = new mxGraph(this.graphContainer.nativeElement);
-
-          // var row1_mxcell_id = '"' + JSON.stringify(this.rows[0].mxcell_id) + '"';
-          // var row1_mxcell_value = JSON.stringify(this.rows[0].mxcell_value);
-          // var data_test = row1_mxcell_value.replace('"', "").replace('1"', "1");
-          // var row1_mxcell_vertex = JSON.stringify(this.rows[0].Id);
-          // var row1_mxcell_parent = JSON.stringify(this.rows[0].Id);
-          // var row1_mxcell_xml_edit = JSON.stringify(this.rows[0].mxcell_xml).replace(/\\/g, "").replace('""<mxCell', "'<mxCell").replace('</mxCell>""', "</mxCell>'")
-
-
-          localStorage.setItem('graphID', this.rows[0].Id);
-
-          var xml = this.rows[0].mxgraph_code
-
-          var doc = mxUtils.parseXml(xml);
-          var codec = new mxCodec(doc);
-          var elt = doc.documentElement.firstChild;
-          var cells = [];
-
-          while (elt != null) {
-            cells.push(codec.decodeCell(elt));
-            elt = elt.nextSibling;
-
-          }
-
-
-          graph.addCells(cells);
-
-          var mainContext = this;
-
-          graph.dblClick = function (evt, cell) {
-
-            var cell_data = [];
-            graph.selectAll();
-            cell_data = graph.getSelectionCells(); //here you have all cells
-
-            // console.log("cells 5 :" + cell_data[5].value);
-
-            var model = graph.getModel();
-            var parent = graph.getDefaultParent();
-            var index = model.getChildCount(parent);
-            model.beginUpdate();
-            try {
-
-              model.setValue(cell_data[5], "string data ");
-              // console.log("model::" + CircularJSON.stringify(model));
-
-            }
-            finally {
-              model.endUpdate();
-            }
-
-            if (cell.id == 'gjS3GzlNmGb7YU0pNode-3') {
-
-              //   console.log("data:" + CircularJSON.stringify(cell.value));
-
-              mainContext.modalService.open(MxgraphEditComponent);
-
-
-
-            } else {
-              console.log("log error");
-            }
-
-          }
-        }
-      });
-      */
 
     // Disable loading indicator on table
     this.loadingIndicator = false;
