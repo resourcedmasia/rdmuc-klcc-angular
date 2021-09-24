@@ -149,10 +149,12 @@ export class VisualizationComponent implements OnInit, OnDestroy {
       localStorage.setItem('selectedCellValue', JSON.stringify(thisContext.selectedCellValue));
 
       model.beginUpdate();
+      
       try {
-
-        model.setValue(evt.getProperty("cell").value, "test");
-
+        // Get cell from model by cell ID string (https://jgraph.github.io/mxgraph/docs/js-api/files/model/mxGraphModel-js.html#mxGraphModel.getCell)
+        let cell = model.getCell(evt.getProperty("cell").id);
+        // Update cell data on model (test + random number for debugging purposes)
+        this.model.setValue(cell, "test " + Math.random());
       }
       finally {
         model.endUpdate();
