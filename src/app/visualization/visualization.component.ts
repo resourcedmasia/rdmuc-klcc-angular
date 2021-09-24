@@ -38,6 +38,7 @@ export class VisualizationComponent implements OnInit, OnDestroy {
 
   // Selected mxGraph cell ID (ngModel binding)
   selectedCellId;
+  selectedCellValue;
 
   temp = [];
   loadingIndicator = true;
@@ -53,8 +54,7 @@ export class VisualizationComponent implements OnInit, OnDestroy {
   cell_data_value = [];
   currentDate = new Date();
 
-  selectedReportType = [];
-  selectedType = [];
+  readConfig = [];
   mxcellID = [];
   cellName = [];
 
@@ -88,8 +88,6 @@ export class VisualizationComponent implements OnInit, OnDestroy {
   subscription: Subscription;
 
   ngOnInit() {
-
-
 
     let CircularJSON = require('circular-json');
 
@@ -134,19 +132,33 @@ export class VisualizationComponent implements OnInit, OnDestroy {
     // Store current context (this) in variable (thisContext)
     let thisContext = this;
 
+
+    let model = this.graph.getModel();
     // On Click event ...
     this.graph.addListener(mxEvent.CLICK, function (sender, evt) {
       // Get event 'cell' property, 'id' subproperty (cell ID)
       let cellId = evt.getProperty("cell").id;
+      let cellValued = evt.getProperty("cell").value;
 
-      // Log to console
-      console.log("Selected " + cellId);
 
       // Update ngModel binding with selected cell ID
       thisContext.selectedCellId = cellId;
+      thisContext.selectedCellValue = cellValued;
+
+      localStorage.setItem('selectedCellId', JSON.stringify(thisContext.selectedCellId));
+      localStorage.setItem('selectedCellValue', JSON.stringify(thisContext.selectedCellValue));
+
+      model.beginUpdate();
+      try {
+
+        model.setValue(evt.getProperty("cell").value, "test");
+
+      }
+      finally {
+        model.endUpdate();
+      }
+
     });
-
-
 
     // Disable loading indicator on table
     this.loadingIndicator = false;
@@ -227,16 +239,31 @@ export class VisualizationComponent implements OnInit, OnDestroy {
       })
   }
 
-  readInsert() {
-    console.log("read");
-    var slave = localStorage.getItem('myData');
-    var slave_name = JSON.parse(localStorage.getItem('cell_name'));
-    var slave_type = JSON.parse(localStorage.getItem('cell_value'));
-    var mxgraph_id = localStorage.getItem('graphID');
-    var slave_cell_id = localStorage.getItem('mxgraphID');
+  valueChanged(event) {
+    localStorage.setItem('readValue', event);
+    this.readConfig = event;
+    localStorage.setItem('cell_name', JSON.stringify(this.readConfig['Name']));
+    localStorage.setItem('cell_value', JSON.stringify(this.readConfig['Value']));
+    localStorage.setItem('cell_units', JSON.stringify(this.readConfig['Units']));
+  }
 
-    this.restService.postData("readDetails", this.authService.getToken(), {
-      mxgraph_id: mxgraph_id, slave: slave, slave_name: slave_name, slave_type: slave_type, slave_cell_id: slave_cell_id
+  readInsert() {
+    console.log("readValue");
+
+    var controller = localStorage.getItem('controller');
+    var name = localStorage.getItem('cell_name');
+    var valued = localStorage.getItem('cell_value');
+    var units = localStorage.getItem('cell_units');
+
+    var cellID = localStorage.getItem('selectedCellId');
+    var cellV = localStorage.getItem('selectedCellValue');
+
+    console.log("name:" + cellV);
+
+
+
+    this.restService.postData("setSlave", this.authService.getToken(), {
+      controller: controller, name: name, value: valued, cellID: cellID
     })
       .subscribe(data => {
         // Successful login
@@ -397,7 +424,7 @@ export class VisualizationComponent implements OnInit, OnDestroy {
 
   readSlaveChange(event) {
 
-    localStorage.setItem('myData', event);
+    localStorage.setItem('controller', event);
     var code_test = localStorage.getItem('code');
 
     this.restService.postData("getSlave", this.authService.getToken(), { type: event }).subscribe(data => {
@@ -405,8 +432,6 @@ export class VisualizationComponent implements OnInit, OnDestroy {
       if (data["status"] == 200) {
 
         this.readName = true;
-        this.readValue = true;;
-        this.readUnits = true;
         this.readTableData = data["data"]["rows"];
         this.readTableData = this.readTableData['Items'];
         this.loadingIndicator = false;
@@ -414,183 +439,29 @@ export class VisualizationComponent implements OnInit, OnDestroy {
     });
   }
 
-  writeModel(event) {
+
+  readModel(event) {
 
 
     var CircularJSON = require('circular-json');
 
+    console.log(" :" + CircularJSON.stringify(event.Name));
 
-    this.selectedReportType = event;
-    var myData = localStorage.getItem('myData');
+    // localStorage.setItem('cell_name', JSON.stringify(this.selectedReportType['Name']));
+    // localStorage.setItem('cell_value', JSON.stringify(this.selectedReportType['Value']));
+    // localStorage.setItem('cell_units', JSON.stringify(this.selectedReportType['Units']));
 
 
-    this.writeSlaveType = JSON.parse('[' + CircularJSON.stringify(myData) + ']');
+    this.restService.postData("setSlave", this.authService.getToken(), { type: event }).subscribe(data => {
+      // Success
+      if (data["status"] == 200) {
 
-    localStorage.setItem('cell_name', JSON.stringify(this.selectedReportType['Name']));
-    localStorage.setItem('cell_value', JSON.stringify(this.selectedReportType['Value']));
-    localStorage.setItem('cell_units', JSON.stringify(this.selectedReportType['Units']));
+        this.loadingIndicator = false;
+      }
+    });
 
-    this.restService.postData("getMxCellAlarms", this.authService.getToken())
-      .subscribe(data => {
-        // Success
-        if (data["status"] == 200) {
 
 
-          //this.eodTableData = ["EOD Report", "Fault Analysis Report"];
-
-          this.rows = data["data"].rows;
-          let graph = new mxGraph(this.graphContainer.nativeElement);
-
-          localStorage.setItem('graphID', this.rows[0].Id);
-          var xml = this.rows[0].mxgraph_code
-          var doc = mxUtils.parseXml(xml);
-          var codec = new mxCodec(doc);
-          var elt = doc.documentElement.firstChild;
-          var cells = [];
-
-          while (elt != null) {
-            cells.push(codec.decodeCell(elt));
-            elt = elt.nextSibling;
-
-          }
-
-          graph.addCells(cells);
-
-          var cell_data = [];
-
-          graph.selectAll();
-          cell_data = graph.getSelectionCells(); //here you have all cells
-
-          var model = graph.getModel();
-          var parent = graph.getDefaultParent();
-          var index = model.getChildCount(parent);
-          model.beginUpdate();
-          try {
-
-            model.setValue(cell_data[2], event.Class);
-            model.setValue(cell_data[3], event.Name);
-            model.setValue(cell_data[5], event.Value);
-            model.setValue(cell_data[6], event.Class);
-            // console.log("model::" + CircularJSON.stringify(model));
-
-          }
-          finally {
-            model.endUpdate();
-          }
-
-          var mainContext = this;
-          this.writeCellID = true;
-          this.mxcellID = ["gjS3GzlNmGb7YU0pNode-3"]
-
-          let mxgraphID = "gjS3GzlNmGb7YU0pNode-3"
-
-          localStorage.setItem('mxgraphID', mxgraphID);
-
-
-          //   this.cellName = this.selectedReportType['Name'];
-
-          graph.dblClick = function (evt, cell) {
-
-            var cell_data_test = graph.getSelectionCell()
-
-            this.mxcellID = CircularJSON.stringify(cell_data_test.id)
-
-            this.mxcellID = [JSON.parse(this.mxcellID)];
-
-
-
-
-            // var cell_data = [];
-            // graph.selectAll();
-            // cell_data = graph.getSelectionCells(); //here you have all cells
-
-            // console.log("cell_data:" + cell_data);
-            // localStorage.getItem('cell_data');
-            mainContext.modalService.open(MxgraphEditComponent);
-
-
-
-
-
-          }
-
-
-          this.loadingIndicator = false;
-
-        }
-
-
-      });
-
-  }
-
-  readModal(event) {
-
-
-    var CircularJSON = require('circular-json');
-
-
-    this.selectedReportType = event;
-    var myData = localStorage.getItem('myData');
-
-
-    this.writeSlaveType = JSON.parse('[' + CircularJSON.stringify(myData) + ']');
-
-    localStorage.setItem('cell_name', JSON.stringify(this.selectedReportType['Name']));
-    localStorage.setItem('cell_value', JSON.stringify(this.selectedReportType['Value']));
-    localStorage.setItem('cell_units', JSON.stringify(this.selectedReportType['Units']));
-
-    this.restService.postData("getMxCellAlarms", this.authService.getToken())
-      .subscribe(data => {
-        // Success
-        if (data["status"] == 200) {
-
-
-          //this.eodTableData = ["EOD Report", "Fault Analysis Report"];
-
-          this.rows = data["data"].rows;
-          let graph = new mxGraph(this.graphContainer.nativeElement);
-
-          localStorage.setItem('graphID', this.rows[0].Id);
-          var xml = this.rows[0].mxgraph_code
-          var doc = mxUtils.parseXml(xml);
-          var codec = new mxCodec(doc);
-          var elt = doc.documentElement.firstChild;
-          var cells = [];
-
-          while (elt != null) {
-            cells.push(codec.decodeCell(elt));
-            elt = elt.nextSibling;
-
-          }
-
-          graph.addCells(cells);
-          var mainContext = this;
-          this.readCellID = true;
-          this.mxcellID = ["gjS3GzlNmGb7YU0pNode-3"]
-          let mxgraphID = "gjS3GzlNmGb7YU0pNode-3"
-          localStorage.setItem('mxgraphID', mxgraphID);
-
-          this.cellName = this.selectedReportType['Name'];
-
-          graph.dblClick = function (evt, cell) {
-
-            var cell_data_test = graph.getSelectionCell()
-            this.mxcellID = CircularJSON.stringify(cell_data_test.id)
-            this.mxcellID = [JSON.parse(this.mxcellID)];
-            // var cell_data = [];
-            // graph.selectAll();
-            // cell_data = graph.getSelectionCells(); //here you have all cells
-
-            // console.log("cell_data:" + cell_data);
-            // localStorage.getItem('cell_data');
-            mainContext.modalService.open(MxgraphEditComponent);
-
-          }
-
-          this.loadingIndicator = false;
-        }
-      });
   }
 }
 

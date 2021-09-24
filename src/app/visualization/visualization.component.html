@@ -56,7 +56,7 @@
       </div>
       <div class="col-md mb-4" *ngIf="readName">
         <ng-select placeholder="Select Name" [clearable]="false" [items]="readTableData['Item']" bindLabel="Name"
-          [(ngModel)]="readSelectedValue" (change)="readModal($event)">
+          [(ngModel)]="readSelectedValue" (change)="valueChanged($event)" >
         </ng-select>
       </div>
 
@@ -65,14 +65,14 @@
           <div class="form-group">
 
             <input type="text" formControlName="cell_code" class="form-control" [ngModel]="selectedCellId"
-              placeholder="Graph Code">
+              placeholder="Graph Code" >
 
           </div>
         </form>
       </div>
 
       <div class="col-md mb-4">
-        <button type="button" class="btn btn-primary" (click)="readInsert()">Update</button>
+        <button type="button" class="btn btn-primary" (click)="readInsert()">+ Read Config</button>
       </div>
 
     </div>
