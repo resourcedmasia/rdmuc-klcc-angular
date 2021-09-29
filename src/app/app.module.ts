@@ -59,6 +59,8 @@ import { NgxDatatableModule } from '@swimlane/ngx-datatable';
 import { NgSelectModule } from '@ng-select/ng-select';
 import { VisualizationComponent } from './visualization/visualization.component';
 
+import { ToastrModule } from 'ngx-toastr';
+
 // *******************************************************************************
 //
 
@@ -113,6 +115,7 @@ import { VisualizationComponent } from './visualization/visualization.component'
     OverviewModule,
     ReactiveFormsModule,
     MomentModule,
+    ToastrModule.forRoot()
   ],
   providers: [
     Title,

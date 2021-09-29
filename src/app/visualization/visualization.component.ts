@@ -5,11 +5,13 @@ import { AuthService } from '../auth.service';
 import { FormGroup, FormControl, Validators, FormsModule } from '@angular/forms';
 
 
+
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { MxgraphEditComponent } from '../mxgraph-edit/mxgraph-edit.component';
 import { DatatableComponent } from '@swimlane/ngx-datatable';
 import { Subscription, timer } from 'rxjs';
 import { deserialize } from 'chartist';
+import { ToastrService } from 'ngx-toastr';
 
 declare var mxUtils: any;
 declare var mxCodec: any;
@@ -38,6 +40,7 @@ export class VisualizationComponent implements OnInit, OnDestroy {
 
   // Selected mxGraph cell ID (ngModel binding)
   selectedCellId;
+  selectedWriteCellId;
   selectedCellValue;
 
   temp = [];
@@ -55,17 +58,17 @@ export class VisualizationComponent implements OnInit, OnDestroy {
   currentDate = new Date();
 
   readConfig = [];
+  writeConfig = [];
   mxcellID = [];
   cellName = [];
 
   writeName;
-  writeValue;
-  writeUnits;
-  writeCellID;
+  writeCode;
   readName;
-  readValue;
-  readUnits;
+  readCode;
+
   readCellID;
+  disablebutton;
 
 
   // Add / Edit Graph Configuration Form
@@ -79,7 +82,7 @@ export class VisualizationComponent implements OnInit, OnDestroy {
   });
 
 
-  constructor(private modalService: NgbModal, private appService: AppService, private restService: RestService, private authService: AuthService) {
+  constructor(private toastr: ToastrService, private modalService: NgbModal, private appService: AppService, private restService: RestService, private authService: AuthService) {
     this.appService.pageTitle = 'Visualization Dashboard';
     modalService = this.modalService;
 
@@ -87,15 +90,24 @@ export class VisualizationComponent implements OnInit, OnDestroy {
 
   subscription: Subscription;
 
+
+  private fieldArray: Array<any> = [];
+  private newAttribute: any = {};
+  field: any;
+
+
   ngOnInit() {
+
 
     let CircularJSON = require('circular-json');
 
     // Retrieve stored mxGraphs from database and populate dropdown selection
     this.getMxGraphList();
 
-    this.subscription = timer(0, 10000).pipe().subscribe(() => {
+    this.subscription = timer(0, 5000).pipe().subscribe(() => {
       console.log("every 5 sec");
+
+      // this.refreshGraph();
       //this.getUsers();
 
       // Retrieve stored mxGraphs from database and populate dropdown selection
@@ -103,7 +115,7 @@ export class VisualizationComponent implements OnInit, OnDestroy {
     });
 
     //this.getUsers();
-    //this.getWriteSlaveList();
+    this.getWriteSlaveList();
     this.getReadSlaveList();
 
     // Prepare initial graph
@@ -140,21 +152,18 @@ export class VisualizationComponent implements OnInit, OnDestroy {
       let cellId = evt.getProperty("cell").id;
       let cellValued = evt.getProperty("cell").value;
 
+      let valued = localStorage.getItem('cell_value');
+
 
       // Update ngModel binding with selected cell ID
-      thisContext.selectedCellId = cellId;
-      thisContext.selectedCellValue = cellValued;
-
-      localStorage.setItem('selectedCellId', JSON.stringify(thisContext.selectedCellId));
-      localStorage.setItem('selectedCellValue', JSON.stringify(thisContext.selectedCellValue));
-
+      thisContext.newAttribute.mxgraphid = cellId;
       model.beginUpdate();
-      
+
       try {
         // Get cell from model by cell ID string (https://jgraph.github.io/mxgraph/docs/js-api/files/model/mxGraphModel-js.html#mxGraphModel.getCell)
         let cell = model.getCell(evt.getProperty("cell").id);
         // Update cell data on model (test + random number for debugging purposes)
-        this.model.setValue(cell, "test " + Math.random());
+        this.model.setValue(cell, valued);
       }
       finally {
         model.endUpdate();
@@ -170,6 +179,40 @@ export class VisualizationComponent implements OnInit, OnDestroy {
     this.subscription.unsubscribe();
   }
 
+  addFieldValue(index) {
+    console.log(index);
+    this.fieldArray.push(this.newAttribute)
+    this.newAttribute = {};
+    console.log(this.fieldArray);
+
+    for (let i = 0; i < this.fieldArray.length; i++) {
+    }
+  }
+
+  deleteFieldValue(index) {
+    this.fieldArray.splice(index, 1);
+  }
+
+  onSelect(selectedItem: any) {
+
+    console.log("selectedItem:"+JSON.stringify(selectedItem));
+
+    localStorage.setItem("selectedItem", selectedItem.mxgraphid);
+    let model = this.graph.getModel();
+
+    this.graph.addListener(mxEvent.CLICK, function (sender, evt) {
+      // Get event 'cell' property, 'id' subproperty (cell ID)
+      let cellId = evt.getProperty("cell").id;
+
+
+      // Update ngModel binding with selected cell ID
+
+      selectedItem.mxgraphid = cellId;
+
+
+    });
+
+  }
 
   /*  Function: Retrieve stored mxGraph data from MySQL database (id, mxgraph_name, mxgraph_code), populate 'this.selected' dropdown list */
   getMxGraphList() {
@@ -211,6 +254,9 @@ export class VisualizationComponent implements OnInit, OnDestroy {
         // Disable mxGraph editing
         this.graph.setEnabled(false);
 
+        console.log("event:" + JSON.stringify(event.Id));
+
+        localStorage.setItem('mxgraph_id', event.Id);
 
         this.mxGraphForm.patchValue({
           mxgraph_value: event.mxgraph_name
@@ -220,52 +266,101 @@ export class VisualizationComponent implements OnInit, OnDestroy {
 
   }
 
-  writeInsert() {
-    console.log("write");
-    var slave = localStorage.getItem('myData');
-    var slave_name = JSON.parse(localStorage.getItem('cell_name'));
-    var slave_type = JSON.parse(localStorage.getItem('cell_value'));
-    var mxgraph_id = localStorage.getItem('graphID');
-    var slave_cell_id = localStorage.getItem('mxgraphID');
+  refreshGraph() {
+    var mxgraph_id = localStorage.getItem('mxgraph_id');
+    this.graph.getModel().clear();
 
-    this.restService.postData("writeDetails", this.authService.getToken(), {
-      mxgraph_id: mxgraph_id, slave: slave, slave_name: slave_name, slave_type: slave_type, slave_cell_id: slave_cell_id
-    })
-      .subscribe(data => {
-        // Successful login
-        if (data["status"] == 200) {
-          console.log("graph success");
-          // this.mxGraphForm.reset();
-          // this.mxGraphForm.emit("getRulesEvent");
+    // Retrieve graph XML by ID
+    this.restService.postData("getMxGraphCodeByID", this.authService.getToken(), {
+      id: mxgraph_id
+    }).subscribe(data => {
+      // Success
+      if (data["status"] == 200) {
+        let mxgraphData = data["data"].rows[0];
+
+        console.log("mxgraphData:" + mxgraphData);
+
+        let doc = mxUtils.parseXml(mxgraphData["mxgraph_code"]);
+        let codec = new mxCodec(doc);
+        let elt = doc.documentElement.firstChild;
+        let cells = [];
+
+
+        while (elt != null) {
+          cells.push(codec.decodeCell(elt));
+          elt = elt.nextSibling;
         }
-      })
+
+        this.graph.addCells(cells);
+
+        // Disable mxGraph editing
+        this.graph.setEnabled(false);
+
+
+      }
+    });
   }
 
-  valueChanged(event) {
+
+  readChanged(event) {
     localStorage.setItem('readValue', event);
     this.readConfig = event;
-    localStorage.setItem('cell_name', JSON.stringify(this.readConfig['Name']));
-    localStorage.setItem('cell_value', JSON.stringify(this.readConfig['Value']));
-    localStorage.setItem('cell_units', JSON.stringify(this.readConfig['Units']));
+    localStorage.setItem('cell_name', this.readConfig['Name']);
+    localStorage.setItem('cell_value', this.readConfig['Value']);
+    localStorage.setItem('cell_units', this.readConfig['Units']);
   }
 
-  readInsert() {
-    console.log("readValue");
+  writeChanged(event) {
 
-    var controller = localStorage.getItem('controller');
-    var name = localStorage.getItem('cell_name');
-    var valued = localStorage.getItem('cell_value');
-    var units = localStorage.getItem('cell_units');
+    this.writeConfig = event;
+    localStorage.setItem('write_cell_name', this.writeConfig['Name']);
+    localStorage.setItem('write_cell_value', this.writeConfig['Value']);
+    localStorage.setItem('write_cell_units', this.writeConfig['Units']);
+  }
 
-    var cellID = localStorage.getItem('selectedCellId');
-    var cellV = localStorage.getItem('selectedCellValue');
+  readConfigSave() {
 
-    console.log("name:" + cellV);
+    var slave = localStorage.getItem('controller');
+    var slave_name = localStorage.getItem('cell_name');
+    var mxgraph_id = localStorage.getItem('mxgraph_id');
+    var slave_cell_id = localStorage.getItem('selectedCellId');
+
+    this.restService.postData("readDetails", this.authService.getToken(), {
+      mxgraph_id: mxgraph_id
+    })
+      .subscribe(data => {
+        // Successful login
+        if (data["status"] == 200) {
+
+          console.log("graph success:" + JSON.stringify(data["data"]));
+
+        }
+      })
+  }
+
+  writeConfigSave() {
+    console.log("write");
+    var slave = localStorage.getItem('readController');
+    var slave_name = localStorage.getItem('write_cell_name');
+    var mxgraph_id = localStorage.getItem('mxgraph_id');
+    var slave_cell_id = localStorage.getItem('selectedCellId');
+    var selectedCellValue = localStorage.getItem('selectedCellValue');
 
 
+    // this.restService.postData("setSlave", this.authService.getToken(), { Controller: slave, Name: slave_name, value: selectedCellValue }).subscribe(data => {
+    //   // Success
+    //   if (data["status"] == 200) {
+    //     this.writeName = true;
+    //     this.writeCode = true;;
 
-    this.restService.postData("setSlave", this.authService.getToken(), {
-      controller: controller, name: name, value: valued, cellID: cellID
+    //     this.writeTableData = data["data"]["rows"];
+    //     this.writeTableData = this.writeTableData['Items'];
+    //     this.loadingIndicator = false;
+    //   }
+    // });
+
+    this.restService.postData("writeDetails", this.authService.getToken(), {
+      mxgraph_id: mxgraph_id, slave: slave, slave_name: slave_name, slave_cell_id: slave_cell_id
     })
       .subscribe(data => {
         // Successful login
@@ -276,6 +371,7 @@ export class VisualizationComponent implements OnInit, OnDestroy {
         }
       })
   }
+
 
   linkInsert() {
     var name = JSON.parse(localStorage.getItem('cell_name'));
@@ -406,34 +502,32 @@ export class VisualizationComponent implements OnInit, OnDestroy {
 
   writeSlaveChange(event) {
 
-    localStorage.setItem('myData', event);
+    localStorage.setItem('writeController', event);
 
     this.restService.postData("getSlave", this.authService.getToken(), { type: event }).subscribe(data => {
       // Success
       if (data["status"] == 200) {
-        this.writeName = true;
-        this.writeValue = true;;
-        this.writeUnits = true;
 
+        this.writeName = true;
+        this.writeCode = true;
         this.writeTableData = data["data"]["rows"];
         this.writeTableData = this.writeTableData['Items'];
         this.loadingIndicator = false;
       }
     });
-
   }
 
 
   readSlaveChange(event) {
 
     localStorage.setItem('controller', event);
-    var code_test = localStorage.getItem('code');
 
     this.restService.postData("getSlave", this.authService.getToken(), { type: event }).subscribe(data => {
       // Success
       if (data["status"] == 200) {
 
         this.readName = true;
+        this.readCode = true;
         this.readTableData = data["data"]["rows"];
         this.readTableData = this.readTableData['Items'];
         this.loadingIndicator = false;
@@ -442,29 +536,7 @@ export class VisualizationComponent implements OnInit, OnDestroy {
   }
 
 
-  readModel(event) {
 
-
-    var CircularJSON = require('circular-json');
-
-    console.log(" :" + CircularJSON.stringify(event.Name));
-
-    // localStorage.setItem('cell_name', JSON.stringify(this.selectedReportType['Name']));
-    // localStorage.setItem('cell_value', JSON.stringify(this.selectedReportType['Value']));
-    // localStorage.setItem('cell_units', JSON.stringify(this.selectedReportType['Units']));
-
-
-    this.restService.postData("setSlave", this.authService.getToken(), { type: event }).subscribe(data => {
-      // Success
-      if (data["status"] == 200) {
-
-        this.loadingIndicator = false;
-      }
-    });
-
-
-
-  }
 }
 
 
