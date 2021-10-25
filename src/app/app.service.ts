@@ -21,7 +21,7 @@ export class AppService {
   get config() {
     let config = {
       // Site parameters
-      siteName: "Sample RDMUC Site",
+      siteName: "Facility Data Collection System",
       dmURL: "http://www.rdmuc.com/", // RDM Data Manager URL
   
       // Module config
