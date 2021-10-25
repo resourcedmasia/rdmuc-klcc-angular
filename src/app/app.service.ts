@@ -17,6 +17,26 @@ export class AppService {
            document.body.getAttribute('dir') === 'rtl';
   }
 
+  // General configuration
+  get config() {
+    let config = {
+      // Site parameters
+      siteName: "Sample RDMUC Site",
+      dmURL: "http://www.rdmuc.com/", // RDM Data Manager URL
+  
+      // Module config
+      moduleWorkOrder: false, // Work Order module
+      moduleEOD: false, // EOD Report module
+      moduleAlarm: false, // Alarm Management module
+      moduleAsset: false, // Asset Management module
+      moduleEnergy: false, // Energy Management module
+      moduleAccessDM: false, // Access DM module
+      moduleVisualization: false // mxGraph / visualization module
+  
+    }
+    return config;
+  }
+
   // Check if IE10
   get isIE10() {
     return typeof document['documentMode'] === 'number' && document['documentMode'] === 10;

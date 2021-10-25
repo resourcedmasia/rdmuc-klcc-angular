@@ -63,6 +63,6 @@ export class LayoutSidenavComponent implements AfterViewInit {
   }
 
   accessDM() {
-    window.open('http://ipohaccbas.hospital.rdmsite.com/', '_blank');
+    window.open(this.appService.config.dmURL, '_blank');
   }
 }
