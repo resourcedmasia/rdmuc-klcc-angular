@@ -76,7 +76,7 @@
     </div>
     <div class="text-right">
       <button type="button" class="btn btn-default" previousStep>Previous</button>
-      <button type="button" class="btn btn-primary" nextStep [disabled]="!HVACForm.invalid">Next</button>
+      <button type="button" class="btn btn-primary" nextStep [disabled]="HVACForm.invalid">Next</button>
     </div>
   </wizard-step>
 
@@ -141,7 +141,7 @@
     </div>
     <div class="text-right">
       <button type="button" class="btn btn-default" previousStep>Previous</button>
-      <button type="button" class="btn btn-primary" nextStep>Next</button>
+      <button type="button" class="btn btn-primary" nextStep [disabled]="IAQForm.invalid">Next</button>
     </div>
   </wizard-step>
 
@@ -170,7 +170,7 @@
     </div>
     <div class="text-right">
       <button type="button" class="btn btn-default" previousStep>Previous</button>
-      <button type="button" class="btn btn-primary" nextStep>Next</button>
+      <button type="button" class="btn btn-primary" nextStep [disabled]="GeneratorForm.invalid">Next</button>
     </div>
   </wizard-step>
 
@@ -199,7 +199,7 @@
     </div>
     <div class="text-right">
       <button type="button" class="btn btn-default" previousStep>Previous</button>
-      <button type="button" class="btn btn-primary" nextStep>Next</button>
+      <button type="button" class="btn btn-primary" nextStep [disabled]="WaterForm.invalid">Next</button>
     </div>
   </wizard-step>
 
@@ -263,7 +263,7 @@
     </div>
     <div class="text-right">
       <button type="button" class="btn btn-default" previousStep>Previous</button>
-      <button type="button" class="btn btn-primary" nextStep>Next</button>
+      <button type="button" class="btn btn-primary" nextStep [disabled]="HSSEForm.invalid">Next</button>
     </div>
   </wizard-step>
 
@@ -277,10 +277,13 @@
       <div class="card-header h4">
         Data Review / {{ this.selectedFacility }} / {{ this.selectedMonth }}
       </div>
+      <div class="card-body pb-0">
+        <div class="mb-4">Please review your data. Select the <b>Submit</b> button once you are ready to proceed.</div>
+      </div>
 
       <div class="card-body pb-0">
         <div class="card">
-          <div class="card-header h6">
+          <div class="card-header h6 btn-secondary">
             Report Date & Facility
           </div>
           <div class="card-body">
@@ -299,7 +302,7 @@
       
       <div class="card-body pb-0">
         <div class="card">
-          <div class="card-header h6">
+          <div class="card-header h6 btn-secondary">
             Air Conditioning
           </div>
           <div class="card-body">
@@ -318,7 +321,7 @@
 
       <div class="card-body pb-0">
         <div class="card">
-          <div class="card-header h6">
+          <div class="card-header h6 btn-secondary">
             Indoor Air Quality
           </div>
           <div class="card-body">
@@ -351,6 +354,69 @@
       </div>
 
       
+      <div class="card-body pb-0">
+        <div class="card">
+          <div class="card-header h6 btn-secondary">
+            Generator Set
+          </div>
+          <div class="card-body">
+              <div class="form-group">
+                <label class="form-label">Kick-in Timeliness / Seconds</label>
+                <input type="text" class="form-control" value={{Generator_kick_in_timeliness}} readonly>
+              </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card-body pb-0">
+        <div class="card">
+          <div class="card-header h6 btn-secondary">
+            Domestic Water Supply
+          </div>
+          <div class="card-body">
+              <div class="form-group">
+                <label class="form-label">Continuous Water Disruption / Hours</label>
+                <input type="text" class="form-control" value={{Water_cont_water_disruption_hours}} readonly>
+              </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card-body pb-0">
+        <div class="card">
+          <div class="card-header h6 btn-secondary">
+            HSSE
+          </div>
+          <div class="card-body">
+              <div class="form-group">
+                <label class="form-label">Number of COVID-19 Cases Reported / Case Count</label>
+                <input type="text" class="form-control" value={{HSSE_covid19_cases}} readonly>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Number of Manhours / Hours Per Month</label>
+                <input type="text" class="form-control" value={{HSSE_manhours}} readonly>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Number of Hours Since Last Lost Time Injury (LTI) / Hours</label>
+                <input type="text" class="form-control" value={{HSSE_lti}} readonly>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Lost Time Injury Frequency Rate (LTIFR) / Per Million Manhours</label>
+                <input type="text" class="form-control" value={{HSSE_ltif}} readonly>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Loss Of Primary Containment (LOPC) / Incident Count</label>
+                <input type="text" class="form-control" value={{HSSE_lopc}} readonly>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Major Fire / Incident Count</label>
+                <input type="text" class="form-control" value={{HSSE_major_fire}} readonly>
+              </div>
+          </div>
+        </div>
+      </div>
+
+
     </div>
     <div class="text-right">
       <button type="button" class="btn btn-default" previousStep>Previous</button>

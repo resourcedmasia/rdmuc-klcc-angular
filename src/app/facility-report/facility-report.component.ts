@@ -118,4 +118,10 @@ export class FacilityReportComponent implements OnInit {
   get HSSE_ltif() {
     return this.HSSEForm.get('ltif').value;
   }
+  get HSSE_lopc() {
+    return this.HSSEForm.get('lopc').value;
+  }
+  get HSSE_major_fire() {
+    return this.HSSEForm.get('major_fire').value;
+  }
 }
