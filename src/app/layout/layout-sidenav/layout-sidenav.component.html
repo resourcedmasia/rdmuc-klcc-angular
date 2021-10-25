@@ -23,6 +23,10 @@
       <sidenav-router-link icon="ion ion-md-today" route="/workorder/dashboard" [active]="isActive('/workorder/dashboard')">WO Dashboard</sidenav-router-link>
     </sidenav-menu>
 
+    <sidenav-menu icon="ion ion-md-create" text="Data Entry" [active]="isMenuActive('/dataentry')" [open]="isMenuOpen('/dataentry')" *ngIf=this.appService.config.moduleDataEntry>
+      <sidenav-router-link icon="ion ion-md-today" route="/dataentry/facility" [active]="isActive('/dataentry/facility')">Facility Report</sidenav-router-link>
+    </sidenav-menu>
+
     <sidenav-menu icon="ion ion-md-today" text="Visualization" [active]="isMenuActive('/visualization')" [open]="isMenuOpen('/visualization')" *ngIf=this.appService.config.moduleVisualization>
       <sidenav-router-link icon="ion ion-md-today" route="/visualization" [active]="isActive('/visualization')">Dashboard</sidenav-router-link>
     </sidenav-menu>

@@ -26,6 +26,7 @@ import { CarbonEmissionComponent } from './carbon-emission/carbon-emission.compo
 import { OverviewComponent } from './overview/overview.component';
 
 import { VisualizationComponent } from './visualization/visualization.component';
+import { FacilityReportComponent } from './facility-report/facility-report.component';
 
 // Authentication
 import { AuthService } from './auth.service';
@@ -141,13 +142,19 @@ const routes: Routes = [
     ]
   },
 
-  // visualization 
+  // Visualization 
   {
     path: 'visualization', component: Layout2Component, canActivate: [AuthGuard], runGuardsAndResolvers: 'always', children: [
       { path: '', component: VisualizationComponent },
     ]
   },
 
+  // Data Entry - Facility Report 
+  {
+    path: 'dataentry/facility', component: Layout2Component, canActivate: [AuthGuard], runGuardsAndResolvers: 'always', children: [
+      { path: '', component: FacilityReportComponent },
+    ]
+  },
 
   // Login
   { path: 'login', component: LoginComponent },

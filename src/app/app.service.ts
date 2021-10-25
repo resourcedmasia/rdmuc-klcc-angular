@@ -25,13 +25,14 @@ export class AppService {
       dmURL: "http://www.rdmuc.com/", // RDM Data Manager URL
   
       // Module config
-      moduleWorkOrder: false, // Work Order module
-      moduleEOD: false, // EOD Report module
-      moduleAlarm: false, // Alarm Management module
-      moduleAsset: false, // Asset Management module
-      moduleEnergy: false, // Energy Management module
+      moduleWorkOrder: true, // Work Order module
+      moduleEOD: true, // EOD Report module
+      moduleAlarm: true, // Alarm Management module
+      moduleAsset: true, // Asset Management module
+      moduleEnergy: true, // Energy Management module
       moduleAccessDM: false, // Access DM module
-      moduleVisualization: false // mxGraph / visualization module
+      moduleVisualization: false, // mxGraph / visualization module
+      moduleDataEntry: true // Human data entry module
   
     }
     return config;

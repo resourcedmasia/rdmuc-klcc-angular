@@ -1,0 +1,360 @@
+<!-- Page Header -->
+<h4 class="font-weight-bold py-3 mb-4">
+  <i class="ion ion-md-today"></i>&nbsp;&nbsp;<span class="text-muted font-weight-light">Data Entry /</span> Facility Report
+</h4>
+<hr class="border-light container-m--x mt-0 mb-4">
+<wizard [navBarLocation]="'left'" [navBarLayout]="'custom'">
+
+  <!-- Step 1 -->
+  <wizard-step navigationSymbol="1" navigationSymbolFontFamily="Roboto">
+    <ng-template wizardStepTitle>
+      <div class="text-muted small left-align">STEP 1</div>
+      Date & Facility Selection
+    </ng-template>
+    <div class="card mb-3">
+      <div class="card-header h4">
+        Date & Facility Selection
+      </div>
+      <div class="card-body">
+        <div class="mb-4">Please select a facility and time period for this report. All fields are required.</div>
+        <div class="form-group">
+          <label class="form-label">Facility Name</label>
+          <ng-select 
+          placeholder="Select Facility"
+          [clearable]="false"
+          [items]="facilityList"
+          bindLabel="type"
+          [(ngModel)]="selectedFacility">
+        </ng-select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Report Month</label>
+          <ng-select 
+          placeholder="Select Month"
+          [clearable]="false"
+          [items]="monthList"
+          bindLabel="type"
+          [(ngModel)]="selectedMonth">
+        </ng-select>
+        </div>
+      </div>
+    </div>
+    <div class="text-right">
+      <button type="button" class="btn btn-primary" nextStep [disabled]="!this.selectedFacility || !this.selectedMonth">Next</button>
+    </div>
+  </wizard-step>
+
+  <!-- Step 2 -->
+  <wizard-step navigationSymbol="2" navigationSymbolFontFamily="Roboto">
+    <ng-template wizardStepTitle>
+      <div class="text-muted small left-align">STEP 2</div>
+      Air Conditioning
+    </ng-template>
+    <div class="card mb-3">
+      <div class="card-header h4">
+        Air Conditioning / {{ this.selectedFacility }} / {{ this.selectedMonth }}
+      </div>
+      <div class="card-body">
+        <div class="mb-4">Please input your data. All fields are required.</div>
+        <form [formGroup]="HVACForm">
+          <div class="form-group">
+            <label class="form-label">Total Number of Complaints</label>
+            <input type="text" formControlName="total_complaints" class="form-control" [class.is-invalid]="HVACForm.get('total_complaints').touched && HVACForm.get('total_complaints').invalid" placeholder="0">
+            <small class="invalid-feedback">
+              Please enter a valid input.
+            </small>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Total Number of Breakdowns</label>
+            <input type="text" formControlName="total_breakdown" class="form-control" [class.is-invalid]="HVACForm.get('total_breakdown').touched && HVACForm.get('total_breakdown').invalid" placeholder="0">
+            <small class="invalid-feedback">
+              Please enter a valid input.
+            </small>
+          </div>
+        </form> 
+      </div>
+    </div>
+    <div class="text-right">
+      <button type="button" class="btn btn-default" previousStep>Previous</button>
+      <button type="button" class="btn btn-primary" nextStep [disabled]="!HVACForm.invalid">Next</button>
+    </div>
+  </wizard-step>
+
+  <!-- Step 3 -->
+  <wizard-step navigationSymbol="3" navigationSymbolFontFamily="Roboto">
+    <ng-template wizardStepTitle>
+      <div class="text-muted small left-align">STEP 3</div>
+      Indoor Air Quality
+    </ng-template>
+    <div class="card mb-3">
+      <div class="card-header h4">
+        Indoor Air Quality / {{ this.selectedFacility }} / {{ this.selectedMonth }}
+      </div>
+      
+      <div class="card-body">
+        <div class="mb-4">Please input your data. All fields are required.</div>
+        <form [formGroup]="IAQForm">
+          <div class="form-group">
+            <label class="form-label">Carbon Dioxide (CO2) / Parts Per Million (ppm)</label>
+            <input type="text" formControlName="co2_ppm" class="form-control" [class.is-invalid]="IAQForm.get('co2_ppm').touched && IAQForm.get('co2_ppm').invalid" placeholder="400.00">
+            <small class="invalid-feedback">
+              Please enter a valid input.
+            </small>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Carbon Monoxide (CO) / Parts Per Million (ppm)</label>
+            <input type="text" formControlName="co_ppm" class="form-control" [class.is-invalid]="IAQForm.get('co_ppm').touched && IAQForm.get('co_ppm').invalid" placeholder="10.00">
+            <small class="invalid-feedback">
+              Please enter a valid input.
+            </small>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Formaldehyde / Parts Per Million (ppm)</label>
+            <input type="text" formControlName="formaldehyde_ppm" class="form-control" [class.is-invalid]="IAQForm.get('formaldehyde_ppm').touched && IAQForm.get('formaldehyde_ppm').invalid" placeholder="0.10">
+            <small class="invalid-feedback">
+              Please enter a valid input.
+            </small>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Volatile Organic Compound (VOC) / Parts Per Million (ppm)</label>
+            <input type="text" formControlName="voc_ppm" class="form-control" [class.is-invalid]="IAQForm.get('voc_ppm').touched && IAQForm.get('voc_ppm').invalid" placeholder="3.00">
+            <small class="invalid-feedback">
+              Please enter a valid input.
+            </small>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Temperature / Celcius (°C)</label>
+            <input type="text" formControlName="temperature" class="form-control" [class.is-invalid]="IAQForm.get('temperature').touched && IAQForm.get('temperature').invalid" placeholder="24.00">
+            <small class="invalid-feedback">
+              Please enter a valid input.
+            </small>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Relative Humidity / RH (%)</label>
+            <input type="text" formControlName="relative_humidity" class="form-control" [class.is-invalid]="IAQForm.get('relative_humidity').touched && IAQForm.get('relative_humidity').invalid" placeholder="55.00">
+            <small class="invalid-feedback">
+              Please enter a valid input.
+            </small>
+          </div>
+        </form> 
+      </div>
+    </div>
+    <div class="text-right">
+      <button type="button" class="btn btn-default" previousStep>Previous</button>
+      <button type="button" class="btn btn-primary" nextStep>Next</button>
+    </div>
+  </wizard-step>
+
+  <!-- Step 4 -->
+  <wizard-step navigationSymbol="4" navigationSymbolFontFamily="Roboto">
+    <ng-template wizardStepTitle>
+      <div class="text-muted small left-align">STEP 4</div>
+      Generator Set
+    </ng-template>
+    <div class="card mb-3">
+      <div class="card-header h4">
+        Generator Set / {{ this.selectedFacility }} / {{ this.selectedMonth }}
+      </div>
+      <div class="card-body">
+        <div class="mb-4">Please input your data. All fields are required.</div>
+        <form [formGroup]="GeneratorForm">
+          <div class="form-group">
+            <label class="form-label">Kick-in Timeliness / Seconds</label>
+            <input type="text" formControlName="kick_in_timeliness" class="form-control" [class.is-invalid]="GeneratorForm.get('kick_in_timeliness').touched && GeneratorForm.get('kick_in_timeliness').invalid" placeholder="10">
+            <small class="invalid-feedback">
+              Please enter a valid input.
+            </small>
+          </div>
+        </form>
+      </div>
+    </div>
+    <div class="text-right">
+      <button type="button" class="btn btn-default" previousStep>Previous</button>
+      <button type="button" class="btn btn-primary" nextStep>Next</button>
+    </div>
+  </wizard-step>
+
+  <!-- Step 5 -->
+  <wizard-step navigationSymbol="5" navigationSymbolFontFamily="Roboto">
+    <ng-template wizardStepTitle>
+      <div class="text-muted small left-align">STEP 5</div>
+      Domestic Water Supply
+    </ng-template>
+    <div class="card mb-3">
+      <div class="card-header h4">
+        Domestic Water Supply / {{ this.selectedFacility }} / {{ this.selectedMonth }}
+      </div>
+      <div class="card-body">
+        <div class="mb-4">Please input your data. All fields are required.</div>
+        <form [formGroup]="WaterForm">
+          <div class="form-group">
+            <label class="form-label">Continuous Water Disruption / Hours</label>
+            <input type="text" formControlName="cont_water_disruption_hours" class="form-control" [class.is-invalid]="WaterForm.get('cont_water_disruption_hours').touched && WaterForm.get('cont_water_disruption_hours').invalid" placeholder="0">
+            <small class="invalid-feedback">
+              Please enter a valid input.
+            </small>
+          </div>
+        </form>
+      </div>
+    </div>
+    <div class="text-right">
+      <button type="button" class="btn btn-default" previousStep>Previous</button>
+      <button type="button" class="btn btn-primary" nextStep>Next</button>
+    </div>
+  </wizard-step>
+
+  <!-- Step 6 -->
+  <wizard-step navigationSymbol="6" navigationSymbolFontFamily="Roboto">
+    <ng-template wizardStepTitle>
+      <div class="text-muted small left-align">STEP 6</div>
+      HSSE
+    </ng-template>
+    <div class="card mb-3">
+      <div class="card-header h4">
+        Health, Safety, Security & Environment (HSSE) / {{ this.selectedFacility }} / {{ this.selectedMonth }}
+      </div>
+      <div class="card-body">
+        <div class="mb-4">Please input your data. All fields are required.</div>
+        <form [formGroup]="HSSEForm">
+          <div class="form-group">
+            <label class="form-label">Number of COVID-19 Cases Reported / Case Count</label>
+            <input type="text" formControlName="covid19_cases" class="form-control" [class.is-invalid]="HSSEForm.get('covid19_cases').touched && HSSEForm.get('covid19_cases').invalid" placeholder="0">
+            <small class="invalid-feedback">
+              Please enter a valid input.
+            </small>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Number of Manhours / Hours Per Month</label>
+            <input type="text" formControlName="manhours" class="form-control" [class.is-invalid]="HSSEForm.get('manhours').touched && HSSEForm.get('manhours').invalid" placeholder="0">
+            <small class="invalid-feedback">
+              Please enter a valid input.
+            </small>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Number of Hours Since Last Lost Time Injury (LTI) / Hours</label>
+            <input type="text" formControlName="lti" class="form-control" [class.is-invalid]="HSSEForm.get('lti').touched && HSSEForm.get('lti').invalid" placeholder="0">
+            <small class="invalid-feedback">
+              Please enter a valid input.
+            </small>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Lost Time Injury Frequency Rate (LTIFR) / Per Million Manhours</label>
+            <input type="text" formControlName="ltif" class="form-control" [class.is-invalid]="HSSEForm.get('ltif').touched && HSSEForm.get('ltif').invalid" placeholder="0">
+            <small class="invalid-feedback">
+              Please enter a valid input.
+            </small>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Loss Of Primary Containment (LOPC) / Incident Count</label>
+            <input type="text" formControlName="lopc" class="form-control" [class.is-invalid]="HSSEForm.get('lopc').touched && HSSEForm.get('lopc').invalid" placeholder="0">
+            <small class="invalid-feedback">
+              Please enter a valid input.
+            </small>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Major Fire / Incident Count</label>
+            <input type="text" formControlName="major_fire" class="form-control" [class.is-invalid]="HSSEForm.get('major_fire').touched && HSSEForm.get('major_fire').invalid" placeholder="0">
+            <small class="invalid-feedback">
+              Please enter a valid input.
+            </small>
+          </div>
+        </form>
+      </div>
+    </div>
+    <div class="text-right">
+      <button type="button" class="btn btn-default" previousStep>Previous</button>
+      <button type="button" class="btn btn-primary" nextStep>Next</button>
+    </div>
+  </wizard-step>
+
+  <!-- Step Final -->
+  <wizard-step navigationSymbol="7" navigationSymbolFontFamily="Roboto">
+    <ng-template wizardStepTitle>
+      <div class="text-muted small left-align">STEP 7</div>
+      Data Review
+    </ng-template>
+    <div class="card mb-3">
+      <div class="card-header h4">
+        Data Review / {{ this.selectedFacility }} / {{ this.selectedMonth }}
+      </div>
+
+      <div class="card-body pb-0">
+        <div class="card">
+          <div class="card-header h6">
+            Report Date & Facility
+          </div>
+          <div class="card-body">
+            <div class="form-group">
+              <label class="form-label">Facility</label>
+              <input type="text" class="form-control" value={{this.selectedFacility}} readonly>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Month</label>
+              <input type="text" class="form-control" value={{this.selectedMonth}} readonly>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      
+      <div class="card-body pb-0">
+        <div class="card">
+          <div class="card-header h6">
+            Air Conditioning
+          </div>
+          <div class="card-body">
+              <div class="form-group">
+                <label class="form-label">Total Number of Complaints</label>
+                <input type="text" class="form-control" value={{HVAC_total_complaints}} readonly>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Total Number of Breakdowns</label>
+                <input type="text" class="form-control" value={{HVAC_total_breakdown}} readonly>
+              </div>
+          </div>
+        </div>
+      </div>
+
+
+      <div class="card-body pb-0">
+        <div class="card">
+          <div class="card-header h6">
+            Indoor Air Quality
+          </div>
+          <div class="card-body">
+              <div class="form-group">
+                <label class="form-label">Carbon Dioxide (CO2) / Parts Per Million (ppm)</label>
+                <input type="text" class="form-control" value={{IAQ_co2_ppm}} readonly>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Carbon Monoxide (CO) / Parts Per Million (ppm)</label>
+                <input type="text" class="form-control" value={{IAQ_co_ppm}} readonly>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Formaldehyde / Parts Per Million (ppm)</label>
+                <input type="text" class="form-control" value={{IAQ_formaldehyde_ppm}} readonly>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Volatile Organic Compound (VOC) / Parts Per Million (ppm)</label>
+                <input type="text" class="form-control" value={{IAQ_voc_ppm}} readonly>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Temperature / Celcius (°C)</label>
+                <input type="text" class="form-control" value={{IAQ_temperature}} readonly>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Relative Humidity / RH (%)</label>
+                <input type="text" class="form-control" value={{IAQ_relative_humidity}} readonly>
+              </div>
+          </div>
+        </div>
+      </div>
+
+      
+    </div>
+    <div class="text-right">
+      <button type="button" class="btn btn-default" previousStep>Previous</button>
+      <button type="button" class="btn btn-primary" (click)="finishFunction()">Submit</button>
+    </div>
+  </wizard-step>
+</wizard>

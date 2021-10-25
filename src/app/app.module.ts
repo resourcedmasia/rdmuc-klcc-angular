@@ -28,7 +28,9 @@ import { EnergyIndexModule } from './energy-index/energy-index.module';
 import { CarbonEmissionModule } from './carbon-emission/carbon-emission.module';
 import { DataAnalyticsModule } from './data-analytics/data-analytics.module';
 import { OverviewModule } from './overview/overview.module';
+import { FacilityReportModule } from './facility-report/facility-report.module';
 import { MomentModule } from 'angular2-moment';
+import { ArchwizardModule } from 'ng2-archwizard';
 
 // REST service
 import { RestService } from './rest.service';
@@ -52,6 +54,7 @@ import { AssetPerformanceComponent } from './asset-performance/asset-performance
 import { EnergyIndexComponent } from './energy-index/energy-index.component';
 import { CarbonEmissionComponent } from './carbon-emission/carbon-emission.component';
 import { OverviewComponent } from './overview/overview.component';
+import { FacilityReportComponent } from './facility-report/facility-report.component';
 // import { MxgraphEditComponent } from './mxgraph-edit/mxgraph-edit.component';
 
 import { MxgraphEditModule } from '../app/mxgraph-edit/mxgraph-edit.module';
@@ -60,6 +63,7 @@ import { NgSelectModule } from '@ng-select/ng-select';
 import { VisualizationComponent } from './visualization/visualization.component';
 
 import { ToastrModule } from 'ngx-toastr';
+
 
 // *******************************************************************************
 //
@@ -85,6 +89,7 @@ import { ToastrModule } from 'ngx-toastr';
     CarbonEmissionComponent,
     OverviewComponent,
     VisualizationComponent,
+    FacilityReportComponent,
   ],
 
   imports: [
@@ -113,8 +118,10 @@ import { ToastrModule } from 'ngx-toastr';
     CarbonEmissionModule,
     DataAnalyticsModule,
     OverviewModule,
+    FacilityReportModule,
     ReactiveFormsModule,
     MomentModule,
+    ArchwizardModule,
     ToastrModule.forRoot()
   ],
   providers: [
