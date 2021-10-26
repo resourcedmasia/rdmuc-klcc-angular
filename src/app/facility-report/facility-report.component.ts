@@ -1,5 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { AppService } from '../app.service';
+import { RestService } from '../rest.service';
+import { AuthService } from '../auth.service';
 import { FormGroup, FormControl, Validators, FormsModule } from '@angular/forms';
 import { NgSelectModule } from '@ng-select/ng-select';
 
@@ -13,13 +15,8 @@ import { NgSelectModule } from '@ng-select/ng-select';
 })
 export class FacilityReportComponent implements OnInit {
 
-  facilityList = [
-    'KOMPLEKS DAYABUMI',
-    'INSTEP',
-    'MENARA EXXONMOBIL',
-    'BANGUNAN MITI'
-  ];
-  monthList = [ ];
+  facilityList = [];
+  monthList = [];
 
   // Form input (defaults)
   HVACForm = new FormGroup({
@@ -58,18 +55,43 @@ export class FacilityReportComponent implements OnInit {
   });
 
 
-  constructor(private appService: AppService) {
+  constructor(private restService: RestService, private authService: AuthService, private appService: AppService) {
     this.appService.pageTitle = 'Facility Report';
   }
 
   ngOnInit() {
+    // Populate month data
     let months = [ "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December" ];
     let year = new Date().getFullYear();
     months.forEach(function (value, key) {
       this.monthList.push(value + " " + year);
     }, this);
+
+    this.getFacilities();
   }
 
+  // Get list of facilities from API
+  getFacilities() {
+    this.restService.postData("getFacilityList", this.authService.getToken())
+      .subscribe(data => {
+        // Success
+        if (data["status"] == 200) {
+          this.facilityList = data["data"].rows;
+        }
+      });
+  }
+
+  // Submit facility report to API
+  submitFacilityReport() {
+    this.restService.postData("submitFacilityReport", this.authService.getToken(), {
+      name: this.HVACForm.value.total_complaints
+    })
+    .subscribe(data => {
+      if (data["status"] == 200) {
+
+      }
+    });
+  }
 
   // Getters for form data (used in HTML template)
   get HVAC_total_complaints() {

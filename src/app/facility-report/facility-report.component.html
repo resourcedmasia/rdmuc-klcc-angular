@@ -23,7 +23,8 @@
           placeholder="Select Facility"
           [clearable]="false"
           [items]="facilityList"
-          bindLabel="type"
+          bindLabel="name"
+          bindValue="name"
           [(ngModel)]="selectedFacility">
         </ng-select>
         </div>
@@ -308,11 +309,11 @@
           <div class="card-body">
               <div class="form-group">
                 <label class="form-label">Total Number of Complaints</label>
-                <input type="text" class="form-control" value={{HVAC_total_complaints}} readonly>
+                <input type="text" class="form-control" value={{this.HVACForm.value.total_complaints}} readonly>
               </div>
               <div class="form-group">
                 <label class="form-label">Total Number of Breakdowns</label>
-                <input type="text" class="form-control" value={{HVAC_total_breakdown}} readonly>
+                <input type="text" class="form-control" value={{this.HVACForm.value.total_breakdown}} readonly>
               </div>
           </div>
         </div>
@@ -327,27 +328,27 @@
           <div class="card-body">
               <div class="form-group">
                 <label class="form-label">Carbon Dioxide (CO2) / Parts Per Million (ppm)</label>
-                <input type="text" class="form-control" value={{IAQ_co2_ppm}} readonly>
+                <input type="text" class="form-control" value={{this.IAQForm.value.co2_ppm}} readonly>
               </div>
               <div class="form-group">
                 <label class="form-label">Carbon Monoxide (CO) / Parts Per Million (ppm)</label>
-                <input type="text" class="form-control" value={{IAQ_co_ppm}} readonly>
+                <input type="text" class="form-control" value={{this.IAQForm.value.co_ppm}} readonly>
               </div>
               <div class="form-group">
                 <label class="form-label">Formaldehyde / Parts Per Million (ppm)</label>
-                <input type="text" class="form-control" value={{IAQ_formaldehyde_ppm}} readonly>
+                <input type="text" class="form-control" value={{this.IAQForm.value.formaldehyde_ppm}} readonly>
               </div>
               <div class="form-group">
                 <label class="form-label">Volatile Organic Compound (VOC) / Parts Per Million (ppm)</label>
-                <input type="text" class="form-control" value={{IAQ_voc_ppm}} readonly>
+                <input type="text" class="form-control" value={{this.IAQForm.value.voc_ppm}} readonly>
               </div>
               <div class="form-group">
                 <label class="form-label">Temperature / Celcius (°C)</label>
-                <input type="text" class="form-control" value={{IAQ_temperature}} readonly>
+                <input type="text" class="form-control" value={{this.IAQForm.value.temperature}} readonly>
               </div>
               <div class="form-group">
                 <label class="form-label">Relative Humidity / RH (%)</label>
-                <input type="text" class="form-control" value={{IAQ_relative_humidity}} readonly>
+                <input type="text" class="form-control" value={{this.IAQForm.value.relative_humidity}} readonly>
               </div>
           </div>
         </div>
@@ -362,7 +363,7 @@
           <div class="card-body">
               <div class="form-group">
                 <label class="form-label">Kick-in Timeliness / Seconds</label>
-                <input type="text" class="form-control" value={{Generator_kick_in_timeliness}} readonly>
+                <input type="text" class="form-control" value={{this.GeneratorForm.value.kick_in_timeliness}} readonly>
               </div>
           </div>
         </div>
@@ -376,7 +377,7 @@
           <div class="card-body">
               <div class="form-group">
                 <label class="form-label">Continuous Water Disruption / Hours</label>
-                <input type="text" class="form-control" value={{Water_cont_water_disruption_hours}} readonly>
+                <input type="text" class="form-control" value={{this.WaterForm.value.cont_water_disruption_hours}} readonly>
               </div>
           </div>
         </div>
@@ -390,27 +391,27 @@
           <div class="card-body">
               <div class="form-group">
                 <label class="form-label">Number of COVID-19 Cases Reported / Case Count</label>
-                <input type="text" class="form-control" value={{HSSE_covid19_cases}} readonly>
+                <input type="text" class="form-control" value={{this.HSSEForm.value.covid19_cases}} readonly>
               </div>
               <div class="form-group">
                 <label class="form-label">Number of Manhours / Hours Per Month</label>
-                <input type="text" class="form-control" value={{HSSE_manhours}} readonly>
+                <input type="text" class="form-control" value={{this.HSSEForm.value.manhours}} readonly>
               </div>
               <div class="form-group">
                 <label class="form-label">Number of Hours Since Last Lost Time Injury (LTI) / Hours</label>
-                <input type="text" class="form-control" value={{HSSE_lti}} readonly>
+                <input type="text" class="form-control" value={{this.HSSEForm.value.lti}} readonly>
               </div>
               <div class="form-group">
                 <label class="form-label">Lost Time Injury Frequency Rate (LTIFR) / Per Million Manhours</label>
-                <input type="text" class="form-control" value={{HSSE_ltif}} readonly>
+                <input type="text" class="form-control" value={{this.HSSEForm.value.ltif}} readonly>
               </div>
               <div class="form-group">
                 <label class="form-label">Loss Of Primary Containment (LOPC) / Incident Count</label>
-                <input type="text" class="form-control" value={{HSSE_lopc}} readonly>
+                <input type="text" class="form-control" value={{this.HSSEForm.value.lopc}} readonly>
               </div>
               <div class="form-group">
                 <label class="form-label">Major Fire / Incident Count</label>
-                <input type="text" class="form-control" value={{HSSE_major_fire}} readonly>
+                <input type="text" class="form-control" value={{this.HSSEForm.value.major_fire}} readonly>
               </div>
           </div>
         </div>
