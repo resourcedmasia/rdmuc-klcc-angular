@@ -85,6 +85,42 @@
   <wizard-step navigationSymbol="3" navigationSymbolFontFamily="Roboto">
     <ng-template wizardStepTitle>
       <div class="text-muted small left-align">STEP 3</div>
+      Vertical Transportation
+    </ng-template>
+    <div class="card mb-3">
+      <div class="card-header h4">
+        Vertical Transportation / {{ this.selectedFacility }} / {{ this.selectedMonth }}
+      </div>
+      <div class="card-body">
+        <div class="mb-4">Please input your data. All fields are required.</div>
+        <form [formGroup]="VTSForm">
+          <div class="form-group">
+            <label class="form-label">Total Number of Mantraps</label>
+            <input type="text" formControlName="total_mantraps" class="form-control" [class.is-invalid]="VTSForm.get('total_mantraps').touched && VTSForm.get('total_mantraps').invalid" placeholder="0">
+            <small class="invalid-feedback">
+              Please enter a valid input.
+            </small>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Total Number of Breakdowns</label>
+            <input type="text" formControlName="total_breakdown" class="form-control" [class.is-invalid]="VTSForm.get('total_breakdown').touched && VTSForm.get('total_breakdown').invalid" placeholder="0">
+            <small class="invalid-feedback">
+              Please enter a valid input.
+            </small>
+          </div>
+        </form> 
+      </div>
+    </div>
+    <div class="text-right">
+      <button type="button" class="btn btn-default" previousStep>Previous</button>
+      <button type="button" class="btn btn-primary" nextStep [disabled]="VTSForm.invalid">Next</button>
+    </div>
+  </wizard-step>
+
+  <!-- Step 4 -->
+  <wizard-step navigationSymbol="4" navigationSymbolFontFamily="Roboto">
+    <ng-template wizardStepTitle>
+      <div class="text-muted small left-align">STEP 4</div>
       Indoor Air Quality
     </ng-template>
     <div class="card mb-3">
@@ -146,10 +182,10 @@
     </div>
   </wizard-step>
 
-  <!-- Step 4 -->
-  <wizard-step navigationSymbol="4" navigationSymbolFontFamily="Roboto">
+  <!-- Step 5 -->
+  <wizard-step navigationSymbol="5" navigationSymbolFontFamily="Roboto">
     <ng-template wizardStepTitle>
-      <div class="text-muted small left-align">STEP 4</div>
+      <div class="text-muted small left-align">STEP 5</div>
       Generator Set
     </ng-template>
     <div class="card mb-3">
@@ -175,10 +211,10 @@
     </div>
   </wizard-step>
 
-  <!-- Step 5 -->
-  <wizard-step navigationSymbol="5" navigationSymbolFontFamily="Roboto">
+  <!-- Step 6 -->
+  <wizard-step navigationSymbol="6" navigationSymbolFontFamily="Roboto">
     <ng-template wizardStepTitle>
-      <div class="text-muted small left-align">STEP 5</div>
+      <div class="text-muted small left-align">STEP 6</div>
       Domestic Water Supply
     </ng-template>
     <div class="card mb-3">
@@ -204,10 +240,10 @@
     </div>
   </wizard-step>
 
-  <!-- Step 6 -->
-  <wizard-step navigationSymbol="6" navigationSymbolFontFamily="Roboto">
+  <!-- Step 7 -->
+  <wizard-step navigationSymbol="7" navigationSymbolFontFamily="Roboto">
     <ng-template wizardStepTitle>
-      <div class="text-muted small left-align">STEP 6</div>
+      <div class="text-muted small left-align">STEP 7</div>
       HSSE
     </ng-template>
     <div class="card mb-3">
@@ -271,7 +307,7 @@
   <!-- Step Final -->
   <wizard-step navigationSymbol="7" navigationSymbolFontFamily="Roboto">
     <ng-template wizardStepTitle>
-      <div class="text-muted small left-align">STEP 7</div>
+      <div class="text-muted small left-align">STEP 8</div>
       Data Review
     </ng-template>
     <div class="card mb-3">
@@ -319,6 +355,23 @@
         </div>
       </div>
 
+      <div class="card-body pb-0">
+        <div class="card">
+          <div class="card-header h6 btn-secondary">
+            Vertical Transportation
+          </div>
+          <div class="card-body">
+              <div class="form-group">
+                <label class="form-label">Total Number of Mantraps</label>
+                <input type="text" class="form-control" value={{this.VTSForm.value.total_mantraps}} readonly>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Total Number of Breakdowns</label>
+                <input type="text" class="form-control" value={{this.VTSForm.value.total_breakdown}} readonly>
+              </div>
+          </div>
+        </div>
+      </div>
 
       <div class="card-body pb-0">
         <div class="card">

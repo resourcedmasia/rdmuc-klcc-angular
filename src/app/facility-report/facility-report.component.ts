@@ -54,6 +54,12 @@ export class FacilityReportComponent implements OnInit {
     major_fire: new FormControl('', [Validators.required, Validators.pattern("^[0-9]*$")]),
   });
 
+  // Form input (defaults)
+  VTSForm = new FormGroup({
+    total_mantraps: new FormControl('', [Validators.required, Validators.pattern("^[0-9]*$")]),
+    total_breakdown: new FormControl('', [Validators.required, Validators.pattern("^[0-9]*$")]),
+  });
+
 
   constructor(private restService: RestService, private authService: AuthService, private appService: AppService) {
     this.appService.pageTitle = 'Facility Report';
