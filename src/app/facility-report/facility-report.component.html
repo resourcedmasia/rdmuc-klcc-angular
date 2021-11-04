@@ -3,7 +3,20 @@
   <i class="ion ion-md-today"></i>&nbsp;&nbsp;<span class="text-muted font-weight-light">Data Entry /</span> Facility Report
 </h4>
 <hr class="border-light container-m--x mt-0 mb-4">
-<wizard [navBarLocation]="'left'" [navBarLayout]="'custom'">
+
+<div class="card btn-success" *ngIf="this.dataSubmitted">
+  <div class="card-body">
+    <i class="ion ion-md-checkmark"></i>&nbsp;&nbsp;Your facility report has been received and is currently being reviewed. <span *ngIf="this.selectedFacility"><b>({{ this.selectedFacility}} - {{  this.selectedMonth }})</b></span>
+  </div>
+</div>
+
+<div class="card btn-danger mb-4" *ngIf="this.reportSubmitted">
+  <div class="card-body">
+    <i class="ion ion-md-alert"></i>&nbsp;&nbsp;<b>WARNING</b>: A facility report has already been received for <b>{{ this.selectedFacility }} - {{ this.selectedMonth }}</b>. If you submit a new report for this facility and month, the existing report data will be overwritten.
+  </div>
+</div>
+
+<wizard [navBarLocation]="'left'" [navBarLayout]="'custom'" *ngIf="!this.dataSubmitted">
 
   <!-- Step 1 -->
   <wizard-step navigationSymbol="1" navigationSymbolFontFamily="Roboto">
@@ -24,8 +37,9 @@
           [clearable]="false"
           [items]="facilityList"
           bindLabel="name"
-          bindValue="name"
-          [(ngModel)]="selectedFacility">
+          bindValue="id"
+          [(ngModel)]="selectedFacilityID"
+          (change)="selectedFacility = $event.name; checkReportSubmitted()">
         </ng-select>
         </div>
         <div class="form-group">
@@ -35,13 +49,14 @@
           [clearable]="false"
           [items]="monthList"
           bindLabel="type"
-          [(ngModel)]="selectedMonth">
+          [(ngModel)]="selectedMonth"
+          (change)="checkReportSubmitted()">
         </ng-select>
         </div>
       </div>
     </div>
     <div class="text-right">
-      <button type="button" class="btn btn-primary" nextStep [disabled]="!this.selectedFacility || !this.selectedMonth">Next</button>
+      <button type="button" class="btn btn-primary" nextStep [disabled]="!this.selectedFacilityID || !this.selectedMonth">Next</button>
     </div>
   </wizard-step>
 
@@ -474,7 +489,7 @@
     </div>
     <div class="text-right">
       <button type="button" class="btn btn-default" previousStep>Previous</button>
-      <button type="button" class="btn btn-primary" (click)="finishFunction()">Submit</button>
+      <button type="button" class="btn btn-primary" (click)="submitFacilityReport()">Submit</button>
     </div>
   </wizard-step>
 </wizard>

@@ -4,6 +4,7 @@ import { RestService } from '../rest.service';
 import { AuthService } from '../auth.service';
 import { FormGroup, FormControl, Validators, FormsModule } from '@angular/forms';
 import { NgSelectModule } from '@ng-select/ng-select';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-facility-report',
@@ -15,8 +16,14 @@ import { NgSelectModule } from '@ng-select/ng-select';
 })
 export class FacilityReportComponent implements OnInit {
 
+  dataSubmitted = false;
+  reportSubmitted = false;
+
   facilityList = [];
+  selectedFacility;
+  selectedFacilityID;
   monthList = [];
+  selectedMonth;
 
   // Form input (defaults)
   HVACForm = new FormGroup({
@@ -61,7 +68,7 @@ export class FacilityReportComponent implements OnInit {
   });
 
 
-  constructor(private restService: RestService, private authService: AuthService, private appService: AppService) {
+  constructor(private restService: RestService, private authService: AuthService, private appService: AppService, private router: Router) {
     this.appService.pageTitle = 'Facility Report';
   }
 
@@ -87,14 +94,59 @@ export class FacilityReportComponent implements OnInit {
       });
   }
 
+  // Check if a report is already submitted
+  checkReportSubmitted() {
+    this.reportSubmitted = false;
+    if (!this.selectedMonth || !this.selectedFacilityID) {
+      return false;
+    }
+    this.restService.postData("isFacilityReportSubmitted", this.authService.getToken(), {
+      facilityId: this.selectedFacilityID,
+      month: this.selectedMonth
+    })
+      .subscribe(data => {
+        if (data["status"] == 200) {
+          this.reportSubmitted = data["data"].rows;
+        }
+      });
+  }
+
   // Submit facility report to API
   submitFacilityReport() {
     this.restService.postData("submitFacilityReport", this.authService.getToken(), {
-      name: this.HVACForm.value.total_complaints
+      facility: this.selectedFacility,
+      facilityId: this.selectedFacilityID,
+      month: this.selectedMonth,
+
+      generator_kick_in_timeliness: this.GeneratorForm.value.kick_in_timeliness,
+      
+      hsse_covid19_cases: this.HSSEForm.value.covid19_cases,
+      hsse_manhours: this.HSSEForm.value.manhours,
+      hsse_lti: this.HSSEForm.value.lti,
+      hsse_ltif: this.HSSEForm.value.ltif,
+      hsse_lopc: this.HSSEForm.value.lopc,
+      hsse_major_fire: this.HSSEForm.value.major_fire,
+
+      hvac_total_complaints: this.HVACForm.value.total_complaints,
+      hvac_total_breakdown: this.HVACForm.value.total_breakdown,
+
+      iaq_co2_ppm: this.IAQForm.value.co2_ppm,
+      iaq_co_ppm: this.IAQForm.value.co_ppm,
+      iaq_formaldehyde_ppm: this.IAQForm.value.formaldehyde_ppm,
+      iaq_voc_ppm: this.IAQForm.value.voc_ppm,
+      iaq_temperature: this.IAQForm.value.temperature,
+      iaq_relative_humidity: this.IAQForm.value.relative_humidity,
+
+      vts_total_mantraps: this.VTSForm.value.total_mantraps,
+      vts_total_breakdown: this.VTSForm.value.total_breakdown,
+
+      water_cont_water_disruption_hours: this.WaterForm.value.cont_water_disruption_hours
     })
     .subscribe(data => {
       if (data["status"] == 200) {
-
+        // Navigate to acknowledgement page
+        this.dataSubmitted = true;
+        //this.router.navigate(['/dataentry/facility/complete']);
       }
     });
   }
