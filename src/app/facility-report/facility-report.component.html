@@ -6,13 +6,13 @@
 
 <div class="card btn-success" *ngIf="this.dataSubmitted">
   <div class="card-body">
-    <i class="ion ion-md-checkmark"></i>&nbsp;&nbsp;Your facility report has been received and is currently being reviewed. <span *ngIf="this.selectedFacility"><b>({{ this.selectedFacility}} - {{  this.selectedMonth }})</b></span>
+    <i class="ion ion-md-checkmark"></i>&nbsp;&nbsp;<b>SUCCESS!</b> Your facility report has been submitted and is currently being reviewed. <span *ngIf="this.selectedFacility"><b>({{ this.selectedFacility}} - {{  this.selectedMonth }})</b></span>
   </div>
 </div>
 
 <div class="card btn-danger mb-4" *ngIf="this.reportSubmitted">
   <div class="card-body">
-    <i class="ion ion-md-alert"></i>&nbsp;&nbsp;<b>WARNING</b>: A facility report has already been received for <b>{{ this.selectedFacility }} - {{ this.selectedMonth }}</b>. If you submit a new report for this facility and month, the existing report data will be overwritten.
+    <i class="ion ion-md-alert"></i>&nbsp;&nbsp;<b>WARNING.</b> A facility report has already been submitted for <b>{{ this.selectedFacility }} - {{ this.selectedMonth }}</b>. If you submit a new report for this facility and month, the existing report data will be overwritten.
   </div>
 </div>
 
