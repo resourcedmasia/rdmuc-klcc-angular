@@ -1,10 +1,11 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Input } from '@angular/core';
 import { AppService } from '../app.service';
 import { RestService } from '../rest.service';
 import { AuthService } from '../auth.service';
 import { FormGroup, FormControl, Validators, FormsModule } from '@angular/forms';
 import { NgSelectModule } from '@ng-select/ng-select';
 import { Router } from '@angular/router';
+import { ActivatedRoute, Params } from '@angular/router';
 
 @Component({
   selector: 'app-facility-report',
@@ -15,7 +16,6 @@ import { Router } from '@angular/router';
   ]
 })
 export class FacilityReportComponent implements OnInit {
-
   dataSubmitted = false;
   reportSubmitted = false;
 
@@ -24,6 +24,8 @@ export class FacilityReportComponent implements OnInit {
   selectedFacilityID;
   monthList = [];
   selectedMonth;
+
+  row = [];
 
   // Form input (defaults)
   HVACForm = new FormGroup({
@@ -68,11 +70,18 @@ export class FacilityReportComponent implements OnInit {
   });
 
 
-  constructor(private restService: RestService, private authService: AuthService, private appService: AppService, private router: Router) {
+  constructor(private restService: RestService, private authService: AuthService, private appService: AppService, private router: Router, private activatedRoute: ActivatedRoute) {
     this.appService.pageTitle = 'Facility Report';
   }
 
   ngOnInit() {
+    // Parse GET parameters in route (if any)
+    this.activatedRoute.params.subscribe(params => {
+      if (params["action"] == "createReport") {
+        this.row = JSON.parse(params["row"]);
+      }
+    });
+    
     // Populate month data
     let months = [ "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December" ];
     let year = new Date().getFullYear();
@@ -90,6 +99,14 @@ export class FacilityReportComponent implements OnInit {
         // Success
         if (data["status"] == 200) {
           this.facilityList = data["data"].rows;
+          // Check if user was directed here via GET parameter
+          if (this.row['facilityId']) {
+            this.selectedFacilityID = this.row['facilityId'];
+            this.selectedMonth = this.row['selectedMonth'];
+            this.selectedFacility = this.row['facility'];
+            this.checkReportSubmitted();
+          }
+          
         }
       });
   }

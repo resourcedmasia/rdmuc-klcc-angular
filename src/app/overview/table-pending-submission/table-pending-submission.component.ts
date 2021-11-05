@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { AppService } from '../../app.service';
 import { RestService } from '../../rest.service';
 import { AuthService } from '../../auth.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'table-pending-submission',
@@ -10,15 +11,11 @@ import { AuthService } from '../../auth.service';
 })
 export class TablePendingSubmissionComponent implements OnInit {
 
+  year = '2021';
   loadingIndicator = true;
   rows = [];
-  columns = [{
-    prop: 'semesterName',
-    name: '×¡×ž×¡×˜×¨',
-    resizeable: false
- }];
 
-  constructor(private appService: AppService, private restService: RestService, private authService: AuthService) {
+  constructor(private appService: AppService, private restService: RestService, private authService: AuthService, private router: Router) {
   }
 
   ngOnInit() {
@@ -42,6 +39,11 @@ export class TablePendingSubmissionComponent implements OnInit {
   }
 
   createReport(row, event) {
-    
+    let row2 = {
+      facility: row.facility,
+      facilityId: row.facilityId,
+      selectedMonth: row.selectedMonth
+    };
+    this.router.navigate(['/dataentry/facility', {action: "createReport", row : JSON.stringify(row2)}]);
   }
 }
