@@ -1,0 +1,92 @@
+<div class="card">
+  <div class="card-header" style="display: inline-block;">
+    <div class="h4 mb-0">Facility Data Submission Status by Month / 2021</div>
+  </div>
+  <div class="card-ngx-datatable table-responsive">
+    <ngx-datatable #table 
+        [rows]="rows"
+        [loadingIndicator]="loadingIndicator"
+        [columnMode]="'force'"
+        [headerHeight]="43"
+        [footerHeight]="'auto'"
+        [rowHeight]="'auto'"
+        [reorderable]="false"
+        [selectionType]="'row'"
+        (activate)="onActivate($event)"
+        [limit]="10">
+        <ngx-datatable-column name="Facility" [minWidth]="200"></ngx-datatable-column>
+        <ngx-datatable-column name="JAN" [resizeable]="false" [minWidth]="60" [maxWidth]="60">
+          <ng-template let-row="row" let-value="value" ngx-datatable-cell-template>
+            <div *ngIf="!row.january" class="btn btn-xs btn-warning" style="width: 40px" (click)="createReport(row, $event)"><i class="ion ion-md-close"></i></div>
+            <div *ngIf="row.january" class="btn btn-xs btn-success" style="width: 40px"><i class="ion ion-md-checkmark"></i></div>
+          </ng-template>
+        </ngx-datatable-column>
+        <ngx-datatable-column name="FEB" [resizeable]="false" [minWidth]="60" [maxWidth]="60">
+          <ng-template let-row="row" let-value="value" ngx-datatable-cell-template>
+            <div *ngIf="!row.february" class="btn btn-xs btn-warning" style="width: 40px" (click)="createReport(row, $event)"><i class="ion ion-md-close"></i></div>
+            <div *ngIf="row.february" class="btn btn-xs btn-success" style="width: 40px"><i class="ion ion-md-checkmark"></i></div>
+          </ng-template>
+        </ngx-datatable-column>
+        <ngx-datatable-column name="MAR" [resizeable]="false" [minWidth]="60" [maxWidth]="60">
+          <ng-template let-row="row" let-value="value" ngx-datatable-cell-template>
+            <div *ngIf="!row.march" class="btn btn-xs btn-warning" style="width: 40px" (click)="createReport(row, $event)"><i class="ion ion-md-close"></i></div>
+            <div *ngIf="row.march" class="btn btn-xs btn-success" style="width: 40px"><i class="ion ion-md-checkmark"></i></div>
+          </ng-template>
+        </ngx-datatable-column>
+        <ngx-datatable-column name="APR" [resizeable]="false" [minWidth]="60" [maxWidth]="60">
+          <ng-template let-row="row" let-value="value" ngx-datatable-cell-template>
+            <div *ngIf="!row.april" class="btn btn-xs btn-warning" style="width: 40px" (click)="createReport(row, $event)"><i class="ion ion-md-close"></i></div>
+            <div *ngIf="row.april" class="btn btn-xs btn-success" style="width: 40px"><i class="ion ion-md-checkmark"></i></div>
+          </ng-template>
+        </ngx-datatable-column>
+        <ngx-datatable-column name="MAY" [resizeable]="false" [minWidth]="60" [maxWidth]="60">
+          <ng-template let-row="row" let-value="value" ngx-datatable-cell-template>
+            <div *ngIf="!row.may" class="btn btn-xs btn-warning" style="width: 40px" (click)="createReport(row, $event)"><i class="ion ion-md-close"></i></div>
+            <div *ngIf="row.may" class="btn btn-xs btn-success" style="width: 40px"><i class="ion ion-md-checkmark"></i></div>
+          </ng-template>
+        </ngx-datatable-column>
+        <ngx-datatable-column name="JUN" [resizeable]="false" [minWidth]="60" [maxWidth]="60">
+          <ng-template let-row="row" let-value="value" ngx-datatable-cell-template>
+            <div *ngIf="!row.june" class="btn btn-xs btn-warning" style="width: 40px" (click)="createReport(row, $event)"><i class="ion ion-md-close"></i></div>
+            <div *ngIf="row.june" class="btn btn-xs btn-success" style="width: 40px"><i class="ion ion-md-checkmark"></i></div>
+          </ng-template>
+        </ngx-datatable-column>
+        <ngx-datatable-column name="JUL" [resizeable]="false" [minWidth]="60" [maxWidth]="60">
+          <ng-template let-row="row" let-value="value" ngx-datatable-cell-template>
+            <div *ngIf="!row.july" class="btn btn-xs btn-warning" style="width: 40px" (click)="createReport(row, $event)"><i class="ion ion-md-close"></i></div>
+            <div *ngIf="row.july" class="btn btn-xs btn-success" style="width: 40px"><i class="ion ion-md-checkmark"></i></div>
+          </ng-template>
+        </ngx-datatable-column>
+        <ngx-datatable-column name="AUG" [resizeable]="false" [minWidth]="60" [maxWidth]="60">
+          <ng-template let-row="row" let-value="value" ngx-datatable-cell-template>
+            <div *ngIf="!row.august" class="btn btn-xs btn-warning" style="width: 40px" (click)="createReport(row, $event)"><i class="ion ion-md-close"></i></div>
+            <div *ngIf="row.august" class="btn btn-xs btn-success" style="width: 40px"><i class="ion ion-md-checkmark"></i></div>
+          </ng-template>
+        </ngx-datatable-column>
+        <ngx-datatable-column name="SEP" [resizeable]="false" [minWidth]="60" [maxWidth]="60">
+          <ng-template let-row="row" let-value="value" ngx-datatable-cell-template>
+            <div *ngIf="!row.september" class="btn btn-xs btn-warning" style="width: 40px" (click)="createReport(row, $event)"><i class="ion ion-md-close"></i></div>
+            <div *ngIf="row.september" class="btn btn-xs btn-success" style="width: 40px"><i class="ion ion-md-checkmark"></i></div>
+          </ng-template>
+        </ngx-datatable-column>
+        <ngx-datatable-column name="OCT" [resizeable]="false" [minWidth]="60" [maxWidth]="60">
+          <ng-template let-row="row" let-value="value" ngx-datatable-cell-template>
+            <div *ngIf="!row.october" class="btn btn-xs btn-warning" style="width: 40px" (click)="createReport(row, $event)"><i class="ion ion-md-close"></i></div>
+            <div *ngIf="row.october" class="btn btn-xs btn-success" style="width: 40px"><i class="ion ion-md-checkmark"></i></div>
+          </ng-template>
+        </ngx-datatable-column>
+        <ngx-datatable-column name="NOV" [resizeable]="false" [minWidth]="60" [maxWidth]="60">
+          <ng-template let-row="row" let-value="value" ngx-datatable-cell-template>
+            <div *ngIf="!row.november" class="btn btn-xs btn-warning" style="width: 40px" (click)="createReport(row, $event)"><i class="ion ion-md-close"></i></div>
+            <div *ngIf="row.november" class="btn btn-xs btn-success" style="width: 40px"><i class="ion ion-md-checkmark"></i></div>
+          </ng-template>
+        </ngx-datatable-column>
+        <ngx-datatable-column name="DEC" [resizeable]="false" [minWidth]="60" [maxWidth]="60">
+          <ng-template let-row="row" let-value="value" ngx-datatable-cell-template>
+            <div *ngIf="!row.december" class="btn btn-xs btn-warning" style="width: 40px" (click)="createReport(row, $event)"><i class="ion ion-md-close"></i></div>
+            <div *ngIf="row.december" class="btn btn-xs btn-success" style="width: 40px"><i class="ion ion-md-checkmark"></i></div>
+          </ng-template>
+        </ngx-datatable-column>
+    </ngx-datatable>
+  </div>
+</div>
