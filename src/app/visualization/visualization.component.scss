@@ -1,3 +1,16 @@
 #graphContainer {
     padding: 1.5rem;
+    position: relative;
+    // overflow:auto;
+    // max-height: 60vh;
+    
 }
+
+.scroll {
+    overflow-y: auto;
+    overflow-x: auto;
+    max-height: 80vh;
+    position: relative;
+}
+
+

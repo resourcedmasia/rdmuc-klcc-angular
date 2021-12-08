@@ -40,6 +40,7 @@
               "src/vendor/styles/uikit.scss"
             ],
             "scripts": [
+              "src/config/mxgraph-config.js",
               "node_modules/mxgraph/javascript/mxClient.js"
             ]
           },
@@ -73,7 +74,8 @@
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
           "options": {
-            "browserTarget": "angular-starter:build:serve"
+            "browserTarget": "angular-starter:build:serve",
+            "proxyConfig": "src/proxy.conf.json"
           },
           "configurations": {
             "production": {

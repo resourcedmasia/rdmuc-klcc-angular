@@ -1,23 +1,31 @@
-import { Component, OnDestroy, OnInit, ElementRef, ViewChild } from '@angular/core';
+import { HostListener,Component, OnDestroy, OnInit, ElementRef, ViewChild } from '@angular/core';
+import {Router, NavigationEnd,ActivatedRoute} from '@angular/router';
 import { AppService } from '../app.service';
 import { RestService } from '../rest.service';
 import { AuthService } from '../auth.service';
 import { FormGroup, FormControl, Validators, FormsModule } from '@angular/forms';
+import { Config } from '../../config/config';
 
 
 
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { MxgraphEditComponent } from '../mxgraph-edit/mxgraph-edit.component';
 import { DatatableComponent } from '@swimlane/ngx-datatable';
 import { Subscription, timer } from 'rxjs';
 import { deserialize } from 'chartist';
 import { ToastrService } from 'ngx-toastr';
+import { WriteVisualizationModalComponent } from './write-visualization-modal/write-visualization-modal.component'
+import { VerifyUserModalComponent } from './verify-user-modal/verify-user-modal.component'
 
 declare var mxUtils: any;
 declare var mxCodec: any;
 declare var mxGraph: any;
 declare var mxEvent: any;
+declare var mxCellHighlight: any;
+declare var mxGraphView: any;
 declare var cellName: any;
+declare var mxConstants: any;
 
 @Component({
   selector: 'app-visualization',
@@ -37,19 +45,26 @@ export class VisualizationComponent implements OnInit, OnDestroy {
   selectedGraph;
   selectedMxGraph = [];
   graph;
+  mxgraphData = [];
 
   // Selected mxGraph cell ID (ngModel binding)
   selectedCellId;
   selectedWriteCellId;
   selectedCellValue;
+  cellValue: any;
 
   temp = [];
   loadingIndicator = true;
   description = [];
   items = [];
+  cells = [];
 
   writeSlaveType = [];
   readSlaveType = [];
+  linkMappingReadConfig = [];
+  slaveArray = [];
+  getAllSlaveArray = [];
+  getSlaveValue = [];
 
   readTableData = [];
   writeTableData = [];
@@ -61,15 +76,25 @@ export class VisualizationComponent implements OnInit, OnDestroy {
   writeConfig = [];
   mxcellID = [];
   cellName = [];
+  cellID = [];
+
 
   writeName;
   writeCode;
   readName;
   readCode;
+  readOnly: any;
+  hideAddRow: any;
+  graphClickable: boolean;
 
+  readConfigClass: any;
   readCellID;
   disablebutton;
+  selectedName: any;
+  tempState: any;
+  previousStyle: any;
 
+  cardExpand: boolean;
 
   // Add / Edit Graph Configuration Form
   mxGraphForm = new FormGroup({
@@ -80,11 +105,28 @@ export class VisualizationComponent implements OnInit, OnDestroy {
   cellForm = new FormGroup({
     cell_code: new FormControl('')
   });
+ 
 
+  // addRowForm = new FormGroup({
+  //   addType: new FormControl('', Validators.required),
+  //   addName: new FormControl('', Validators.required),
+  //   addSlaveType: new FormControl('', Validators.required),
+  // });
 
-  constructor(private toastr: ToastrService, private modalService: NgbModal, private appService: AppService, private restService: RestService, private authService: AuthService) {
+  
+  constructor(
+              private config: Config, 
+              private toastr: ToastrService, 
+              private modalService: NgbModal, 
+              private appService: AppService, 
+              private restService: RestService, 
+              private authService: AuthService,
+              private router: Router,
+              private activatedRoute: ActivatedRoute,
+              ) {
+    
     this.appService.pageTitle = 'Visualization Dashboard';
-    modalService = this.modalService;
+    // modalService = this.modalService;
 
   }
 
@@ -94,34 +136,42 @@ export class VisualizationComponent implements OnInit, OnDestroy {
   private fieldArray: Array<any> = [];
   private newAttribute: any = {};
   field: any;
+  
+  // Re-size graph when detect window size change
+  @HostListener('window:resize', ['$event'])
+  onResize(event) {
+    if (event) {
+      this.centerGraph();
+    }
+  }
 
-
-  ngOnInit() {
+ 
+  async ngOnInit() {
 
 
     let CircularJSON = require('circular-json');
+    this.readOnly = -1;
+    this.hideAddRow = false;
+    this.tempState = "";
+    this.graphClickable = false;
+    this.cardExpand = false;
 
     // Retrieve stored mxGraphs from database and populate dropdown selection
     this.getMxGraphList();
 
-    this.subscription = timer(0, 5000).pipe().subscribe(() => {
-      console.log("every 5 sec");
-
-      // this.refreshGraph();
-      //this.getUsers();
-
-      // Retrieve stored mxGraphs from database and populate dropdown selection
-      //this.getMxGraphList();
-    });
-
     //this.getUsers();
     this.getWriteSlaveList();
-    this.getReadSlaveList();
+    await this.getReadSlaveList();
 
+    
     // Prepare initial graph
     this.graph = new mxGraph(this.graphContainer.nativeElement);
-    let xml = ' <root> <mxCell id="0" /> <mxCell id="1" parent="0" /> <mxCell id="5cqd6Tq56_ArgYoLdoSi-1" value="No mxGraph selected." style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1"> <mxGeometry x="40" y="40" width="760" height="40" as="geometry" /> </mxCell> </root>';
-
+    
+    this.graph.view.rendering = false;
+    
+    // Default no graph from config.ts 
+    let xml = this.config.XMLnograph;
+    
     let doc = mxUtils.parseXml(xml);
     let codec = new mxCodec(doc);
     let elt = doc.documentElement.firstChild;
@@ -129,9 +179,12 @@ export class VisualizationComponent implements OnInit, OnDestroy {
 
     while (elt != null) {
       cells.push(codec.decodeCell(elt));
+      this.graph.refresh();
       elt = elt.nextSibling;
     }
 
+    
+    
 
     this.graph.addCells(cells);
 
@@ -140,78 +193,110 @@ export class VisualizationComponent implements OnInit, OnDestroy {
 
     // Enable HTML markup on labels (https://jgraph.github.io/mxgraph/docs/js-api/files/view/mxGraph-js.html#mxGraph.htmlLabels)
     this.graph.htmlLabels = true;
-
-    // Store current context (this) in variable (thisContext)
-    let thisContext = this;
-
-
-    let model = this.graph.getModel();
-    // On Click event ...
-    this.graph.addListener(mxEvent.CLICK, function (sender, evt) {
-      // Get event 'cell' property, 'id' subproperty (cell ID)
-      let cellId = evt.getProperty("cell").id;
-      let cellValued = evt.getProperty("cell").value;
-
-      let valued = localStorage.getItem('cell_value');
-
-
-      // Update ngModel binding with selected cell ID
-      thisContext.newAttribute.mxgraphid = cellId;
-      model.beginUpdate();
-
-      try {
-        // Get cell from model by cell ID string (https://jgraph.github.io/mxgraph/docs/js-api/files/model/mxGraphModel-js.html#mxGraphModel.getCell)
-        let cell = model.getCell(evt.getProperty("cell").id);
-        // Update cell data on model (test + random number for debugging purposes)
-        this.model.setValue(cell, valued);
-      }
-      finally {
-        model.endUpdate();
-      }
-
-    });
-
+    // Add click event
+    this.addClickListener();
+    // Center and Re-scale graph
+    this.centerGraph();
     // Disable loading indicator on table
     this.loadingIndicator = false;
+   
+  }
+
+  centerGraph() {
+   
+    this.graph.view.rendering = true;
+
+    // Center the graph
+    var margin = 2;
+    var max = 3;
+    
+    var bounds = this.graph.getGraphBounds();
+    var cw = this.graph.container.clientWidth - margin;
+    var ch = this.graph.container.clientHeight - margin;
+    var w = bounds.width / this.graph.view.scale;
+    var h = bounds.height / this.graph.view.scale;
+    var s = Math.min(max, Math.min(cw / w, ch / h));
+    
+    this.graph.view.scaleAndTranslate(s,
+      (margin + cw - w * s) / (2 * s) - bounds.x / this.graph.view.scale,
+      (margin + ch - h * s) / (2 * s) - bounds.y / this.graph.view.scale);
+
+    // Re-scale the graph to fit the container
+    this.graph.fit();
+    // Re-render the graph
+    this.graph.refresh();
+
+
   }
 
   ngOnDestroy() {
     this.subscription.unsubscribe();
   }
 
-  addFieldValue(index) {
-    console.log(index);
-    this.fieldArray.push(this.newAttribute)
-    this.newAttribute = {};
-    console.log(this.fieldArray);
+  addFieldValue() {
+    // If attribute is empty, no new rows will be added
+    
+    if (Object.keys(this.newAttribute).length === 0){
+      console.log("Attribute is empty");
+    } else {
+      console.log("Attribute", this.newAttribute);
+        let attributeArray = {
+          mxgraph_id: this.mxgraphData["Id"],
+          slave: this.newAttribute.controller,
+          slave_cell_id: this.newAttribute.mxgraphid,
+          slave_name: this.newAttribute.name.Name,
+          slave_type: this.newAttribute.name.Class
+        }
 
-    for (let i = 0; i < this.fieldArray.length; i++) {
+        this.newAttribute = {};
+        console.log(this.fieldArray);
+        // Make sure the fields are not empty when adding new row
+        if (attributeArray.slave && attributeArray.slave_cell_id && attributeArray.slave_name && attributeArray.slave_type) {
+          this.fieldArray.push(attributeArray)
+          this.linkMappingReadConfig.push(attributeArray)
+          this.readConfigClass = "";
+          this.graphClickable = false;
+          this.removeClickListener();
+          // Make dialog box to save before clicking anything?
+        }
+        
     }
+    
   }
 
-  deleteFieldValue(index) {
-    this.fieldArray.splice(index, 1);
+  deleteFieldValue(event) {
+    for(let i = 0; i < this.fieldArray.length; ++i){
+      if (this.fieldArray[i].slave_cell_id === event.target.id) {
+        // Splice array in Read Config
+        this.fieldArray.splice(i,1);
+        // Splice in Link Mapping, so that the API don't need to call for this value
+        this.linkMappingReadConfig.splice(i,1);
+      }
+    }
+
+    // Change value cell value to "" after delete
+    this.resetCells(this.cells, event.target.id);
+    this.graph.refresh();
+  
   }
 
-  onSelect(selectedItem: any) {
-
-    console.log("selectedItem:"+JSON.stringify(selectedItem));
-
-    localStorage.setItem("selectedItem", selectedItem.mxgraphid);
-    let model = this.graph.getModel();
-
-    this.graph.addListener(mxEvent.CLICK, function (sender, evt) {
-      // Get event 'cell' property, 'id' subproperty (cell ID)
-      let cellId = evt.getProperty("cell").id;
+  onSelect(i: number, event) {
+    console.log(this.getAllSlaveArray)
+    console.log(event)
 
 
-      // Update ngModel binding with selected cell ID
-
-      selectedItem.mxgraphid = cellId;
-
-
-    });
-
+    for (let i = 0; i < this.getAllSlaveArray[event.slave].Items.Item.length; i++) {
+      if (this.getAllSlaveArray[event.slave].Items.Item[i].Name == event.slave_name) {
+        let cell_value = this.getAllSlaveArray[event.slave].Items.Item[i].Value
+        localStorage.setItem('cell_value', cell_value)
+        console.log("cell_value",cell_value)
+      }
+    }
+    
+    this.readOnly = i
+    this.hideAddRow = true;
+    this.graphClickable = true;
+    this.addClickListener();
   }
 
   /*  Function: Retrieve stored mxGraph data from MySQL database (id, mxgraph_name, mxgraph_code), populate 'this.selected' dropdown list */
@@ -226,17 +311,50 @@ export class VisualizationComponent implements OnInit, OnDestroy {
   }
 
   /* Function: Event triggered when mxGraph is selected from UI dropdown */
-  onSelectGraph(event) {
+  async onSelectGraph(event) {
+
+    // Stops loading indicator  
+    this.loadingIndicator = true;  
+    this.graphClickable = false;
+
+    localStorage.removeItem('cell_value');
+    this.newAttribute = {};
+    // Clear fieldArray
+    this.fieldArray = [];
+    // Clear linkMappingReadConfig Array
+    this.linkMappingReadConfig = [];
+
+    // Remove click events
+    this.removeClickListener();
+    
+
+    // Retrieve Link Mapping by Graph ID
+    await this.restService.postData("readLinkMapping", this.authService.getToken(), {
+      id: event.Id
+    }).toPromise().then(data => {
+      if (data["status"] == 200) {
+    
+          let linkMapping = data["data"].rows;
+          
+          // Push Link Mapping to populate Read Configuration fields
+          for (let i = 0; i < linkMapping.length; i++) {
+            this.linkMappingReadConfig=[...this.linkMappingReadConfig,linkMapping[i]];
+          }
+          console.log("getLinkMapping for ID " + event.Id, this.linkMappingReadConfig)
+      }
+    });
+
     // Clear the existing graph
     this.graph.getModel().clear();
 
     // Retrieve graph XML by ID
-    this.restService.postData("getMxGraphCodeByID", this.authService.getToken(), {
+    await this.restService.postData("getMxGraphCodeByID", this.authService.getToken(), {
       id: event.Id
-    }).subscribe(data => {
+    }).toPromise().then(async data => {
       // Success
       if (data["status"] == 200) {
         let mxgraphData = data["data"].rows[0];
+        this.mxgraphData = data["data"].rows[0];
 
         let doc = mxUtils.parseXml(mxgraphData["mxgraph_code"]);
         let codec = new mxCodec(doc);
@@ -249,38 +367,288 @@ export class VisualizationComponent implements OnInit, OnDestroy {
           elt = elt.nextSibling;
         }
 
+        
+        
+        this.cells = cells;
+     
+        // Iterate read config field and change value of cells
+        await this.generateCells(cells) 
+        // Stops loading indicator  
+        this.loadingIndicator = false;    
+
+        this.graph.refresh();
+
+        // Start 5 seconds interval subscription
+        if (this.subscription) {
+          // If already subscribed, unsubbed to the previous sub
+          this.subscription.unsubscribe();
+          this.sub(cells);
+        } else {
+          this.sub(cells);
+          }
+
+        console.log(this.fieldArray);
+        
+
         this.graph.addCells(cells);
 
         // Disable mxGraph editing
         this.graph.setEnabled(false);
 
-        console.log("event:" + JSON.stringify(event.Id));
-
         localStorage.setItem('mxgraph_id', event.Id);
+        this.addClickListener();
 
         this.mxGraphForm.patchValue({
           mxgraph_value: event.mxgraph_name
         });
+        this.centerGraph();
+
       }
     });
 
   }
 
-  refreshGraph() {
-    var mxgraph_id = localStorage.getItem('mxgraph_id');
-    this.graph.getModel().clear();
+  addClickListener() {
+    let model = this.graph.getModel();
+    let thisContext = this;
+    let linkMap = this.linkMappingReadConfig
+        
+    // On Click event ...
+    if (this.graphClickable) {
+    this.graph.addListener(mxEvent.CLICK, function (sender, evt) {
+      let valued = null
+      if (evt.properties.cell) {
 
-    // Retrieve graph XML by ID
-    this.restService.postData("getMxGraphCodeByID", this.authService.getToken(), {
-      id: mxgraph_id
-    }).subscribe(data => {
-      // Success
-      if (data["status"] == 200) {
-        let mxgraphData = data["data"].rows[0];
+        // Get event 'cell' property, 'id' subproperty (cell ID)
+        let cellId = evt.getProperty("cell").id;        
+            
+        valued = localStorage.getItem('cell_value');
+        console.log(valued)
 
-        console.log("mxgraphData:" + mxgraphData);
+        // Update ngModel binding with selected cell ID
+        thisContext.newAttribute.mxgraphid = cellId;
+        model.beginUpdate();
+        
+        try {
+          // Get cell from model by cell ID string (https://jgraph.github.io/mxgraph/docs/js-api/files/model/mxGraphModel-js.html#mxGraphModel.getCell)
+          let cell = model.getCell(evt.getProperty("cell").id);
+          // Set value in cell when clicked
+          if (valued) {
+            model.setValue(cell, valued);
+          } 
+        }
+        finally {
+          model.endUpdate();
 
-        let doc = mxUtils.parseXml(mxgraphData["mxgraph_code"]);
+        }
+      }
+    });
+   }
+   else {
+    //On-click event if the vertex has type Parameter
+    let modalService = this.modalService
+    let getAllSlaveArray = this.getAllSlaveArray
+    let refreshPage = this.refreshPage
+    this.graph.addListener(mxEvent.CLICK, function (sender, evt) {
+      if (evt.properties.cell) {
+
+        let cellId = evt.properties.cell.id
+        console.log(linkMap)
+        console.log(getAllSlaveArray)
+       
+        for (let i = 0; i < linkMap.length; i++) {
+          if (linkMap[i].slave_cell_id == cellId && linkMap[i].slave_type == "Parameter") {
+            let row = {
+              slave_name: linkMap[i].slave_name,
+              slave_type: linkMap[i].slave_type,
+              slave_cell_id: linkMap[i].slave_cell_id,
+              slave: linkMap[i].slave,
+              mxgraph_id: linkMap[i].mxgraph_id
+            }
+
+            for (let j = 0; j < getAllSlaveArray[linkMap[i].slave].Items.Item.length; j++) {
+                if (linkMap[i].slave_name == getAllSlaveArray[linkMap[i].slave].Items.Item[j].Name) {
+                  let rowArray = {slave_value: getAllSlaveArray[linkMap[i].slave].Items.Item[j].Value, ...row};
+                  // Open Modal if slave_type is a Parameter
+                  const modalRef = modalService.open(WriteVisualizationModalComponent);
+                  modalRef.componentInstance.row = rowArray;
+                  modalRef.result.then((result) => {
+                    if (result !== 'cancel') {
+                      // Open Modal if to verify user
+                      const modalVer = modalService.open(VerifyUserModalComponent);
+                      modalVer.componentInstance.row = result;
+                      modalVer.result.then((result) => {
+                        if (result !== "cancel" && result !== "fail") {
+                        refreshPage;
+                        }
+                      }).catch((error) => {
+                        console.log(error)
+                      });
+                    }
+                  })
+                  .catch((error) => {
+                    console.log(error)
+                  });
+                }
+            }
+          }
+        }
+   
+      }
+    });
+
+   }
+  }
+
+  refreshPage() {
+    this.router.navigate([this.router.url]);
+  }
+
+  removeClickListener() {
+    if (this.graph.eventListeners) {
+      this.graph.eventListeners = (this.graph.eventListeners).splice(this.graph.eventListeners.length, 2)
+    }
+  }
+
+  sub(cells) {
+    // Normalize the object array through Slave
+    const names = this.linkMappingReadConfig.map(o => o.slave);
+    const filtered = this.linkMappingReadConfig.filter(({slave}, index) => !names.includes(slave, index + 1))
+    console.log(filtered);
+    // Set time out for 5 seconds
+    this.subscription = timer(0, 5000).pipe().subscribe( async () => {
+      for(let i = 0; i < filtered.length; i++) {
+        if (this.getAllSlaveArray[filtered[i].slave] === "" || !this.getAllSlaveArray[filtered[i].slave]) {
+          // Skip if empty
+        }
+        else {
+          await this.restService.postData("getSlave", this.authService.getToken(), { type: filtered[i].slave }).toPromise().then(async data => {
+                // Success
+                if (data["status"] == 200 && data["data"]["rows"] !== false) {    
+                    // Re-assign the new data values to controller object
+                    this.getAllSlaveArray[filtered[i].slave] = data["data"]["rows"];
+                    // Re-add the cells with new value
+                    await this.refreshCells(cells);
+                }
+                else {
+                  console.log("Can't get Slave data.");
+                }
+              });
+          }
+        }
+      });
+  }
+
+  async generateCells(cells) {
+        // Populate number of rows in Read Config
+        for (let i = 0; i < this.linkMappingReadConfig.length; i++) {
+          if (this.linkMappingReadConfig.length === 0) {
+            console.log("Attribute is empty");
+          } else {
+            this.fieldArray.push(this.linkMappingReadConfig[i]);
+              // Check if controller object is empty
+              if (this.getAllSlaveArray[this.linkMappingReadConfig[i].slave] === "" || this.getAllSlaveArray[this.linkMappingReadConfig[i].slave] == false) {
+                await this.restService.postData("getSlave", this.authService.getToken(), { type: this.linkMappingReadConfig[i].slave }).toPromise().then(data => {
+                  // Success
+                  if (data["status"] == 200 && data["data"]["rows"] !== false) {    
+                     this.getAllSlaveArray[this.linkMappingReadConfig[i].slave] = data["data"]["rows"];
+                  }
+                  else {
+                    console.log("Can't get data for Slave")
+                  }
+                });
+              } 
+
+              console.log(this.getAllSlaveArray);
+              // Iterate cells to find the matched controller name
+              if (this.getAllSlaveArray[this.linkMappingReadConfig[i].slave]) {
+                  for (let j = 0; j < (this.getAllSlaveArray[this.linkMappingReadConfig[i].slave].Items.Item).length; j++){
+                    if (this.getAllSlaveArray[this.linkMappingReadConfig[i].slave].Items.Item[j].Name == this.linkMappingReadConfig[i].slave_name) {
+                    for (let k = 0; k < (cells.length); k++) {
+                      if (cells[k] == null) {
+                        // Skip cell if null
+                      }
+                      else if (cells[k].id == this.linkMappingReadConfig[i].slave_cell_id){
+                        // Sets the cell value using the mapped ID
+                        cells[k].value = this.getAllSlaveArray[this.linkMappingReadConfig[i].slave].Items.Item[j].Value;
+                      
+                      }
+                      else {
+                        // Skip cell
+                      }
+                    }
+                    }    
+                  }   
+              } else {
+                console.log("Can't get data")
+              }
+          }
+        }
+     
+  }
+
+  async refreshCells(cells) {
+    
+    for (let i = 0; i < this.linkMappingReadConfig.length; i++) {
+      if (this.linkMappingReadConfig.length === 0) {
+        console.log("Attribute is empty");
+      } else {
+          if (this.getAllSlaveArray[this.linkMappingReadConfig[i].slave] && this.getAllSlaveArray[this.linkMappingReadConfig[i].slave].Items.Item.length !== 0) {
+              // Iterate cells to find the matched controller name
+              for (let j = 0; j < this.getAllSlaveArray[this.linkMappingReadConfig[i].slave].Items.Item.length; j++){
+                if (this.getAllSlaveArray[this.linkMappingReadConfig[i].slave].Items.Item[j].Name == this.linkMappingReadConfig[i].slave_name) {
+                for (let k = 0; k < (cells.length); k++) {
+                  if (cells[k] == null) {
+                    // Skip cell if null
+                  }
+                  else if (cells[k].id == this.linkMappingReadConfig[i].slave_cell_id){
+                    // Sets the cell value using the mapped ID
+                    cells[k].value = this.getAllSlaveArray[this.linkMappingReadConfig[i].slave].Items.Item[j].Value;
+                    this.graph.refresh();
+                  }
+                  else {
+                    // Skip cell
+                  }
+                }
+                }    
+              }
+         } 
+        }
+    }
+  }
+
+  async resetCells(cells, id) {
+    
+    for (let i = 0; i < this.linkMappingReadConfig.length; i++) {
+      if (this.linkMappingReadConfig.length === 0) {
+        console.log("Attribute is empty");
+      } else {
+          // Iterate cells to find the matched controller name
+          for (let j = 0; j < this.getAllSlaveArray[this.linkMappingReadConfig[i].slave].Items.Item.length; j++){
+            if (this.getAllSlaveArray[this.linkMappingReadConfig[i].slave].Items.Item[j].Name == this.linkMappingReadConfig[i].slave_name) {
+             for (let k = 0; k < (cells.length); k++) {
+              if (cells[k] == null) {
+                // Skip cell if null
+              }
+              else if (cells[k].id == id){
+                // Sets the cell value to empty
+                cells[k].value = "";
+                this.graph.refresh();
+              }
+              else {
+                // Skip cell
+              }
+             }
+            }    
+          }
+             
+        }
+    }
+  }
+
+  async refreshGraph() {
+
+        let doc = mxUtils.parseXml(this.mxgraphData["mxgraph_code"]);
         let codec = new mxCodec(doc);
         let elt = doc.documentElement.firstChild;
         let cells = [];
@@ -291,31 +659,75 @@ export class VisualizationComponent implements OnInit, OnDestroy {
           elt = elt.nextSibling;
         }
 
+        // await this.refreshCells(cells)
+        for (let i = 0; i < this.linkMappingReadConfig.length; i++) {
+          if (this.linkMappingReadConfig.length === 0) {
+            console.log("Attribute is empty");
+          } else {
+              // Check if controller object is empty
+              if (this.getAllSlaveArray[this.linkMappingReadConfig[i].slave] === "") {
+                await this.restService.postData("getSlave", this.authService.getToken(), { type: this.linkMappingReadConfig[i].slave }).toPromise().then(data => {
+                  // Success
+                  if (data["status"] == 200) {    
+                     this.getAllSlaveArray[this.linkMappingReadConfig[i].slave] = data["data"]["rows"];
+                     console.log("GetAllSlaveArray",this.getAllSlaveArray);
+                  }
+                });
+              } 
+    
+              // Iterate cells to find the matched controller name
+              for (let j = 0; j < this.getAllSlaveArray[this.linkMappingReadConfig[i].slave].Items.Item.length; j++){
+                if (this.getAllSlaveArray[this.linkMappingReadConfig[i].slave].Items.Item[j].Name == this.linkMappingReadConfig[i].slave_name) {
+                 for (let k = 0; k < (cells.length); k++) {
+                  if (cells[k] == null) {
+                    // Skip cell if null
+                  }
+                  else if (cells[k].id == this.linkMappingReadConfig[i].slave_cell_id){
+                    // Sets the cell value using the mapped ID
+                    cells[k].value = this.getAllSlaveArray[this.linkMappingReadConfig[i].slave].Items.Item[j].Value;
+                    this.graph.refresh();
+                  }
+                  else {
+                    // Skip cell
+                  }
+                 }
+                }    
+              }
+                 
+            }
+        }
+
         this.graph.addCells(cells);
 
         // Disable mxGraph editing
         this.graph.setEnabled(false);
+        // this.centerGraph();
 
-
-      }
-    });
   }
 
 
-  readChanged(event) {
-    localStorage.setItem('readValue', event);
+  readChanged(event, isAdd) {
+    // localStorage.setItem('readValue', event);
     this.readConfig = event;
-    localStorage.setItem('cell_name', this.readConfig['Name']);
+    // this.cellValue = this.readConfig['Value'];
+    // console.log("read changed", this.cellValue)
+    this.readConfigClass = this.readConfig['Class'];
+    // localStorage.setItem('cell_type', this.readConfig['Class']);
     localStorage.setItem('cell_value', this.readConfig['Value']);
-    localStorage.setItem('cell_units', this.readConfig['Units']);
+    // localStorage.setItem('cell_units', this.readConfig['Units']);
+    if(isAdd == true) {
+      console.log(isAdd)
+      this.graphClickable = true;
+      this.addClickListener();
+    }
   }
 
   writeChanged(event) {
 
-    this.writeConfig = event;
-    localStorage.setItem('write_cell_name', this.writeConfig['Name']);
-    localStorage.setItem('write_cell_value', this.writeConfig['Value']);
-    localStorage.setItem('write_cell_units', this.writeConfig['Units']);
+    // this.writeConfig = event;
+    // localStorage.setItem('write_cell_name', this.writeConfig['Name']);
+    // localStorage.setItem('write_cell_value', this.writeConfig['Value']);
+    // localStorage.setItem('write_cell_units', this.writeConfig['Units']);
   }
 
   readConfigSave() {
@@ -395,6 +807,43 @@ export class VisualizationComponent implements OnInit, OnDestroy {
 
   }
 
+  async linkMapping() {
+    var mxgraph_id = this.mxgraphData["Id"];
+
+    // Destroy all the rows in DB where graph id = mxgraph_id
+    await this.restService.postData("deleteReadDetails", this.authService.getToken(), {
+      mxgraph_id: mxgraph_id
+    })
+      .toPromise().then(async data => {
+        // Successful login
+        if (data["status"] == 200) {
+          for (let i = 0; i < this.linkMappingReadConfig.length; i++) {
+            let slave = this.linkMappingReadConfig[i].slave;
+            let slave_name = this.linkMappingReadConfig[i].slave_name;
+            let slave_type = this.linkMappingReadConfig[i].slave_type;
+            let slave_cell_id = this.linkMappingReadConfig[i].slave_cell_id;
+            // Add all the new rows in the DB
+            await this.restService.postData("settingReadDetails", this.authService.getToken(), {
+              mxgraph_id: mxgraph_id, slave: slave, slave_name: slave_name, slave_type: slave_type, slave_cell_id: slave_cell_id
+            })
+              .toPromise().then(data => {
+                if (data["status"] == 200) {
+                  this.graph.refresh();
+                }
+              })
+          }
+          console.log("Link Success")
+          let graphData = {
+            Id: this.mxgraphData["Id"],
+            mxgraph_name: this.mxgraphData["mxgraph_name"],
+            mxgraph_code: this.mxgraphData["mxgraph_code"]
+          }
+          this.onSelectGraph(graphData);
+          this.router.navigate([this.router.url]);
+        }
+      })
+  }
+
   /*
     Function: Event triggered when mxGraph Save Configuration button is selected 
     Inserts mxGraph name & code into backend database
@@ -467,7 +916,10 @@ export class VisualizationComponent implements OnInit, OnDestroy {
 
             // this.reportType=test[i];
             this.writeSlaveType = [test[0].Name, test[1].Name];
-
+            this.writeSlaveType=[...this.writeSlaveType,test[i]];
+            
+            // Assigning slave list into getAllSlaveArray
+            // this.writeSlaveType = this.writeSlaveType.reduce((ac,a) => ({...ac,[a]:''}),{});
           }
 
         }
@@ -475,29 +927,33 @@ export class VisualizationComponent implements OnInit, OnDestroy {
   }
 
 
-  getReadSlaveList() {
+  async getReadSlaveList() {
     this.loadingIndicator = true;
 
     // Get Assets
-    this.restService.postData("getSlaveList", this.authService.getToken())
-      .subscribe(data => {
+    await this.restService.postData("getSlaveList", this.authService.getToken())
+      .toPromise().then(data => {
 
         // Success
         if (data["status"] == 200) {
 
           this.rows1 = data["data"].rows;
-          var test = deserialize(this.rows1['Slave']);
+          var sType = deserialize(this.rows1['Slave']);
+          this.slaveArray = this.rows1;
+          console.log("getSlave",sType)
 
+          // Push Slave Types into Array
           for (let i = 0; i < this.rows1['Slave'].length; i++) {
-
-            // this.reportType=test[i];
-            this.readSlaveType = [test[0].Name, test[1].Name];
-
+            this.readSlaveType=[...this.readSlaveType,sType[i].Name];
+            
+            // Assigning slave list into getAllSlaveArray
+            this.getAllSlaveArray = this.readSlaveType.reduce((ac,a) => ({...ac,[a]:''}),{});
           }
-
         }
       });
   }
+
+
 
 
   writeSlaveChange(event) {
@@ -518,6 +974,7 @@ export class VisualizationComponent implements OnInit, OnDestroy {
   }
 
 
+  // Populate slave name drop down
   readSlaveChange(event) {
 
     localStorage.setItem('controller', event);
@@ -535,6 +992,129 @@ export class VisualizationComponent implements OnInit, OnDestroy {
     });
   }
 
+  // Call dragEnter function when hover in a row
+  highlightRow(field) {
+    this.previousStyle = null;
+
+    var graph = this.graph;
+    for (let i = 0; i < this.cells.length; i++) {
+      if (!this.cells[i]) {
+        // Skip
+      }
+      else if (field.slave_cell_id == this.cells[i].id) {
+        this.tempState = this.cells[i];
+        this.dragEnter(graph.view.getState(this.cells[i]));
+      }
+    }
+  }
+
+  // Call dragLeave function when hover out of a row
+  unhighlightRow() {
+    var graph = this.graph;
+    this.dragLeave(graph.view.getState(this.tempState))  
+  }
+
+  // When mouse hover over a row, it will change vertex state in the graph
+  dragEnter(state) {
+    if (state != null)
+    {
+      this.previousStyle = state.style;
+      state.style = mxUtils.clone(state.style);
+      this.updateStyle(state, true);
+      state.shape.apply(state);
+      state.shape.redraw();
+      
+      if (state.text != null)
+      {
+        state.text.apply(state);
+        state.text.redraw();
+      }
+    }
+  }
+
+  // When mouse hover out of row, the vertex will go back to original state
+  dragLeave(state) {
+    if (state != null)
+    {
+      state.style = this.previousStyle;
+      this.updateStyle(state, false);
+      state.shape.apply(state);
+      state.shape.redraw();
+      
+      if (state.text != null)
+      {
+        state.text.apply(state);
+        state.text.redraw();
+      }
+    }
+  }
+
+  // Style for vertex state when hovered over row
+  updateStyle(state, hover)
+  {
+    if (hover)
+    {
+      state.style[mxConstants.STYLE_FILLCOLOR] = '#00FF00';
+      // state.style[mxConstants.STYLE_FILL_OPACITY] = '40';
+      state.style[mxConstants.STYLE_STROKECOLOR] = '#00FF00';
+      // state.style[mxConstants.STYLE_STROKE_OPACITY] = '60';
+    }
+    
+    // Sets rounded style for both cases since the rounded style
+    // is not set in the default style and is therefore inherited
+    // once it is set, whereas the above overrides the default value
+    state.style[mxConstants.STYLE_STROKE_OPACITY] = (hover) ? '60' : '100';
+    state.style[mxConstants.STYLE_FILL_OPACITY] = (hover) ? '40' : '100';
+    state.style[mxConstants.STYLE_ROUNDED] = (hover) ? '0' : '0';
+    state.style[mxConstants.STYLE_STROKEWIDTH] = (hover) ? '2' : '1';
+    state.style[mxConstants.STYLE_FONTSTYLE] = (hover) ? mxConstants.FONT_BOLD : '0';
+  };
+
+  // Update row details after done edit
+  async doneEdit(i: number, event) {
+
+    // Remove cell_value so that other cells wont change value when clicked
+    localStorage.removeItem("cell_value");
+
+    if (event.slave_name.Name) {
+      await this.restService.postData("updateReadDetails", this.authService.getToken(), {
+        Id: event.Id,
+        mxgraph_id: event.mxgraph_id,
+        slave: event.slave,
+        slave_cell_id: event.slave_cell_id,
+        slave_name: event.slave_name.Name,
+        slave_type: event.slave_type
+      }).toPromise().then(data => {
+        if (data["status"] == 200) { 
+            console.log("UPDATE SUCCESS")
+        }
+        this.graph.refresh();
+      });
+    }
+    else {
+      console.log("Fail to Update")
+    }
+
+    this.readConfigClass = "";
+    this.readOnly = -1;
+    this.hideAddRow = false;
+    this.graphClickable = false;
+    this.removeClickListener();
+    this.router.navigate([this.router.url])
+  }
+
+  expand() {
+
+    
+    if (this.cardExpand==true) {
+      this.cardExpand = false;
+    } else {
+      this.cardExpand = true;
+    } 
+
+    setTimeout(()=>{ this.centerGraph(); }, 10);
+
+  }
 
 
 }

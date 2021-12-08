@@ -158,6 +158,8 @@ const routes: Routes = [
 
   // Login
   { path: 'login', component: LoginComponent },
+  
+  
 
   // Invalid route
   //{ path: '**', component: Layout2Component, children: [

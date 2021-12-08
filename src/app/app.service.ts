@@ -31,8 +31,8 @@ export class AppService {
       moduleAsset: false, // Asset Management module
       moduleEnergy: false, // Energy Management module
       moduleAccessDM: false, // Access DM module
-      moduleVisualization: false, // mxGraph / visualization module
-      moduleDataEntry: true // Human data entry module
+      moduleVisualization: true, // mxGraph / visualization module
+      moduleDataEntry: false // Human data entry module
   
     }
     return config;

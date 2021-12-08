@@ -55,18 +55,21 @@ import { EnergyIndexComponent } from './energy-index/energy-index.component';
 import { CarbonEmissionComponent } from './carbon-emission/carbon-emission.component';
 import { OverviewComponent } from './overview/overview.component';
 import { FacilityReportComponent } from './facility-report/facility-report.component';
-// import { MxgraphEditComponent } from './mxgraph-edit/mxgraph-edit.component';
 
 import { MxgraphEditModule } from '../app/mxgraph-edit/mxgraph-edit.module';
 import { NgxDatatableModule } from '@swimlane/ngx-datatable';
 import { NgSelectModule } from '@ng-select/ng-select';
 import { VisualizationComponent } from './visualization/visualization.component';
-
+import { WriteVisualizationModalComponent } from './visualization/write-visualization-modal/write-visualization-modal.component';
+import { VerifyUserModalComponent } from './visualization/verify-user-modal/verify-user-modal.component';
 import { ToastrModule } from 'ngx-toastr';
 
 
 // *******************************************************************************
 //
+// Config File
+import { Config } from '../config/config';
+
 
 @NgModule({
   declarations: [
@@ -90,6 +93,8 @@ import { ToastrModule } from 'ngx-toastr';
     OverviewComponent,
     VisualizationComponent,
     FacilityReportComponent,
+    WriteVisualizationModalComponent,
+    VerifyUserModalComponent
   ],
 
   imports: [
@@ -127,11 +132,16 @@ import { ToastrModule } from 'ngx-toastr';
   providers: [
     Title,
     AppService,
-    RestService
+    RestService,
+    Config
   ],
 
   bootstrap: [
     AppComponent
+  ],
+  entryComponents: [
+    WriteVisualizationModalComponent,
+    VerifyUserModalComponent
   ]
 })
 export class AppModule { }
