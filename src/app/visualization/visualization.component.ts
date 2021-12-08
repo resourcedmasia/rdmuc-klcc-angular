@@ -15,8 +15,10 @@ import { DatatableComponent } from '@swimlane/ngx-datatable';
 import { Subscription, timer } from 'rxjs';
 import { deserialize } from 'chartist';
 import { ToastrService } from 'ngx-toastr';
-import { WriteVisualizationModalComponent } from './write-visualization-modal/write-visualization-modal.component'
-import { VerifyUserModalComponent } from './verify-user-modal/verify-user-modal.component'
+import { WriteVisualizationModalComponent } from './write-visualization-modal/write-visualization-modal.component';
+import { VerifyUserModalComponent } from './verify-user-modal/verify-user-modal.component';
+import { DeleteGraphModalComponent } from './delete-graph-modal/delete-graph-modal.component';
+import { VerifyDeleteGraphModalComponent } from './verify-delete-graph-modal/verify-delete-graph-modal.component';
 
 declare var mxUtils: any;
 declare var mxCodec: any;
@@ -86,6 +88,8 @@ export class VisualizationComponent implements OnInit, OnDestroy {
   readOnly: any;
   hideAddRow: any;
   graphClickable: boolean;
+  hideEditGraph: boolean;
+  cardExpand: boolean;
 
   readConfigClass: any;
   readCellID;
@@ -94,12 +98,17 @@ export class VisualizationComponent implements OnInit, OnDestroy {
   tempState: any;
   previousStyle: any;
 
-  cardExpand: boolean;
+
 
   // Add / Edit Graph Configuration Form
   mxGraphForm = new FormGroup({
     mxgraph_value: new FormControl(''),
     mxgraph_code: new FormControl('')
+  });
+
+  editGraphForm = new FormGroup({
+    mxgraph_name: new FormControl('', Validators.required),
+    mxgraph_id: new FormControl('')
   });
 
   cellForm = new FormGroup({
@@ -155,6 +164,7 @@ export class VisualizationComponent implements OnInit, OnDestroy {
     this.tempState = "";
     this.graphClickable = false;
     this.cardExpand = false;
+    this.hideEditGraph = true;
 
     // Retrieve stored mxGraphs from database and populate dropdown selection
     this.getMxGraphList();
@@ -316,6 +326,8 @@ export class VisualizationComponent implements OnInit, OnDestroy {
     // Stops loading indicator  
     this.loadingIndicator = true;  
     this.graphClickable = false;
+    this.hideEditGraph = false;
+    this.editGraphForm.reset();
 
     localStorage.removeItem('cell_value');
     this.newAttribute = {};
@@ -326,6 +338,11 @@ export class VisualizationComponent implements OnInit, OnDestroy {
 
     // Remove click events
     this.removeClickListener();
+
+    this.editGraphForm.patchValue({
+      mxgraph_name: event.mxgraph_name,
+      mxgraph_id: event.Id
+    });
     
 
     // Retrieve Link Mapping by Graph ID
@@ -398,9 +415,10 @@ export class VisualizationComponent implements OnInit, OnDestroy {
         localStorage.setItem('mxgraph_id', event.Id);
         this.addClickListener();
 
-        this.mxGraphForm.patchValue({
-          mxgraph_value: event.mxgraph_name
-        });
+        // this.mxGraphForm.patchValue({
+        //   mxgraph_value: event.mxgraph_name
+        // });
+
         this.centerGraph();
 
       }
@@ -1113,6 +1131,35 @@ export class VisualizationComponent implements OnInit, OnDestroy {
     } 
 
     setTimeout(()=>{ this.centerGraph(); }, 10);
+
+  }
+
+  deleteGraph() {
+    console.log(this.editGraphForm.value.mxgraph_id);
+    let rowArray = {mxgraph_id: this.editGraphForm.value.mxgraph_id};
+    // Open delete graph modal
+    const modalRef = this.modalService.open(DeleteGraphModalComponent);
+                  modalRef.componentInstance.row = rowArray;
+                  modalRef.result.then((result) => {
+                    if(result) {
+                      // Open verify user modal
+                      const modalRef = this.modalService.open(VerifyDeleteGraphModalComponent);
+                      modalRef.componentInstance.row = rowArray;
+                      modalRef.result.then((result) => {
+                        if(result){
+                          window.location.reload();
+                        }
+                      }).catch((error)=>{
+                        console.log(error)
+                      })
+                    }
+                  }).catch((error)=>{
+                    console.log(error)
+                  })
+                
+  }
+
+  editGraph() {
 
   }
 

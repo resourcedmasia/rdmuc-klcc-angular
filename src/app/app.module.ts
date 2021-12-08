@@ -62,6 +62,8 @@ import { NgSelectModule } from '@ng-select/ng-select';
 import { VisualizationComponent } from './visualization/visualization.component';
 import { WriteVisualizationModalComponent } from './visualization/write-visualization-modal/write-visualization-modal.component';
 import { VerifyUserModalComponent } from './visualization/verify-user-modal/verify-user-modal.component';
+import { DeleteGraphModalComponent } from './visualization/delete-graph-modal/delete-graph-modal.component'; 
+import { VerifyDeleteGraphModalComponent } from './visualization/verify-delete-graph-modal/verify-delete-graph-modal.component'; 
 import { ToastrModule } from 'ngx-toastr';
 
 
@@ -94,7 +96,9 @@ import { Config } from '../config/config';
     VisualizationComponent,
     FacilityReportComponent,
     WriteVisualizationModalComponent,
-    VerifyUserModalComponent
+    VerifyUserModalComponent,
+    DeleteGraphModalComponent,
+    VerifyDeleteGraphModalComponent
   ],
 
   imports: [
@@ -141,7 +145,9 @@ import { Config } from '../config/config';
   ],
   entryComponents: [
     WriteVisualizationModalComponent,
-    VerifyUserModalComponent
+    VerifyUserModalComponent,
+    DeleteGraphModalComponent,
+    VerifyDeleteGraphModalComponent
   ]
 })
 export class AppModule { }

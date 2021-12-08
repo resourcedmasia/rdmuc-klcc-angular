@@ -64,11 +64,11 @@
              />
         </td> -->
         <td>
-          <button [hidden]="hideAddRow" type="button" class="btn btn-primary" [id]="field.slave_cell_id" (click)="deleteFieldValue($event)">+ Delete</button>
+          <button [hidden]="hideAddRow" type="button" class="btn btn-primary" [id]="field.slave_cell_id" (click)="deleteFieldValue($event)"><i class="ion ion-md-trash"></i> Delete</button>
           <button [hidden]="i!==readOnly" type="button" class="btn btn-primary" [id]="field.slave_cell_id" (click)="doneEdit(i,field)">Done</button>
         </td>   
         <td>
-          <button [hidden]="hideAddRow" class="btn btn-primary" (click)="onSelect(i,field)" >+ Edit</button>
+          <button [hidden]="hideAddRow" class="btn btn-primary" (click)="onSelect(i,field)" ><i class="ion ion-md-clipboard"></i> Edit</button>
         </td>
       </tr>
 
@@ -103,13 +103,43 @@
 </div>
 </div>
 
+<div class="card mb-4">
+  <h4 class="card-header">
+    <i class="ion ion-md-link"></i>&nbsp;&nbsp;<span class="text-muted font-weight-light">Link Mapping </span><span> <button type="button" class="btn btn-primary float-sm-right" (click)="linkMapping()">Save</button></span>
+  </h4>
+
+  <!-- <div class="card-body">
+    <div class="form-row">
+      <div class="form-row">
+        <div class="col-md mb-4" *ngIf="writeName">
+          <ng-select placeholder="Select Name" [clearable]="false" [items]="writeTableData['Item']" bindLabel="Name"
+            [(ngModel)]="selectedAssetType" disabled="true">
+          </ng-select>
+        </div>
+
+        <div class="col-md mb-4" *ngIf="writeCellID">
+          <ng-select placeholder="Select Status" [clearable]="false" [items]="mxcellID" bindLabel="value"
+            [(ngModel)]="selectedpe">
+          </ng-select>
+        </div>
+
+
+
+        <div class="col-md mb-4">
+          <button type="button" class="btn btn-primary" (click)="linkMapping()">Save</button>
+         <button type="button" class="btn btn-primary" (click)="openModal()">Save</button>
+        </div>
+      </div>
+    </div>
+
+  </div> -->
+</div>
 
 <div class="card mb-4">
   <h4 class="card-header">
-    <i class="ion ion-md-today"></i>&nbsp;&nbsp;<span class="text-muted font-weight-light">Add / Edit Graph
-      Configuration</span>
+    <i class="ion ion-md-today"></i>&nbsp;&nbsp;<span class="text-muted font-weight-light">Add Graph</span>
     <button class="float-sm-right btn btn-primary" (click)="this.mxGraphInsert()"><i
-        class="ion ion-md-add"></i>&nbsp;<b>Save Configuration</b></button>
+        class="ion ion-md-add"></i>&nbsp;<b>Add Graph</b></button>
   </h4>
 
   <div class="card-body">
@@ -127,7 +157,28 @@
   </div>
 </div>
 
-  <div class="card mb-4">
+<div *ngIf="!hideEditGraph" class="card mb-4">
+  <h4 class="card-header">
+    <i class="ion ion-md-today"></i>&nbsp;&nbsp;<span class="text-muted font-weight-light">Edit Graph</span>
+    <button class="float-sm-right btn btn-primary" (click)="this.editGraph()"><i class="ion ion-md-clipboard"></i>&nbsp;<b>Edit Graph</b></button>
+    <button [disabled]="!editGraphForm.valid"  class="float-sm-right btn btn-primary mr-1" (click)="this.deleteGraph()"><i class="ion ion-md-trash"></i>&nbsp;<b>Delete Graph</b></button>
+  </h4>
+
+  <div class="card-body">
+    <form [formGroup]="editGraphForm">
+      <div class="form-group">
+        <input type="text" formControlName="mxgraph_name" class="form-control" [class.is-invalid]="editGraphForm.get('mxgraph_name').touched && editGraphForm.get('mxgraph_name').errors"
+          placeholder="Graph Name (eg. Floor LG, HVAC, VAV Level 1, ..)">
+          <small class="invalid-feedback">
+            This field is required.
+          </small>
+        <br>
+      </div>
+    </form>
+  </div>
+</div>
+
+  <!-- <div class="card mb-4">
     <h4 class="card-header">
       <i class="ion ion-md-save"></i>&nbsp;&nbsp;<span class="text-muted font-weight-light">Write Configuration</span>
     </h4>
@@ -165,37 +216,6 @@
 
       </div>
     </div>
-  </div>
+  </div> -->
 
 
-  <div class="card">
-    <h4 class="card-header">
-      <i class="ion ion-md-link"></i>&nbsp;&nbsp;<span class="text-muted font-weight-light">Link Mapping </span>
-    </h4>
-
-    <div class="card-body">
-      <div class="form-row">
-        <div class="form-row">
-          <div class="col-md mb-4" *ngIf="writeName">
-            <ng-select placeholder="Select Name" [clearable]="false" [items]="writeTableData['Item']" bindLabel="Name"
-              [(ngModel)]="selectedAssetType" disabled="true">
-            </ng-select>
-          </div>
-
-          <div class="col-md mb-4" *ngIf="writeCellID">
-            <ng-select placeholder="Select Status" [clearable]="false" [items]="mxcellID" bindLabel="value"
-              [(ngModel)]="selectedpe">
-            </ng-select>
-          </div>
-
-
-
-          <div class="col-md mb-4">
-            <button type="button" class="btn btn-primary" (click)="linkMapping()">Save</button>
-            <!-- <button type="button" class="btn btn-primary" (click)="openModal()">Save</button> -->
-          </div>
-        </div>
-      </div>
-
-    </div>
-  </div>
