@@ -119,16 +119,7 @@ export class VisualizationComponent implements OnInit, OnDestroy {
   cellForm = new FormGroup({
     cell_code: new FormControl('')
   });
-  
- 
 
-  // addRowForm = new FormGroup({
-  //   addType: new FormControl('', Validators.required),
-  //   addName: new FormControl('', Validators.required),
-  //   addSlaveType: new FormControl('', Validators.required),
-  // });
-
-  
   constructor(
               private config: Config, 
               private toastr: ToastrService, 
@@ -166,7 +157,7 @@ export class VisualizationComponent implements OnInit, OnDestroy {
 
     let CircularJSON = require('circular-json');
     this.readOnly = -1;
-    this.hideAddRow = false;
+    this.hideAddRow = true;
     this.tempState = "";
     this.graphClickable = false;
     this.cardExpand = false;
@@ -275,11 +266,7 @@ export class VisualizationComponent implements OnInit, OnDestroy {
           this.graphClickable = false;
           this.removeClickListener();
           // Show toastr for unsaved changes.
-          this.toastr.warning("You've got some unsaved changes.","", {
-            tapToDismiss: false,
-            disableTimeOut: true,
-            positionClass: 'toast-bottom-full-width'
-          });
+          this.unsavedToast();
         }
         
     }
@@ -293,11 +280,7 @@ export class VisualizationComponent implements OnInit, OnDestroy {
         this.fieldArray.splice(i,1);
         // Splice in Link Mapping, so that the API don't need to call for this value
         this.linkMappingReadConfig.splice(i,1);
-        this.toastr.warning("You've got some unsaved changes.","", {
-          tapToDismiss: false,
-          disableTimeOut: true,
-          positionClass: 'toast-bottom-full-width'
-        });
+        this.unsavedToast();
       }
     }
     
@@ -545,6 +528,7 @@ export class VisualizationComponent implements OnInit, OnDestroy {
     let modalService = this.modalService
     let getAllSlaveArray = this.getAllSlaveArray
     let refreshPage = this.refreshPage
+    
     this.graph.addListener(mxEvent.CLICK, function (sender, evt) {
       if (evt.properties.cell) {
 
@@ -573,6 +557,7 @@ export class VisualizationComponent implements OnInit, OnDestroy {
                       modalVer.componentInstance.row = result;
                       modalVer.result.then((result) => {
                         if (result !== "cancel" && result !== "fail") {
+                        // this.successToast("Parameter has been successfuly set.")
                         refreshPage;
                         }
                       }).catch((error) => {
@@ -1205,11 +1190,7 @@ export class VisualizationComponent implements OnInit, OnDestroy {
       if(attributeArray.slave_cell_id && attributeArray.slave && attributeArray.mxgraph_id && attributeArray.slave_name && attributeArray.slave_type){
         this.linkMappingReadConfig[index] = attributeArray;
         this.fieldArray[index] = this.linkMappingReadConfig[index];
-        this.toastr.warning("You've got some unsaved changes.","", {
-          tapToDismiss: false,
-          disableTimeOut: true,
-          positionClass: 'toast-bottom-full-width'
-        });
+        this.unsavedToast();
       }
       else {
         // If any of the field is empty, revert to original value
@@ -1304,7 +1285,22 @@ export class VisualizationComponent implements OnInit, OnDestroy {
     
   }
 
+  successToast(msg) {
+    this.toastr.success(msg,"", {
+      tapToDismiss: true,
+      disableTimeOut: false,
+      timeOut: 2000,
+      positionClass: 'toast-bottom-right'
+    });
+  }
 
+  unsavedToast(){
+    this.toastr.warning("You've got some unsaved changes.","", {
+      tapToDismiss: false,
+      disableTimeOut: true,
+      positionClass: 'toast-bottom-full-width'
+    });
+  }
 }
 
 
