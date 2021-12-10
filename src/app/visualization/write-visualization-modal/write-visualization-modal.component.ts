@@ -38,7 +38,7 @@ export class WriteVisualizationModalComponent implements OnInit {
   }
 
   closeModal() {
-	this.activeModal.close('Modal Closed');
+	  this.activeModal.close('Modal Closed');
   }
 
   verifyUser() {

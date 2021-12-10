@@ -131,7 +131,9 @@ import { Config } from '../config/config';
     ReactiveFormsModule,
     MomentModule,
     ArchwizardModule,
-    ToastrModule.forRoot()
+    ToastrModule.forRoot({
+      preventDuplicates: true,
+    })
   ],
   providers: [
     Title,

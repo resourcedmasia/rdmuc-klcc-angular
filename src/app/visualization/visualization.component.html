@@ -40,17 +40,17 @@
     </thead>
     <tbody>
       
-      <tr (mouseenter)="highlightRow(field)" (mouseleave)="unhighlightRow()" *ngFor="let field of fieldArray; let i = index">
+      <tr (mouseenter)="highlightRow(field)" (mouseleave)="unhighlightRow()" *ngFor="let field of fieldArray; let i = index; let j = index">
 
         <td><label>{{i + 1}}</label></td>
         <td>
           <ng-select appendTo="body" [disabled]="i!==readOnly" [clearable]="false" [items]="readSlaveType" bindLabel="type" [(ngModel)]="field.slave"
-            (change)="readSlaveChange($event)" name={{field.controller}} >
+            (change)="readSlaveChange($event)" name={{field.slave}} >
           </ng-select>
         </td>
         <td>
           <ng-select appendTo="body" [disabled]="i!==readOnly" [clearable]="false" [items]="readTableData['Item']" bindLabel="Name" [(ngModel)]="field.slave_name"
-            (change)="readChanged($event,false)" name="{{field.slave_name}}">
+            (change)="readChanged($event,false,j)" name="{{field.slave_name}}">
           </ng-select>
         </td>
         <td>
@@ -63,12 +63,13 @@
              <input [(ngModel)]="field.slave_cell_id" class="form-control" type="text" name="{{field.mxgraphid}}"
              />
         </td> -->
-        <td>
+        <td >
           <button [hidden]="hideAddRow" type="button" class="btn btn-primary" [id]="field.slave_cell_id" (click)="deleteFieldValue($event)"><i class="ion ion-md-trash"></i> Delete</button>
-          <button [hidden]="i!==readOnly" type="button" class="btn btn-primary" [id]="field.slave_cell_id" (click)="doneEdit(i,field)">Done</button>
+          <button [hidden]="i!==readOnly" type="button" class="btn btn-primary" [id]="field.slave_cell_id" (click)="doneEdit(i,field,'done', j)">Done</button>
         </td>   
         <td>
-          <button [hidden]="hideAddRow" class="btn btn-primary" (click)="onSelect(i,field)" ><i class="ion ion-md-clipboard"></i> Edit</button>
+          <button [hidden]="i!==readOnly" type="button" class="btn btn-primary" [id]="field.slave_cell_id" (click)="doneEdit(i,field,'cancel', j)">Cancel</button>
+          <button [hidden]="hideAddRow" class="btn btn-primary" [id]="j"  (click)="onSelect(i,field, $event)" ><i class="ion ion-md-clipboard"></i> Edit</button>
         </td>
       </tr>
 
@@ -105,7 +106,10 @@
 
 <div class="card mb-4">
   <h4 class="card-header">
-    <i class="ion ion-md-link"></i>&nbsp;&nbsp;<span class="text-muted font-weight-light">Link Mapping </span><span> <button type="button" class="btn btn-primary float-sm-right" (click)="linkMapping()">Save</button></span>
+    
+    <i class="ion ion-md-link"></i>&nbsp;&nbsp;<span class="text-muted font-weight-light">Link Mapping </span>
+    <span> <button type="button" class="btn btn-primary float-sm-right" (click)="linkMapping()">Save</button></span>
+    <span> <button type="button" class="float-sm-right btn btn-primary mr-1" (click)="revert()">Revert</button></span>
   </h4>
 
   <!-- <div class="card-body">
@@ -139,7 +143,7 @@
   <h4 class="card-header">
     <i class="ion ion-md-today"></i>&nbsp;&nbsp;<span class="text-muted font-weight-light">Add Graph</span>
     <button class="float-sm-right btn btn-primary" (click)="this.mxGraphInsert()"><i
-        class="ion ion-md-add"></i>&nbsp;<b>Add Graph</b></button>
+        class="ion ion-md-add"></i>&nbsp;Add Graph</button>
   </h4>
 
   <div class="card-body">
@@ -160,14 +164,16 @@
 <div *ngIf="!hideEditGraph" class="card mb-4">
   <h4 class="card-header">
     <i class="ion ion-md-today"></i>&nbsp;&nbsp;<span class="text-muted font-weight-light">Edit Graph</span>
-    <button class="float-sm-right btn btn-primary" (click)="this.editGraph()"><i class="ion ion-md-clipboard"></i>&nbsp;<b>Edit Graph</b></button>
-    <button [disabled]="!editGraphForm.valid"  class="float-sm-right btn btn-primary mr-1" (click)="this.deleteGraph()"><i class="ion ion-md-trash"></i>&nbsp;<b>Delete Graph</b></button>
+    <button *ngIf="editGraphName" class="float-sm-right btn btn-primary" (click)="this.editGraphName=false; this.cancelEditGraph()">Cancel</button>
+    <button *ngIf="editGraphName" [disabled]="!editGraphForm.valid" class="float-sm-right btn btn-primary mr-1" (click)="this.editGraph()">Done</button>
+    <button *ngIf="!editGraphName" class="float-sm-right btn btn-primary" (click)="this.editGraphName=true"><i class="ion ion-md-clipboard"></i>&nbsp;Edit Graph</button>
+    <button *ngIf="!editGraphName" [disabled]="!editGraphForm.valid"  class="float-sm-right btn btn-primary mr-1" (click)="this.deleteGraph()"><i class="ion ion-md-trash"></i>&nbsp;Delete Graph</button>
   </h4>
 
   <div class="card-body">
     <form [formGroup]="editGraphForm">
       <div class="form-group">
-        <input type="text" formControlName="mxgraph_name" class="form-control" [class.is-invalid]="editGraphForm.get('mxgraph_name').touched && editGraphForm.get('mxgraph_name').errors"
+        <input [readonly]="!editGraphName" type="text" formControlName="mxgraph_name" class="form-control" [class.is-invalid]="editGraphForm.get('mxgraph_name').touched && editGraphForm.get('mxgraph_name').errors"
           placeholder="Graph Name (eg. Floor LG, HVAC, VAV Level 1, ..)">
           <small class="invalid-feedback">
             This field is required.

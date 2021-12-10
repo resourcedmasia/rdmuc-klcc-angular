@@ -1,3 +1,4 @@
+@import '~ngx-toastr/toastr.css';
 @mixin keyframes($name) {
   @-webkit-keyframes #{$name} {
     @content;

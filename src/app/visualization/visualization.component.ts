@@ -20,6 +20,7 @@ import { VerifyUserModalComponent } from './verify-user-modal/verify-user-modal.
 import { DeleteGraphModalComponent } from './delete-graph-modal/delete-graph-modal.component';
 import { VerifyDeleteGraphModalComponent } from './verify-delete-graph-modal/verify-delete-graph-modal.component';
 
+
 declare var mxUtils: any;
 declare var mxCodec: any;
 declare var mxGraph: any;
@@ -54,6 +55,7 @@ export class VisualizationComponent implements OnInit, OnDestroy {
   selectedWriteCellId;
   selectedCellValue;
   cellValue: any;
+  storedCellId: any;
 
   temp = [];
   loadingIndicator = true;
@@ -67,6 +69,7 @@ export class VisualizationComponent implements OnInit, OnDestroy {
   slaveArray = [];
   getAllSlaveArray = [];
   getSlaveValue = [];
+  tempLinkMap = {};
 
   readTableData = [];
   writeTableData = [];
@@ -90,6 +93,7 @@ export class VisualizationComponent implements OnInit, OnDestroy {
   graphClickable: boolean;
   hideEditGraph: boolean;
   cardExpand: boolean;
+  editGraphName: boolean;
 
   readConfigClass: any;
   readCellID;
@@ -97,6 +101,7 @@ export class VisualizationComponent implements OnInit, OnDestroy {
   selectedName: any;
   tempState: any;
   previousStyle: any;
+  temp_mxgraph_name: any;
 
 
 
@@ -114,6 +119,7 @@ export class VisualizationComponent implements OnInit, OnDestroy {
   cellForm = new FormGroup({
     cell_code: new FormControl('')
   });
+  
  
 
   // addRowForm = new FormGroup({
@@ -165,6 +171,9 @@ export class VisualizationComponent implements OnInit, OnDestroy {
     this.graphClickable = false;
     this.cardExpand = false;
     this.hideEditGraph = true;
+    this.editGraphName = false;
+    this.storedCellId = "";
+    this.toastr.clear();
 
     // Retrieve stored mxGraphs from database and populate dropdown selection
     this.getMxGraphList();
@@ -192,9 +201,6 @@ export class VisualizationComponent implements OnInit, OnDestroy {
       this.graph.refresh();
       elt = elt.nextSibling;
     }
-
-    
-    
 
     this.graph.addCells(cells);
 
@@ -241,6 +247,7 @@ export class VisualizationComponent implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     this.subscription.unsubscribe();
+    this.toastr.clear();
   }
 
   addFieldValue() {
@@ -267,7 +274,12 @@ export class VisualizationComponent implements OnInit, OnDestroy {
           this.readConfigClass = "";
           this.graphClickable = false;
           this.removeClickListener();
-          // Make dialog box to save before clicking anything?
+          // Show toastr for unsaved changes.
+          this.toastr.warning("You've got some unsaved changes.","", {
+            tapToDismiss: false,
+            disableTimeOut: true,
+            positionClass: 'toast-bottom-full-width'
+          });
         }
         
     }
@@ -281,27 +293,71 @@ export class VisualizationComponent implements OnInit, OnDestroy {
         this.fieldArray.splice(i,1);
         // Splice in Link Mapping, so that the API don't need to call for this value
         this.linkMappingReadConfig.splice(i,1);
+        this.toastr.warning("You've got some unsaved changes.","", {
+          tapToDismiss: false,
+          disableTimeOut: true,
+          positionClass: 'toast-bottom-full-width'
+        });
       }
     }
+    
 
     // Change value cell value to "" after delete
     this.resetCells(this.cells, event.target.id);
     this.graph.refresh();
+   
   
   }
 
-  onSelect(i: number, event) {
-    console.log(this.getAllSlaveArray)
-    console.log(event)
+ 
 
+  async onSelect(i: number, event, e) {
 
-    for (let i = 0; i < this.getAllSlaveArray[event.slave].Items.Item.length; i++) {
-      if (this.getAllSlaveArray[event.slave].Items.Item[i].Name == event.slave_name) {
-        let cell_value = this.getAllSlaveArray[event.slave].Items.Item[i].Value
-        localStorage.setItem('cell_value', cell_value)
-        console.log("cell_value",cell_value)
-      }
+    
+
+    this.tempLinkMap = {
+      mxgraph_id: event.mxgraph_id,
+      slave: event.slave,
+      slave_cell_id: event.slave_cell_id,
+      slave_name: event.slave_name,
+      slave_type: event.slave_type
     }
+    
+    console.log("Before tempLinkMap", this.tempLinkMap)
+    this.readTableData = [];
+    let tableIndex = e.target.id;
+    let tempFieldArray = this.fieldArray[tableIndex].slave_cell_id;
+
+    console.log(tempFieldArray)
+    this.storedCellId = tempFieldArray;
+   
+    // Call API if the selected slave is not in getAllSlaveArray to get the slave value
+    if (this.getAllSlaveArray[event.slave] === "" || this.getAllSlaveArray[event.slave] == false) {
+      await this.restService.postData("getSlave", this.authService.getToken(), { type: event.slave }).toPromise().then(async data => {
+        // Success
+        if (data["status"] == 200 && data["data"]["rows"] !== false) {    
+           this.getAllSlaveArray[event.slave] = data["data"]["rows"];
+           console.log("getAllSlaveArray:", this.getAllSlaveArray);
+           for (let i = 0; i < this.getAllSlaveArray[event.slave].Items.Item.length; i++) {
+            if (this.getAllSlaveArray[event.slave].Items.Item[i].Name == event.slave_name) {
+              let cell_value = this.getAllSlaveArray[event.slave].Items.Item[i].Value
+              await this.config.asyncLocalStorage.setItem('cell_value', cell_value)
+            }
+          }
+        }
+        else {
+          console.log("Can't get data for Slave")
+        }
+      });
+    } 
+
+ 
+    // Clear the fields when on edit
+    this.fieldArray[tableIndex].slave = "";
+    this.fieldArray[tableIndex].slave_name = "";
+    this.fieldArray[tableIndex].slave_type = "";
+
+    
     
     this.readOnly = i
     this.hideAddRow = true;
@@ -327,7 +383,13 @@ export class VisualizationComponent implements OnInit, OnDestroy {
     this.loadingIndicator = true;  
     this.graphClickable = false;
     this.hideEditGraph = false;
+    this.editGraphName = false;
     this.editGraphForm.reset();
+    this.readConfigClass = "";
+    this.readOnly = -1;
+    this.hideAddRow = false;
+    this.storedCellId = "";
+    this.toastr.clear();
 
     localStorage.removeItem('cell_value');
     this.newAttribute = {};
@@ -343,6 +405,8 @@ export class VisualizationComponent implements OnInit, OnDestroy {
       mxgraph_name: event.mxgraph_name,
       mxgraph_id: event.Id
     });
+
+    this.temp_mxgraph_name = event.mxgraph_name;
     
 
     // Retrieve Link Mapping by Graph ID
@@ -412,7 +476,7 @@ export class VisualizationComponent implements OnInit, OnDestroy {
         // Disable mxGraph editing
         this.graph.setEnabled(false);
 
-        localStorage.setItem('mxgraph_id', event.Id);
+        this.config.asyncLocalStorage.setItem('mxgraph_id', event.Id);
         this.addClickListener();
 
         // this.mxGraphForm.patchValue({
@@ -426,22 +490,30 @@ export class VisualizationComponent implements OnInit, OnDestroy {
 
   }
 
-  addClickListener() {
+  async addClickListener() {
+    console.log(this.fieldArray)
     let model = this.graph.getModel();
     let thisContext = this;
-    let linkMap = this.linkMappingReadConfig
+    let linkMap = this.linkMappingReadConfig;
+    let tempFieldArray = this.fieldArray;
+    let storedCellId = this.storedCellId;
+    console.log("CLICK FIELD ARRAY",this.fieldArray)
         
     // On Click event ...
     if (this.graphClickable) {
     this.graph.addListener(mxEvent.CLICK, function (sender, evt) {
       let valued = null
+  
       if (evt.properties.cell) {
 
         // Get event 'cell' property, 'id' subproperty (cell ID)
-        let cellId = evt.getProperty("cell").id;        
+        let cellId = evt.getProperty("cell").id; 
+        console.log("CELL ID",cellId)       
             
         valued = localStorage.getItem('cell_value');
+        
         console.log(valued)
+        
 
         // Update ngModel binding with selected cell ID
         thisContext.newAttribute.mxgraphid = cellId;
@@ -453,6 +525,12 @@ export class VisualizationComponent implements OnInit, OnDestroy {
           // Set value in cell when clicked
           if (valued) {
             model.setValue(cell, valued);
+            for (let i = 0; i < tempFieldArray.length; i++) {
+              if (tempFieldArray[i].slave_cell_id == storedCellId) {
+                tempFieldArray[i].slave_cell_id = cellId;
+              }
+            }
+           
           } 
         }
         finally {
@@ -471,8 +549,6 @@ export class VisualizationComponent implements OnInit, OnDestroy {
       if (evt.properties.cell) {
 
         let cellId = evt.properties.cell.id
-        console.log(linkMap)
-        console.log(getAllSlaveArray)
        
         for (let i = 0; i < linkMap.length; i++) {
           if (linkMap[i].slave_cell_id == cellId && linkMap[i].slave_type == "Parameter") {
@@ -501,11 +577,13 @@ export class VisualizationComponent implements OnInit, OnDestroy {
                         }
                       }).catch((error) => {
                         console.log(error)
+                        modalService.dismissAll();
                       });
                     }
                   })
                   .catch((error) => {
                     console.log(error)
+                    modalService.dismissAll();
                   });
                 }
             }
@@ -520,6 +598,10 @@ export class VisualizationComponent implements OnInit, OnDestroy {
 
   refreshPage() {
     this.router.navigate([this.router.url]);
+  }
+
+  async reloadPage() {
+    window.location.reload();
   }
 
   removeClickListener() {
@@ -600,9 +682,10 @@ export class VisualizationComponent implements OnInit, OnDestroy {
               } else {
                 console.log("Can't get data")
               }
+             
           }
         }
-     
+        console.log("INSIDE GENERATE", this.fieldArray)
   }
 
   async refreshCells(cells) {
@@ -657,6 +740,9 @@ export class VisualizationComponent implements OnInit, OnDestroy {
                 // Skip cell
               }
              }
+            }
+            else {
+              // Skip cell
             }    
           }
              
@@ -724,15 +810,19 @@ export class VisualizationComponent implements OnInit, OnDestroy {
   }
 
 
-  readChanged(event, isAdd) {
-    // localStorage.setItem('readValue', event);
+  readChanged(event, isAdd, j) {
+   
+    console.log("j",j)
     this.readConfig = event;
-    // this.cellValue = this.readConfig['Value'];
-    // console.log("read changed", this.cellValue)
+    
     this.readConfigClass = this.readConfig['Class'];
-    // localStorage.setItem('cell_type', this.readConfig['Class']);
-    localStorage.setItem('cell_value', this.readConfig['Value']);
-    // localStorage.setItem('cell_units', this.readConfig['Units']);
+
+    this.config.asyncLocalStorage.setItem('cell_value', this.readConfig['Value']);
+    
+    if(j !== undefined && j !== null){
+      this.fieldArray[j].slave_type = this.readConfig['Class'];
+    }
+    
     if(isAdd == true) {
       console.log(isAdd)
       this.graphClickable = true;
@@ -750,10 +840,10 @@ export class VisualizationComponent implements OnInit, OnDestroy {
 
   readConfigSave() {
 
-    var slave = localStorage.getItem('controller');
-    var slave_name = localStorage.getItem('cell_name');
-    var mxgraph_id = localStorage.getItem('mxgraph_id');
-    var slave_cell_id = localStorage.getItem('selectedCellId');
+    // var slave = localStorage.getItem('controller');
+    // var slave_name = localStorage.getItem('cell_name');
+    var mxgraph_id = this.config.asyncLocalStorage.getItem('mxgraph_id');
+    // var slave_cell_id = localStorage.getItem('selectedCellId');
 
     this.restService.postData("readDetails", this.authService.getToken(), {
       mxgraph_id: mxgraph_id
@@ -775,19 +865,6 @@ export class VisualizationComponent implements OnInit, OnDestroy {
     var mxgraph_id = localStorage.getItem('mxgraph_id');
     var slave_cell_id = localStorage.getItem('selectedCellId');
     var selectedCellValue = localStorage.getItem('selectedCellValue');
-
-
-    // this.restService.postData("setSlave", this.authService.getToken(), { Controller: slave, Name: slave_name, value: selectedCellValue }).subscribe(data => {
-    //   // Success
-    //   if (data["status"] == 200) {
-    //     this.writeName = true;
-    //     this.writeCode = true;;
-
-    //     this.writeTableData = data["data"]["rows"];
-    //     this.writeTableData = this.writeTableData['Items'];
-    //     this.loadingIndicator = false;
-    //   }
-    // });
 
     this.restService.postData("writeDetails", this.authService.getToken(), {
       mxgraph_id: mxgraph_id, slave: slave, slave_name: slave_name, slave_cell_id: slave_cell_id
@@ -826,6 +903,7 @@ export class VisualizationComponent implements OnInit, OnDestroy {
   }
 
   async linkMapping() {
+    console.log("LINKMAPPING", this.linkMappingReadConfig)
     var mxgraph_id = this.mxgraphData["Id"];
 
     // Destroy all the rows in DB where graph id = mxgraph_id
@@ -858,8 +936,21 @@ export class VisualizationComponent implements OnInit, OnDestroy {
           }
           this.onSelectGraph(graphData);
           this.router.navigate([this.router.url]);
+          this.toastr.clear();
         }
       })
+  }
+
+  // Function to revert changes in read config
+  revert() {
+    let graphData = {
+      Id: this.mxgraphData["Id"],
+      mxgraph_name: this.mxgraphData["mxgraph_name"],
+      mxgraph_code: this.mxgraphData["mxgraph_code"]
+    }
+    this.onSelectGraph(graphData);
+    this.router.navigate([this.router.url]);
+    this.toastr.clear();
   }
 
   /*
@@ -993,9 +1084,9 @@ export class VisualizationComponent implements OnInit, OnDestroy {
 
 
   // Populate slave name drop down
-  readSlaveChange(event) {
+  async readSlaveChange(event) {
 
-    localStorage.setItem('controller', event);
+    await this.config.asyncLocalStorage.setItem('controller', event);
 
     this.restService.postData("getSlave", this.authService.getToken(), { type: event }).subscribe(data => {
       // Success
@@ -1081,7 +1172,7 @@ export class VisualizationComponent implements OnInit, OnDestroy {
     // Sets rounded style for both cases since the rounded style
     // is not set in the default style and is therefore inherited
     // once it is set, whereas the above overrides the default value
-    state.style[mxConstants.STYLE_STROKE_OPACITY] = (hover) ? '60' : '100';
+    // state.style[mxConstants.STYLE_STROKE_OPACITY] = (hover) ? '60' : '100';
     state.style[mxConstants.STYLE_FILL_OPACITY] = (hover) ? '40' : '100';
     state.style[mxConstants.STYLE_ROUNDED] = (hover) ? '0' : '0';
     state.style[mxConstants.STYLE_STROKEWIDTH] = (hover) ? '2' : '1';
@@ -1089,30 +1180,50 @@ export class VisualizationComponent implements OnInit, OnDestroy {
   };
 
   // Update row details after done edit
-  async doneEdit(i: number, event) {
+  async doneEdit(i: number, event, state, index) {
 
     // Remove cell_value so that other cells wont change value when clicked
     localStorage.removeItem("cell_value");
+    console.log(event)
+    console.log(this.fieldArray);
+    console.log("tempLinkMap", this.tempLinkMap)
 
-    if (event.slave_name.Name) {
-      await this.restService.postData("updateReadDetails", this.authService.getToken(), {
-        Id: event.Id,
-        mxgraph_id: event.mxgraph_id,
-        slave: event.slave,
-        slave_cell_id: event.slave_cell_id,
-        slave_name: event.slave_name.Name,
-        slave_type: event.slave_type
-      }).toPromise().then(data => {
-        if (data["status"] == 200) { 
-            console.log("UPDATE SUCCESS")
-        }
-        this.graph.refresh();
-      });
+    
+
+    let attributeArray = {
+      Id: event.Id,
+      mxgraph_id: event.mxgraph_id,
+      slave: event.slave,
+      slave_cell_id: event.slave_cell_id,
+      slave_name: event.slave_name.Name,
+      slave_type: event.slave_type
     }
+    console.log("attributeArray",attributeArray)
+
+    // If click on done editing
+    if (state=="done"){
+      if(attributeArray.slave_cell_id && attributeArray.slave && attributeArray.mxgraph_id && attributeArray.slave_name && attributeArray.slave_type){
+        this.linkMappingReadConfig[index] = attributeArray;
+        this.fieldArray[index] = this.linkMappingReadConfig[index];
+        this.toastr.warning("You've got some unsaved changes.","", {
+          tapToDismiss: false,
+          disableTimeOut: true,
+          positionClass: 'toast-bottom-full-width'
+        });
+      }
+      else {
+        // If any of the field is empty, revert to original value
+        this.fieldArray[index] = this.tempLinkMap;
+      }
+    }
+    // If click cancel edit, it should revert to original value
     else {
-      console.log("Fail to Update")
+      this.fieldArray[index] = this.tempLinkMap;
     }
-
+    
+    this.unhighlightRow();
+    // localStorage.removeItem('storedCellId');
+    this.storedCellId = "";
     this.readConfigClass = "";
     this.readOnly = -1;
     this.hideAddRow = false;
@@ -1159,8 +1270,38 @@ export class VisualizationComponent implements OnInit, OnDestroy {
                 
   }
 
-  editGraph() {
+  async editGraph() {
+    console.log(this.editGraphForm.value);
+    await this.restService.postData("mxGraphEdit", this.authService.getToken(), {mxgraph_id: this.editGraphForm.value.mxgraph_id, mxgraph_name: this.editGraphForm.value.mxgraph_name})
+    .toPromise().then(async data => {
+    // Successful Update
+    if (data["status"] == 200 && data["data"]["rows"] !== false) {
+      this.editGraphName = false;
+      await this.restService.postData("getMxGraphList", this.authService.getToken())
+      .toPromise().then(data => {
+        // Success
+        if (data["status"] == 200) {
+          this.router.navigate([this.router.url])
+          this.selectedMxGraph = data["data"].rows;
+          this.selectedGraph = this.editGraphForm.value.mxgraph_name
+        }
+      });
+        // this.router.navigate([this.router.url])
+        // await this.onSelectGraph({ Id: this.editGraphForm.value.mxgraph_id, mxgraph_name: this.editGraphForm.value.mxgraph_name });
+      
+    }
+   })
+    .catch((error)=>{
+      console.log(error);
+    })
+  
+  }
 
+  cancelEditGraph() {
+    this.editGraphForm.patchValue({
+      mxgraph_name: this.temp_mxgraph_name
+    });
+    
   }
 
 
