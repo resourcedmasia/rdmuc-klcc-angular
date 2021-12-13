@@ -528,6 +528,7 @@ export class VisualizationComponent implements OnInit, OnDestroy {
     let modalService = this.modalService
     let getAllSlaveArray = this.getAllSlaveArray
     let refreshPage = this.refreshPage
+    let toastr = this.toastr;
     
     this.graph.addListener(mxEvent.CLICK, function (sender, evt) {
       if (evt.properties.cell) {
@@ -558,8 +559,13 @@ export class VisualizationComponent implements OnInit, OnDestroy {
                       modalVer.componentInstance.row = result;
                       modalVer.result.then((result) => {
                         if (result !== "cancel" && result !== "fail") {
-                        // this.successToast("Parameter has been successfuly set.")
                         refreshPage;
+                        toastr.success("Parameter has been successfuly set.","", {
+                          tapToDismiss: true,
+                          disableTimeOut: false,
+                          timeOut: 2000,
+                          positionClass: 'toast-bottom-right'
+                        });
                         }
                       }).catch((error) => {
                         console.log(error)
@@ -923,6 +929,7 @@ export class VisualizationComponent implements OnInit, OnDestroy {
           this.onSelectGraph(graphData);
           this.router.navigate([this.router.url]);
           this.toastr.clear();
+          this.successToast("Changes has been successfuly saved.")
         }
       })
   }
