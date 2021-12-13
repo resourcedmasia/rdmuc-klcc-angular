@@ -5,6 +5,7 @@ import { RestService } from '../rest.service';
 import { AuthService } from '../auth.service';
 import { FormGroup, FormControl, Validators, FormsModule } from '@angular/forms';
 import { Config } from '../../config/config';
+import { NgxSpinnerService } from "ngx-spinner";
 
 
 
@@ -129,6 +130,7 @@ export class VisualizationComponent implements OnInit, OnDestroy {
               private authService: AuthService,
               private router: Router,
               private activatedRoute: ActivatedRoute,
+              private spinner: NgxSpinnerService
               ) {
     
     this.appService.pageTitle = 'Visualization Dashboard';
@@ -165,6 +167,7 @@ export class VisualizationComponent implements OnInit, OnDestroy {
     this.editGraphName = false;
     this.storedCellId = "";
     this.toastr.clear();
+    
 
     // Retrieve stored mxGraphs from database and populate dropdown selection
     this.getMxGraphList();
@@ -205,7 +208,7 @@ export class VisualizationComponent implements OnInit, OnDestroy {
     // Center and Re-scale graph
     this.centerGraph();
     // Disable loading indicator on table
-    this.loadingIndicator = false;
+    this.spinner.hide();
    
   }
 
@@ -362,8 +365,8 @@ export class VisualizationComponent implements OnInit, OnDestroy {
   /* Function: Event triggered when mxGraph is selected from UI dropdown */
   async onSelectGraph(event) {
 
-    // Stops loading indicator  
-    this.loadingIndicator = true;  
+    // Starts loading spinner in Table
+    this.spinner.show();
     this.graphClickable = false;
     this.hideEditGraph = false;
     this.editGraphName = false;
@@ -449,7 +452,7 @@ export class VisualizationComponent implements OnInit, OnDestroy {
           this.sub(cells);
         } else {
           this.sub(cells);
-          }
+        }
 
         console.log(this.fieldArray);
         
@@ -462,15 +465,12 @@ export class VisualizationComponent implements OnInit, OnDestroy {
         this.config.asyncLocalStorage.setItem('mxgraph_id', event.Id);
         this.addClickListener();
 
-        // this.mxGraphForm.patchValue({
-        //   mxgraph_value: event.mxgraph_name
-        // });
-
         this.centerGraph();
 
       }
     });
-
+    // Stops loading spinner in Table
+    this.spinner.hide();
   }
 
   async addClickListener() {
@@ -546,7 +546,8 @@ export class VisualizationComponent implements OnInit, OnDestroy {
 
             for (let j = 0; j < getAllSlaveArray[linkMap[i].slave].Items.Item.length; j++) {
                 if (linkMap[i].slave_name == getAllSlaveArray[linkMap[i].slave].Items.Item[j].Name) {
-                  let rowArray = {slave_value: getAllSlaveArray[linkMap[i].slave].Items.Item[j].Value, ...row};
+                  let rowArray = {slave_value: getAllSlaveArray[linkMap[i].slave].Items.Item[j].Value, slave_detail: getAllSlaveArray[linkMap[i].slave].Items.Item[j].Detail, ...row};
+                  console.log("rowArray",rowArray)
                   // Open Modal if slave_type is a Parameter
                   const modalRef = modalService.open(WriteVisualizationModalComponent);
                   modalRef.componentInstance.row = rowArray;

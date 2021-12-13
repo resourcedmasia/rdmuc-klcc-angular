@@ -31,6 +31,7 @@ import { OverviewModule } from './overview/overview.module';
 import { FacilityReportModule } from './facility-report/facility-report.module';
 import { MomentModule } from 'angular2-moment';
 import { ArchwizardModule } from 'ng2-archwizard';
+import { NgxSpinnerModule } from "ngx-spinner";
 
 // REST service
 import { RestService } from './rest.service';
@@ -130,6 +131,7 @@ import { Config } from '../config/config';
     FacilityReportModule,
     ReactiveFormsModule,
     MomentModule,
+    NgxSpinnerModule,
     ArchwizardModule,
     ToastrModule.forRoot({
       preventDuplicates: true,

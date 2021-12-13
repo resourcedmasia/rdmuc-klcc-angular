@@ -39,9 +39,11 @@
       </tr>
     </thead>
     <tbody>
-      
+      <ngx-spinner [fullScreen]="false" type = "ball-beat" size="small">
+        <br>
+        <p style="color: white" > Loading... </p>
+      </ngx-spinner>
       <tr (mouseenter)="highlightRow(field)" (mouseleave)="unhighlightRow()" *ngFor="let field of fieldArray; let i = index; let j = index">
-
         <td><label>{{i + 1}}</label></td>
         <td>
           <ng-select appendTo="body" [disabled]="i!==readOnly" [clearable]="false" [items]="readSlaveType" bindLabel="type" [(ngModel)]="field.slave"
@@ -97,7 +99,6 @@
           <button type="button" class="btn btn-primary" (click)="addFieldValue()">+ Add</button>
         </td>
       </tr>
-      
     </tbody>
   </table>
 </div>

@@ -45,6 +45,7 @@ export class VerifyUserModalComponent implements OnInit {
   }
 
   async verifyUser() {
+    console.log(this.verifyUserForm.value.slave_value)
     //Verify user in Database
      // Attempt to login
      await this.restService.postData("auth", null, {username: this.verifyUserForm.value.username, password: this.verifyUserForm.value.password})

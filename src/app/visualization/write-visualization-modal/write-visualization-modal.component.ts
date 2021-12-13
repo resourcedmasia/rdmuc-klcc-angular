@@ -16,6 +16,9 @@ export class WriteVisualizationModalComponent implements OnInit {
   @Input() row: any;
   @Output() valueChange = new EventEmitter();
 
+  dropDownArray: any [];
+  selected: any;
+
   writeForm = new FormGroup({
   	slave_value: new FormControl('',Validators.required),
     slave_type: new FormControl(''),
@@ -33,8 +36,14 @@ export class WriteVisualizationModalComponent implements OnInit {
      slave_cell_id: this.row.slave_cell_id,
      slave_name: this.row.slave_name,
      slave: this.row.slave
-     
   	});
+
+    if(this.row.slave_detail.Type.length > 0) {
+      if(this.row.slave_detail.Type == "String") {
+        this.dropDownArray = this.row.slave_detail.Strings.String;
+      }
+    }
+
   }
 
   closeModal() {
@@ -43,6 +52,14 @@ export class WriteVisualizationModalComponent implements OnInit {
 
   verifyUser() {
     this.activeModal.close(this.writeForm.value);
+  }
+
+  onInputChange(event) {
+    let value = event.target.value;
+    this.row.slave_value = value;
+    this.writeForm.patchValue({
+      slave_value: value,
+     });
   }
 
 }
