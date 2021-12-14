@@ -10,7 +10,7 @@ export class RestService {
 
   // API Endpoint
   // private baseUrl = 'https://www.rdmuc.com/api/api.php';
-  private baseUrl = 'http://127.0.0.1:8080/api/api.php';
+  private baseUrl = 'http://10.1.128.186:8080/api/api.php';
   
 
   
