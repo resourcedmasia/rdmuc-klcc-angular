@@ -24,5 +24,5 @@
 </div>
 <div class="modal-footer">
   <button type="button" class="btn btn-default" (click)="activeModal.dismiss('cancel');">Cancel</button>
-  <button type="button" class="btn btn-primary" [disabled]="!verifyUserForm.valid" (click)="activeModal.close('delete'); this.verifyUser()">Delete</button>
+  <button type="button" class="btn btn-primary" [disabled]="!verifyUserForm.valid" (click)="this.verifyUser()">Delete</button>
 </div>

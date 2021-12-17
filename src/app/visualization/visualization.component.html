@@ -6,183 +6,232 @@
 
 
 <div class="row">
+
+<!-- Graph Selection -->
 <div class="card mb-4 " [ngClass]="{'col-sm-5' : !cardExpand , 'col-sm-7' : cardExpand}">
   <h4 class="card-header">
     <i class="ion ion-md-analytics"></i>&nbsp;&nbsp; Graph Selection
     <i (click)="expand()" style="font-size: 13px; margin-top: 10px;" class="float-sm-right font-weight-light text-muted" [ngClass]="{'ion ion-md-arrow-forward': !cardExpand , 'ion ion-md-arrow-back': cardExpand}"></i>
   </h4>
   <div class="card-body scroll">
-    
     <ng-select appendTo="body" placeholder="Select Graph" [clearable]="false" [items]="selectedMxGraph" bindLabel="mxgraph_name"
       [(ngModel)]="selectedGraph" (change)="onSelectGraph($event)">
     </ng-select>
- 
     <div #graphContainer id="graphContainer"></div>
   </div>
-  
 </div>
+
+
 
 <div class="card mb-4 " [ngClass]="{'col-sm-7' : !cardExpand , 'col-sm-5' : cardExpand}">
-  <h4 class="card-header mb-4">
-    <i class="ion ion-md-eye"></i>&nbsp;&nbsp;<span class="text-muted font-weight-light">Read Configuration</span>
-  </h4>
-<div class="scroll">
-  <table class="table table-bordered table-hover ">
-    <thead>
-      <tr>
-        <th >Index</th>
-        <th style="min-width: 100px;">Controller</th>
-        <th >Name</th>
-        <th style="min-width: 90px;">Class</th>
-        <!-- <th>Cell ID</th> -->
-        <th colspan="2">Action</th>
-      </tr>
-    </thead>
-    <tbody>
-      <ngx-spinner [fullScreen]="false" type = "ball-beat" size="small">
-        <br>
-        <p style="color: white" > Loading... </p>
-      </ngx-spinner>
-      <tr (mouseover)="highlightRow(field)" (mouseout)="unhighlightRow()" *ngFor="let field of fieldArray; let i = index; let j = index">
-        <td><label>{{i + 1}}</label></td>
-        <td>
-          <ng-select appendTo="body" [disabled]="i!==readOnly" [clearable]="false" [items]="readSlaveType" bindLabel="type" [(ngModel)]="field.slave"
-            (change)="readSlaveChange($event)" name={{field.slave}} >
-          </ng-select>
-        </td>
-        <td>
-          <ng-select appendTo="body" [disabled]="i!==readOnly" [clearable]="false" [items]="readTableData['Item']" bindLabel="Name" [(ngModel)]="field.slave_name"
-            (change)="readChanged($event,false,j)" name="{{field.slave_name}}">
-          </ng-select>
-        </td>
-        <td>
-         
-          <input [readonly]="true" [(ngModel)]="field.slave_type" class="form-control" type="text" name="{{field.slave_type}}"
-          />
-        </td>
-        <!-- <td>
-         
-             <input [(ngModel)]="field.slave_cell_id" class="form-control" type="text" name="{{field.mxgraphid}}"
-             />
-        </td> -->
-        <td >
-          <button [hidden]="hideAddRow" type="button" class="btn btn-primary" [id]="field.slave_cell_id" (click)="deleteFieldValue($event)"><i class="ion ion-md-trash"></i> Delete</button>
-          <button [hidden]="i!==readOnly" type="button" class="btn btn-primary" [id]="field.slave_cell_id" (click)="doneEdit(i,field,'done', j)">Done</button>
-        </td>   
-        <td>
-          <button [hidden]="i!==readOnly" type="button" class="btn btn-primary" [id]="field.slave_cell_id" (click)="doneEdit(i,field,'cancel', j)">Cancel</button>
-          <button [hidden]="hideAddRow" class="btn btn-primary" [id]="j"  (click)="onSelect(i,field, $event)" ><i class="ion ion-md-clipboard"></i> Edit</button>
-        </td>
-      </tr>
+  <ngb-tabset #tabs [destroyOnHide]="false"  (tabChange)="fetchActiveTab($event)">  
+    <!-- START FIRST TAB --> 
+    <ngb-tab id="tab1">  
+      <ng-template ngbTabTitle style="padding: 0.45rem 1.25rem !important;">
+        <h5 class="card-header mb-2">
+          <i class="ion ion-ios-eye"></i>&nbsp;&nbsp;<span class="font-weight-light">Data Link</span>
+        </h5>
+      </ng-template> 
+      <ng-template ngbTabContent >  
+      <div class="scroll">
+        <table class="table table-bordered table-hover ">
+          <thead>
+            <tr>
+              <th >Index</th>
+              <th style="min-width: 100px;">Controller</th>
+              <th style="min-width: 170px;">Name</th>
+              <th style="min-width: 120px;">Class</th>
+              <th colspan="2">Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <ngx-spinner [fullScreen]="false" type = "ball-beat" size="small" bdColor="rgba(39,39,45,0.8)">
+              <br>
+              <p style="color: white" > Loading... </p>
+            </ngx-spinner>
+            <tr (mouseover)="highlightRow(field)" (mouseout)="unhighlightRow()" *ngFor="let field of fieldArray; let i = index; let j = index">
+              <td><label>{{i + 1}}</label></td>
+              <td>
+                <ng-select appendTo="body" [disabled]="i!==readOnly" [clearable]="false" [items]="readSlaveType" bindLabel="type" [(ngModel)]="field.slave"
+                  (change)="readSlaveChange($event)" name={{field.slave}} >
+                </ng-select>
+              </td>
+              <td>
+                <ng-select appendTo="body" [disabled]="i!==readOnly" [clearable]="false" [items]="readTableData['Item']" bindLabel="Name" [(ngModel)]="field.slave_name"
+                  (change)="readChanged($event,false,j)" name="{{field.slave_name}}">
+                </ng-select>
+              </td>
+              <td>
+               
+                <input [readonly]="true" [(ngModel)]="field.slave_type" class="form-control" type="text" name="{{field.slave_type}}"
+                />
+              </td>
+              <td >
+                <button title="Delete" [hidden]="hideAddRow" type="button" class="btn btn-danger" value="Delete" [id]="field.slave_cell_id" (click)="deleteFieldValue($event)"><i class="ion ion-md-trash"></i></button>
+                <button [hidden]="i!==readOnly" type="button" class="btn btn-primary" [id]="field.slave_cell_id" (click)="doneEdit(i,field,'done', j)">Done</button>
+              </td>   
+              <td>
+                <button [hidden]="i!==readOnly" type="button" class="btn btn-default" [id]="field.slave_cell_id" (click)="doneEdit(i,field,'cancel', j)">Cancel</button>
+                <button title="Edit" [hidden]="hideAddRow" class="btn btn-info" value="Edit" [id]="j"  (click)="onSelect(i,field, $event)" ><i class="ion ion-md-clipboard"></i></button>
+              </td>
+            </tr>
+      
+              
+            <tr [hidden]="hideAddRow">
+              <td><label></label></td>
+              <td>
+                <ng-select [ngClass]="{'border-error': isAddError}" appendTo="body" [clearable]="false" [items]="readSlaveType" bindLabel="type" [(ngModel)]="newAttribute.controller"
+                  (change)="readSlaveChange($event)" name={{newAttribute.controller}}>
+                </ng-select>
+              </td>
+              <td>
+                <ng-select [ngClass]="{'border-error': isAddError}" appendTo="body" [clearable]="false" [items]="readTableData['Item']" bindLabel="Name"
+                  [(ngModel)]="newAttribute.name" (change)="readChanged($event,true)" name="{{newAttribute.name}}">
+                </ng-select>
+              </td>
+              <td>
+                <input [readonly]="true" [(ngModel)]="readConfigClass" class="form-control" type="text" name="{{readConfigClass}}"
+                   />
+              </td>
+              <td colspan="2">
+                <button type="button" class="btn btn-primary" (click)="addFieldValue()">+ Add</button>
+              </td>
+              
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      </ng-template>  
+    </ngb-tab> 
+    <!-- END FIRST TAB --> 
+       
+    <ngb-tab id="tab2">  
+      <ng-template ngbTabTitle style="padding: 0.45rem 1.25rem !important;">
+        <h5 class="card-header">
+          <i class="ion ion-ios-link"></i>&nbsp;&nbsp;<span class="font-weight-light">Nav Link</span>
+        </h5>
+      </ng-template>  
+      <ng-template ngbTabContent>  
+        <div class="scroll">
+          <table class="table table-bordered table-hover ">
+            <thead>
+              <tr>
+                <th >Index</th>
+                <th style="min-width: 200px;">Floor Name</th>
+                <th style="min-width: 170px;">Cell Id</th>
+                <th colspan="2">Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              <ngx-spinner [fullScreen]="false" type = "ball-beat" size="small" bdColor="rgba(39,39,45,0.8)">
+                <br>
+                <p style="color: white" > Loading... </p>
+              </ngx-spinner>
+              <tr (mouseover)="highlightRow(nav)" (mouseout)="unhighlightRow()" *ngFor="let nav of navigationLink; let i = index; let j = index">
+                <td><label>{{i + 1}}</label></td>
+                <td>
+                  <ng-select [disabled]="i!==readOnly" placeholder="Select Graph" appendTo="body" [clearable]="false" [items]="selectedMxGraph" bindLabel="mxgraph_name" [(ngModel)]="nav.mxgraph_name"> 
+                  </ng-select>
+                </td>
+                <td>
+                  <input [readonly]="true" class="form-control" type="text" [(ngModel)]="nav.cell_id"/>
+                </td>
+                <td >
+                  <button title="Delete" [hidden]="hideAddRow" type="button" class="btn btn-danger" [id]="nav.cell_id" value="Delete" (click)="deleteNavFieldValue($event)"><i class="ion ion-md-trash"></i></button>
+                  <button [hidden]="i!==readOnly" type="button" class="btn btn-primary" (click)="doneEditNav(i,nav,'done', j)">Done</button>
+                </td>   
+                <td>
+                  <button [hidden]="i!==readOnly" type="button" class="btn btn-default" (click)="doneEditNav(i,nav,'cancel', j)">Cancel</button>
+                  <button title="Edit" [hidden]="hideAddRow" class="btn btn-info" [id]="j" value="Edit" (click)="onEditNav(i,nav, $event)" ><i class="ion ion-md-clipboard"></i></button>
+                </td>
+              </tr>
+        
+                
+              <tr [hidden]="hideAddRow">
+                <td><label></label></td>
+                <td>
+                  <ng-select [(ngModel)]="newNavAttribute.mxgraph_name" [ngClass]="{'border-error': isAddNavError}" appendTo="body" [clearable]="false" [items]="selectedMxGraph" bindLabel="mxgraph_name" (change)="readTargetFloorChange($event, true)">
+                  </ng-select>
+                </td>
+                <td>
+                  <input [readonly]="true" class="form-control" [(ngModel)]="newNavAttribute.cell_id" name="{{newNavAttribute.cell_id}}" type="text"/>
+                </td>
+                <td colspan="2">
+                  <button type="button" class="btn btn-primary" (click)="addNavFieldValue()">+ Add</button>
+                </td>
+                
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </ng-template>  
+    </ngb-tab>  
 
-      <tr [hidden]="hideAddRow">
-        <td><label></label></td>
-        <td>
-          <ng-select appendTo="body" [clearable]="false" [items]="readSlaveType" bindLabel="type" [(ngModel)]="newAttribute.controller"
-            (change)="readSlaveChange($event)" name={{newAttribute.controller}}>
-          </ng-select>
-        </td>
-        <td>
-          <ng-select appendTo="body" [clearable]="false" [items]="readTableData['Item']" bindLabel="Name"
-            [(ngModel)]="newAttribute.name" (change)="readChanged($event,true)" name="{{newAttribute.name}}">
-          </ng-select>
-        </td>
-        <td>
-          <input [readonly]="true" [(ngModel)]="readConfigClass" class="form-control" type="text" name="{{readConfigClass}}"
-             />
-        </td>
-        <!-- <td>
-          <input [(ngModel)]="newAttribute.mxgraphid" class="form-control" type="text" name="{{newAttribute.mxgraphid}}"
-             />
-        </td> -->
-        <td colspan="2">
-          <button type="button" class="btn btn-primary" (click)="addFieldValue()">+ Add</button>
-        </td>
-      </tr>
-    </tbody>
-  </table>
-</div>
+  </ngb-tabset>  
 </div>
 </div>
 
-<div class="card mb-4">
+<!-- Save Mapping Card -->
+<div [hidden]="hideAddRow" class="card mb-4">
   <h4 class="card-header">
+    <i class="ion ion-md-link"></i>&nbsp;&nbsp;<span class="text-muted font-weight-light">Save Mapping </span>
+    <span > <button type="button" class="btn btn-primary float-sm-right" (click)="linkMapping()">Save</button></span>
+    <span > <button type="button" class="float-sm-right btn btn-default mr-2" (click)="revert()">Revert</button></span>
+  </h4>
+</div>
+
+<!-- Add/Edit Graph Card -->
+<div class="card mb-4">
+  <ngb-tabset [destroyOnHide]="false">  
     
-    <i class="ion ion-md-link"></i>&nbsp;&nbsp;<span class="text-muted font-weight-light">Link Mapping </span>
-    <span [hidden]="hideAddRow"> <button type="button" class="btn btn-primary float-sm-right" (click)="linkMapping()">Save</button></span>
-    <span> <button type="button" class="float-sm-right btn btn-primary mr-2" (click)="revert()">Revert</button></span>
-  </h4>
-
-  <!-- <div class="card-body">
-    <div class="form-row">
-      <div class="form-row">
-        <div class="col-md mb-4" *ngIf="writeName">
-          <ng-select placeholder="Select Name" [clearable]="false" [items]="writeTableData['Item']" bindLabel="Name"
-            [(ngModel)]="selectedAssetType" disabled="true">
-          </ng-select>
+    <ngb-tab title="Add Graph">  
+      <ng-template ngbTabContent>  
+        <h4 class="card-header">
+          <i class="ion ion-md-today"></i>&nbsp;&nbsp;<span class="text-muted font-weight-light">Add Graph</span>
+          <button class="float-sm-right btn btn-primary" (click)="this.mxGraphInsert()"><i
+              class="ion ion-md-add"></i>&nbsp;Add Graph</button>
+        </h4>
+        <div class="card-body">
+          <form [formGroup]="mxGraphForm">
+            <div class="form-group">
+              <input type="text" formControlName="mxgraph_value" class="form-control"
+                placeholder="Graph Name (eg. Floor LG, HVAC, VAV Level 1, ..)">
+              <br>
+              <textarea type="text" formControlName="mxgraph_code" class="form-control"
+                placeholder="Enter mxGraph XML (eg. <root> <mxCell id=..)">
+              </textarea>
+            </div>
+          </form>
         </div>
+      </ng-template>  
+    </ngb-tab>  
+       
+    <ngb-tab *ngIf="!hideEditGraph">  
+      <ng-template ngbTabTitle>Edit Graph</ng-template>  
+      <ng-template ngbTabContent>  
+        <h4 class="card-header">
+          <i class="ion ion-md-today"></i>&nbsp;&nbsp;<span class="text-muted font-weight-light">Edit Graph</span>
+          <button *ngIf="editGraphName" class="float-sm-right btn btn-primary" (click)="this.editGraphName=false; this.cancelEditGraph()">Cancel</button>
+          <button *ngIf="editGraphName" [disabled]="!editGraphForm.valid" class="float-sm-right btn btn-primary mr-2" (click)="this.editGraph()">Done</button>
+          <button *ngIf="!editGraphName" class="float-sm-right btn btn-primary" (click)="this.editGraphName=true"><i class="ion ion-md-clipboard"></i>&nbsp;Edit Graph</button>
+          <button *ngIf="!editGraphName" [disabled]="!editGraphForm.valid"  class="float-sm-right btn btn-danger mr-2" (click)="this.deleteGraph()"><i class="ion ion-md-trash"></i>&nbsp;Delete Graph</button>
+        </h4>
+        <div class="card-body">
+          <form [formGroup]="editGraphForm">
+            <div class="form-group">
+              <input [readonly]="!editGraphName" type="text" formControlName="mxgraph_name" class="form-control" [class.is-invalid]="editGraphForm.get('mxgraph_name').touched && editGraphForm.get('mxgraph_name').errors"
+                placeholder="Graph Name (eg. Floor LG, HVAC, VAV Level 1, ..)">
+                <small class="invalid-feedback">
+                  This field is required.
+                </small>
+              <br>
+            </div>
+          </form>
+        </div>  
+      </ng-template>  
+    </ngb-tab>  
 
-        <div class="col-md mb-4" *ngIf="writeCellID">
-          <ng-select placeholder="Select Status" [clearable]="false" [items]="mxcellID" bindLabel="value"
-            [(ngModel)]="selectedpe">
-          </ng-select>
-        </div>
-
-
-
-        <div class="col-md mb-4">
-          <button type="button" class="btn btn-primary" (click)="linkMapping()">Save</button>
-         <button type="button" class="btn btn-primary" (click)="openModal()">Save</button>
-        </div>
-      </div>
-    </div>
-
-  </div> -->
-</div>
-
-<div class="card mb-4">
-  <h4 class="card-header">
-    <i class="ion ion-md-today"></i>&nbsp;&nbsp;<span class="text-muted font-weight-light">Add Graph</span>
-    <button class="float-sm-right btn btn-primary" (click)="this.mxGraphInsert()"><i
-        class="ion ion-md-add"></i>&nbsp;Add Graph</button>
-  </h4>
-
-  <div class="card-body">
-    <form [formGroup]="mxGraphForm">
-      <div class="form-group">
-
-        <input type="text" formControlName="mxgraph_value" class="form-control"
-          placeholder="Graph Name (eg. Floor LG, HVAC, VAV Level 1, ..)">
-        <br>
-        <textarea type="text" formControlName="mxgraph_code" class="form-control"
-          placeholder="Enter mxGraph XML (eg. <root> <mxCell id=..)">
-        </textarea>
-      </div>
-    </form>
-  </div>
-</div>
-
-<div *ngIf="!hideEditGraph" class="card mb-4">
-  <h4 class="card-header">
-    <i class="ion ion-md-today"></i>&nbsp;&nbsp;<span class="text-muted font-weight-light">Edit Graph</span>
-    <button *ngIf="editGraphName" class="float-sm-right btn btn-primary" (click)="this.editGraphName=false; this.cancelEditGraph()">Cancel</button>
-    <button *ngIf="editGraphName" [disabled]="!editGraphForm.valid" class="float-sm-right btn btn-primary mr-2" (click)="this.editGraph()">Done</button>
-    <button *ngIf="!editGraphName" class="float-sm-right btn btn-primary" (click)="this.editGraphName=true"><i class="ion ion-md-clipboard"></i>&nbsp;Edit Graph</button>
-    <button *ngIf="!editGraphName" [disabled]="!editGraphForm.valid"  class="float-sm-right btn btn-primary mr-2" (click)="this.deleteGraph()"><i class="ion ion-md-trash"></i>&nbsp;Delete Graph</button>
-  </h4>
-
-  <div class="card-body">
-    <form [formGroup]="editGraphForm">
-      <div class="form-group">
-        <input [readonly]="!editGraphName" type="text" formControlName="mxgraph_name" class="form-control" [class.is-invalid]="editGraphForm.get('mxgraph_name').touched && editGraphForm.get('mxgraph_name').errors"
-          placeholder="Graph Name (eg. Floor LG, HVAC, VAV Level 1, ..)">
-          <small class="invalid-feedback">
-            This field is required.
-          </small>
-        <br>
-      </div>
-    </form>
-  </div>
+  </ngb-tabset>  
 </div>
 
   <!-- <div class="card mb-4">

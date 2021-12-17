@@ -4,6 +4,8 @@ import { RestService } from '../../rest.service';
 import { AuthService } from '../../auth.service';
 import { FormGroup, FormControl, Validators, FormsModule } from '@angular/forms';
 import { NgSelectModule } from '@ng-select/ng-select';
+import {Router, NavigationEnd,ActivatedRoute} from '@angular/router';
+
 
 
 
@@ -27,7 +29,11 @@ export class WriteVisualizationModalComponent implements OnInit {
     slave: new FormControl('')
   });
 
-  constructor(public activeModal: NgbActiveModal) { }
+  constructor(public activeModal: NgbActiveModal, 
+              private restService: RestService,
+              private router: Router,
+              private authService: AuthService, 
+             ) { }
 
   ngOnInit() {
     this.writeForm.patchValue({
@@ -50,8 +56,19 @@ export class WriteVisualizationModalComponent implements OnInit {
 	  this.activeModal.close('Modal Closed');
   }
 
-  verifyUser() {
-    this.activeModal.close(this.writeForm.value);
+  async verifyUser() {
+        await this.restService.postData("setSlave", this.authService.getToken(), { controller: this.writeForm.value.slave, name: this.writeForm.value.slave_name, value: this.writeForm.value.slave_value })
+        .toPromise().then(data => {
+        // Successful login
+        if (data["status"] == 200 && data["data"]["rows"] !== false) {
+          this.activeModal.close("success")
+          this.router.navigate([this.router.url]);
+        }
+        else {
+          this.activeModal.close("fail")
+        }
+      });
+     
   }
 
   onInputChange(event) {

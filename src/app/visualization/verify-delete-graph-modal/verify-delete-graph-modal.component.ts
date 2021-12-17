@@ -5,6 +5,7 @@ import { AuthService } from '../../auth.service';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { NgSelectModule } from '@ng-select/ng-select';
 import {Router, NavigationEnd,ActivatedRoute} from '@angular/router';
+import { NgxSpinnerService } from "ngx-spinner";
 
 @Component({
   selector: 'app-verify-delete-graph-modal',
@@ -25,7 +26,8 @@ export class VerifyDeleteGraphModalComponent implements OnInit {
     private restService: RestService, 
     private authService: AuthService, 
     public activeModal: NgbActiveModal,
-    private router: Router
+    private router: Router,
+    private spinner: NgxSpinnerService,
   ) { }
 
   ngOnInit() {
@@ -37,6 +39,7 @@ export class VerifyDeleteGraphModalComponent implements OnInit {
   async verifyUser() {
     //Verify user in Database
      // Attempt to login
+    //  this.spinner.show();
      await this.restService.postData("auth", null, {username: this.verifyUserForm.value.username, password: this.verifyUserForm.value.password})
      .toPromise().then(async data => {
        // Successful login
@@ -46,19 +49,27 @@ export class VerifyDeleteGraphModalComponent implements OnInit {
         // Successful Delete
           if (data["status"] == 200 && data["data"]["rows"] !== false) {
             await this.restService.postData("deleteReadDetails", this.authService.getToken(), { mxgraph_id: this.verifyUserForm.value.mxgraph_id})
-          .toPromise().then(data => {
+          .toPromise().then(async data => {
             if (data["status"] == 200 && data["data"]["rows"] !== false) {
-            this.activeModal.close("success")
+              await this.restService.postData("deleteNavLinkAndTarget", this.authService.getToken(), { mxgraph_id: this.verifyUserForm.value.mxgraph_id})
+              .toPromise().then(data => {
+                if (data["status"] == 200 && data["data"]["rows"] !== false) {
+                  this.activeModal.close("success")
+                  // this.spinner.hide();
+                }
+              });
             }
-          })
+          });
           }
         else {
           this.activeModal.close("fail")
+          // this.spinner.hide();
         }
         });
        } else {
          // Display alert
          this.activeModal.close("fail")
+        //  this.spinner.hide();
        }
      });
   }

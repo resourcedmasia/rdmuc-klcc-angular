@@ -61,6 +61,7 @@ import { MxgraphEditModule } from '../app/mxgraph-edit/mxgraph-edit.module';
 import { NgxDatatableModule } from '@swimlane/ngx-datatable';
 import { NgSelectModule } from '@ng-select/ng-select';
 import { VisualizationComponent } from './visualization/visualization.component';
+import { VisualizationUserComponent } from './visualization-user/visualization-user.component';
 import { WriteVisualizationModalComponent } from './visualization/write-visualization-modal/write-visualization-modal.component';
 import { VerifyUserModalComponent } from './visualization/verify-user-modal/verify-user-modal.component';
 import { DeleteGraphModalComponent } from './visualization/delete-graph-modal/delete-graph-modal.component'; 
@@ -72,6 +73,7 @@ import { ToastrModule } from 'ngx-toastr';
 //
 // Config File
 import { Config } from '../config/config';
+
 
 
 @NgModule({
@@ -99,7 +101,8 @@ import { Config } from '../config/config';
     WriteVisualizationModalComponent,
     VerifyUserModalComponent,
     DeleteGraphModalComponent,
-    VerifyDeleteGraphModalComponent
+    VerifyDeleteGraphModalComponent,
+    VisualizationUserComponent
   ],
 
   imports: [

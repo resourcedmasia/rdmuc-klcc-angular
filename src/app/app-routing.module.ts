@@ -26,6 +26,7 @@ import { CarbonEmissionComponent } from './carbon-emission/carbon-emission.compo
 import { OverviewComponent } from './overview/overview.component';
 
 import { VisualizationComponent } from './visualization/visualization.component';
+import { VisualizationUserComponent } from './visualization-user/visualization-user.component';
 import { FacilityReportComponent } from './facility-report/facility-report.component';
 
 // Authentication
@@ -146,6 +147,13 @@ const routes: Routes = [
   {
     path: 'visualization', component: Layout2Component, canActivate: [AuthGuard], runGuardsAndResolvers: 'always', children: [
       { path: '', component: VisualizationComponent },
+    ]
+  },
+
+  // Visualization User
+  {
+    path: 'visualization-user', component: Layout2Component, canActivate: [AuthGuard], runGuardsAndResolvers: 'always', children: [
+      { path: '', component: VisualizationUserComponent },
     ]
   },
 

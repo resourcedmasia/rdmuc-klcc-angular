@@ -17,10 +17,10 @@ import { DatatableComponent } from '@swimlane/ngx-datatable';
 import { Subscription, timer } from 'rxjs';
 import { deserialize } from 'chartist';
 import { ToastrService } from 'ngx-toastr';
-import { WriteVisualizationModalComponent } from './write-visualization-modal/write-visualization-modal.component';
-import { VerifyUserModalComponent } from './verify-user-modal/verify-user-modal.component';
-import { DeleteGraphModalComponent } from './delete-graph-modal/delete-graph-modal.component';
-import { VerifyDeleteGraphModalComponent } from './verify-delete-graph-modal/verify-delete-graph-modal.component';
+import { WriteVisualizationModalComponent } from '../visualization/write-visualization-modal/write-visualization-modal.component';
+import { VerifyUserModalComponent } from '../visualization/verify-user-modal/verify-user-modal.component';
+import { DeleteGraphModalComponent } from '../visualization/delete-graph-modal/delete-graph-modal.component';
+import { VerifyDeleteGraphModalComponent } from '../visualization/verify-delete-graph-modal/verify-delete-graph-modal.component';
 
 
 declare var mxUtils: any;
@@ -33,16 +33,16 @@ declare var cellName: any;
 declare var mxConstants: any;
 
 @Component({
-  selector: 'app-visualization',
-  templateUrl: './visualization.component.html',
-  styleUrls: ['./visualization.component.scss']
+  selector: 'app-visualization-user',
+  templateUrl: './visualization-user.component.html',
+  styleUrls: ['./visualization-user.component.scss']
 })
 
-export class VisualizationComponent implements OnInit, OnDestroy {
+export class VisualizationUserComponent implements OnInit, OnDestroy {
 
   @ViewChild('graphContainer') graphContainer: ElementRef;
   @ViewChild('DatatableComponent') table: DatatableComponent;
-  @ViewChild('tabs')
+
   private tabs: NgbTabset;
 
 
@@ -242,9 +242,7 @@ export class VisualizationComponent implements OnInit, OnDestroy {
   }
 
   ngAfterViewInit() {
-    this.tabs.select("tab1");
-    this.activeTab = "tab2";
-    this._cdRef.detectChanges();
+
   }
 
   centerGraph() {
@@ -528,10 +526,6 @@ export class VisualizationComponent implements OnInit, OnDestroy {
     this.isAddError = false;
     this.isAddNavError = false;
     this.toastr.clear();
-    this.activeTab = "tab2";
-    this.tabs.select("tab1");
-    this._cdRef.detectChanges();
-    console.log(this.activeTab)
 
     localStorage.removeItem('cell_value');
     this.newAttribute = {};
@@ -674,56 +668,7 @@ export class VisualizationComponent implements OnInit, OnDestroy {
     let storedCellId = this.storedCellId;
     let storedNavCellId = this.tempNavCellId;
         
-    // On Click event ...
-    if (this.graphClickable) {
-    this.graph.addListener(mxEvent.CLICK, function (sender, evt) {
-      let valued = null
-  
-      if (evt.properties.cell) {
-        if(thisContext.activeTab == "tab2") {
-          console.log("Enter Here IF")
-          // Get event 'cell' property, 'id' subproperty (cell ID)
-          let cellId = evt.getProperty("cell").id;    
-          valued = localStorage.getItem('cell_value');
-          // Update ngModel binding with selected cell ID
-          thisContext.newAttribute.mxgraphid = cellId;
-          model.beginUpdate();
-          try {
-            // Get cell from model by cell ID string (https://jgraph.github.io/mxgraph/docs/js-api/files/model/mxGraphModel-js.html#mxGraphModel.getCell)
-            let cell = model.getCell(evt.getProperty("cell").id);
-            // Set value in cell when clicked
-            if (valued) {
-              model.setValue(cell, valued);
-              for (let i = 0; i < tempFieldArray.length; i++) {
-                if (tempFieldArray[i].slave_cell_id == storedCellId) {
-                  tempFieldArray[i].slave_cell_id = cellId;
-                }
-              }
-            
-            } 
-          }
-          finally {
-            model.endUpdate();
-          }
-        }
-        else {
-          console.log("Enter Here ELSE")
-          let cellId = evt.getProperty("cell").id;
-          thisContext.newNavAttribute.cell_id = cellId;
-          console.log(cellId)
-          console.log("CELL INDEX", storedCellId)
-          // let tempCellId = cellId.split("-");
-          // thisContext.tempNavAttributeCellId = tempCellId[1];
-              for (let i = 0; i < tempNavArray.length; i++) {
-                if (tempNavArray[i].Id == storedNavCellId) {
-                  tempNavArray[i].cell_id = cellId;
-                }
-              }     
-        }
-     }
-    });
-   }
-   else {
+
     //On-click event if the vertex has type Parameter
     let modalService = this.modalService
     let getAllSlaveArray = this.getAllSlaveArray
@@ -801,7 +746,7 @@ export class VisualizationComponent implements OnInit, OnDestroy {
       }
     });
 
-   }
+   
   }
 
   /* Function: Refresh component */
