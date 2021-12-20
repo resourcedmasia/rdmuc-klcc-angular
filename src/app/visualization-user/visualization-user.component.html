@@ -8,15 +8,16 @@
 <div class="row">
 
 <!-- Graph Selection -->
-<div class="card mb-4 ">
+<div class="card mb-4 w-100 h-100">
   <h4 class="card-header">
     <i class="ion ion-md-analytics"></i>&nbsp;&nbsp; Graph Selection
-    <i (click)="expand()" style="font-size: 13px; margin-top: 10px;" class="float-sm-right font-weight-light text-muted" [ngClass]="{'ion ion-md-arrow-forward': !cardExpand , 'ion ion-md-arrow-back': cardExpand}"></i>
+    <i style="font-size: 13px; margin-top: 10px;" class="float-sm-right font-weight-light text-muted" ></i>
+    <i style="font-size: 13px;" class="font-weight-light text-muted" ><ng-select style="padding-top: 10px;" appendTo="body" placeholder="Select Graph" [clearable]="false" [items]="selectedMxGraph" bindLabel="mxgraph_name"
+    [(ngModel)]="selectedGraph" (change)="onSelectGraph($event)">
+    </ng-select></i>
   </h4>
   <div class="card-body scroll">
-    <ng-select appendTo="body" placeholder="Select Graph" [clearable]="false" [items]="selectedMxGraph" bindLabel="mxgraph_name"
-      [(ngModel)]="selectedGraph" (change)="onSelectGraph($event)">
-    </ng-select>
+   
     <div #graphContainer id="graphContainer"></div>
   </div>
 </div>
