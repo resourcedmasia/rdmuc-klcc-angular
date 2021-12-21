@@ -582,12 +582,6 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
                     mxgraph_name: mxgraphData["mxgraph_name"],
                   }
                   this.navigationLink[i] = Object.assign(this.navigationLink[i],targetMxGraphName)
-                  // this.navigationArray = this.navigationLink;
-                  // for(let i = 0; i < this.navigationArray.length; i++) {
-                  //   let cell_id = this.navigationArray[i].cell_id;
-                  //   cell_id = cell_id.split("-");
-                  //   this.navigationArray[i].cell_id = cell_id[1];
-                  // }
                 }
               }); 
       }

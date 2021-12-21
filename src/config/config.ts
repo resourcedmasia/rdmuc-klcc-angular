@@ -17,6 +17,22 @@ export class Config {
         }
       };
 
+    
+    mxGraphFilter(mxcode) {
+        let code = mxcode;
+        if(code.includes(`</mxGraphModel>`)){
+            code = code.trim();
+            code = code.substr(code.indexOf("<root>"), code.length);
+            code = code.replace("</mxGraphModel>","");
+        }
+        else {
+            code = mxcode;
+        }
+        return code;
+    }
+
+
+
 }
 
 

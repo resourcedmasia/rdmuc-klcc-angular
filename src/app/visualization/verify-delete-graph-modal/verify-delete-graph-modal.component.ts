@@ -44,7 +44,7 @@ export class VerifyDeleteGraphModalComponent implements OnInit {
      .toPromise().then(async data => {
        // Successful login
        if (data["status"] == 200) {
-        await this.restService.postData("mxGraphDelete", this.authService.getToken(), { mxgraph_id: this.verifyUserForm.value.mxgraph_id})
+        await this.restService.postData("mxGraphDelete", this.authService.getToken(), { mxgraph_id: this.verifyUserForm.value.mxgraph_id, mxgraph_name: this.row.mxgraph_name })
         .toPromise().then(async data => {
         // Successful Delete
           if (data["status"] == 200 && data["data"]["rows"] !== false) {

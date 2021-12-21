@@ -57,7 +57,7 @@ export class WriteVisualizationModalComponent implements OnInit {
   }
 
   async verifyUser() {
-        await this.restService.postData("setSlave", this.authService.getToken(), { controller: this.writeForm.value.slave, name: this.writeForm.value.slave_name, value: this.writeForm.value.slave_value })
+        await this.restService.postData("setSlave", this.authService.getToken(), { controller: this.writeForm.value.slave, name: this.writeForm.value.slave_name, value: this.writeForm.value.slave_value, previous_value: this.row.slave_value, action: "SET" })
         .toPromise().then(data => {
         // Successful login
         if (data["status"] == 200 && data["data"]["rows"] !== false) {

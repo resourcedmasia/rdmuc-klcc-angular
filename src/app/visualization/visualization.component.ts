@@ -124,8 +124,8 @@ export class VisualizationComponent implements OnInit, OnDestroy {
 
   // Add / Edit Graph Configuration Form
   mxGraphForm = new FormGroup({
-    mxgraph_value: new FormControl(''),
-    mxgraph_code: new FormControl('')
+    mxgraph_value: new FormControl('', Validators.required),
+    mxgraph_code: new FormControl('', Validators.required)
   });
 
   editGraphForm = new FormGroup({
@@ -588,12 +588,6 @@ export class VisualizationComponent implements OnInit, OnDestroy {
                     mxgraph_name: mxgraphData["mxgraph_name"],
                   }
                   this.navigationLink[i] = Object.assign(this.navigationLink[i],targetMxGraphName)
-                  // this.navigationArray = this.navigationLink;
-                  // for(let i = 0; i < this.navigationArray.length; i++) {
-                  //   let cell_id = this.navigationArray[i].cell_id;
-                  //   cell_id = cell_id.split("-");
-                  //   this.navigationArray[i].cell_id = cell_id[1];
-                  // }
                 }
               }); 
       }
@@ -1212,30 +1206,33 @@ export class VisualizationComponent implements OnInit, OnDestroy {
     Function: Event triggered when mxGraph Save Configuration button is selected 
     Inserts mxGraph name & code into backend database
   */
-  mxGraphInsert() {
-    this.restService.postData("mxGraphUpdate", this.authService.getToken(), { mxgraph_name: this.mxGraphForm.value.mxgraph_value, mxgraph_code: this.mxGraphForm.value.mxgraph_code })
-      .subscribe(data => {
-        // Success
-        if (data["status"] == 200) {
-          // Reset Add / Edit form data
-          this.mxGraphForm.reset();
+  async mxGraphInsert() {
+    if(this.mxGraphForm.value.mxgraph_value && this.mxGraphForm.value.mxgraph_code){
+      // Truncate <mxGraphModel> tags
+      let code = await this.config.mxGraphFilter(this.mxGraphForm.value.mxgraph_code);
+      this.restService.postData("mxGraphUpdate", this.authService.getToken(), { mxgraph_name: this.mxGraphForm.value.mxgraph_value, mxgraph_code: code })
+        .subscribe(data => {
+          // Success
+          if (data["status"] == 200) {
+            // Reset Add / Edit form data
+            this.mxGraphForm.reset();
 
-          // Refresh mxGraph selection list
-          this.restService.postData("getMxGraphList", this.authService.getToken())
-            .subscribe(data => {
-              // Success
-              if (data["status"] == 200) {
-                // Update selected mxGraph dropdown list
-                this.selectedMxGraph = data["data"].rows;
-                // Select first row in selected mxGraph dropdown list
-                this.selectedGraph = this.selectedMxGraph[0]["mxgraph_name"];
-                this.onSelectGraph({ Id: this.selectedMxGraph[0]["Id"], mxgraph_name: this.selectedMxGraph[0]["mxgraph_name"] });
-                this.successToast("Successfully added Graph");
-              }
-            });
-        }
-      })
-
+            // Refresh mxGraph selection list
+            this.restService.postData("getMxGraphList", this.authService.getToken())
+              .subscribe(data => {
+                // Success
+                if (data["status"] == 200) {
+                  // Update selected mxGraph dropdown list
+                  this.selectedMxGraph = data["data"].rows;
+                  // Select first row in selected mxGraph dropdown list
+                  this.selectedGraph = this.selectedMxGraph[0]["mxgraph_name"];
+                  this.onSelectGraph({ Id: this.selectedMxGraph[0]["Id"], mxgraph_name: this.selectedMxGraph[0]["mxgraph_name"] });
+                  this.successToast("Successfully added Graph");
+                }
+              });
+          }
+      });
+    }
   }
 
   onActivate(event) {
@@ -1552,8 +1549,7 @@ export class VisualizationComponent implements OnInit, OnDestroy {
 
   /* Function: Deletes graph */
   deleteGraph() {
-    console.log(this.editGraphForm.value.mxgraph_id);
-    let rowArray = {mxgraph_id: this.editGraphForm.value.mxgraph_id};
+    let rowArray = {mxgraph_id: this.editGraphForm.value.mxgraph_id, mxgraph_name: this.editGraphForm.value.mxgraph_name};
     // Open delete graph modal
     const modalRef = this.modalService.open(DeleteGraphModalComponent);
                   modalRef.componentInstance.row = rowArray;
@@ -1579,8 +1575,7 @@ export class VisualizationComponent implements OnInit, OnDestroy {
 
   /* Function: Edits graph name */
   async editGraph() {
-    console.log(this.editGraphForm.value);
-    await this.restService.postData("mxGraphEdit", this.authService.getToken(), {mxgraph_id: this.editGraphForm.value.mxgraph_id, mxgraph_name: this.editGraphForm.value.mxgraph_name})
+    await this.restService.postData("mxGraphEdit", this.authService.getToken(), {mxgraph_id: this.editGraphForm.value.mxgraph_id, mxgraph_name: this.editGraphForm.value.mxgraph_name, previous_mxgraph_name: this.temp_mxgraph_name})
     .toPromise().then(async data => {
     // Successful Update
     if (data["status"] == 200 && data["data"]["rows"] !== false) {
@@ -1594,8 +1589,6 @@ export class VisualizationComponent implements OnInit, OnDestroy {
           this.selectedGraph = this.editGraphForm.value.mxgraph_name
         }
       });
-        // this.router.navigate([this.router.url])
-        // await this.onSelectGraph({ Id: this.editGraphForm.value.mxgraph_id, mxgraph_name: this.editGraphForm.value.mxgraph_name });
       
     }
    })
