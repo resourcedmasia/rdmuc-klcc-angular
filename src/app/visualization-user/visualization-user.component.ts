@@ -663,6 +663,61 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
     let storedNavCellId = this.tempNavCellId;
         
 
+    this.graph.addMouseListener(
+      {
+          
+          currentState: null,
+          previousStyle: null,
+       
+          mouseMove: function(sender, me)
+          {
+
+              if (this.currentState != null && me.getState() == this.currentState)
+              {
+                  return;
+              }
+
+              var tmp = thisContext.graph.view.getState(me.getCell());
+
+              // Ignores everything but vertices
+              if ((tmp != null && !
+                thisContext.graph.getModel().isVertex(tmp.cell)))
+              {
+                  tmp = null;
+              }
+
+              if (tmp != this.currentState)
+              {
+                  if (this.currentState != null)
+                  {
+                      this.dragLeave(me.getEvent(), this.currentState);
+                  }
+
+                  this.currentState = tmp;
+
+                  if (this.currentState != null)
+                  {
+                      for(let i = 0; i < tempNavArray.length; i++) {
+                        if (tempNavArray[i].cell_id == tmp.cell.id) {
+                          this.dragEnter(me.getEvent(), this.currentState);
+                        }
+                      }
+                  }
+              }
+          },
+          mouseUp: function(sender, me) { },
+          mouseDown: function(sender, me){},
+          dragEnter: function(evt, state)
+          {
+              this.currentState.setCursor('pointer')    
+          },
+          dragLeave: function(evt, state)
+          {
+           
+          }
+      });
+
+
     //On-click event if the vertex has type Parameter
     let modalService = this.modalService
     let getAllSlaveArray = this.getAllSlaveArray
@@ -756,7 +811,8 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
   /* Function: Removes event listener for click */
   removeClickListener() {
     if (this.graph.eventListeners) {
-      this.graph.eventListeners = (this.graph.eventListeners).splice(this.graph.eventListeners.length, 2)
+      this.graph.eventListeners = (this.graph.eventListeners).splice(this.graph.eventListeners.length, 2);
+      this.graph.mouseListeners = (this.graph.mouseListeners).splice(this.graph.mouseListeners, 2);
     }
   }
 

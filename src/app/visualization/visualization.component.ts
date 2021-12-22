@@ -31,6 +31,7 @@ declare var mxCellHighlight: any;
 declare var mxGraphView: any;
 declare var cellName: any;
 declare var mxConstants: any;
+declare var mxGraphHandler: any;
 
 @Component({
   selector: 'app-visualization',
@@ -659,7 +660,7 @@ export class VisualizationComponent implements OnInit, OnDestroy {
 
   /* Function: Makes the cells on the graph clickable */
   async addClickListener() {
-    console.log("CLICK LISTENER CLICKABLE",this.graphClickable)
+    
     let model = this.graph.getModel();
     let thisContext = this;
     let linkMap = this.linkMappingReadConfig;
@@ -667,7 +668,64 @@ export class VisualizationComponent implements OnInit, OnDestroy {
     let tempNavArray = this.navigationLink;
     let storedCellId = this.storedCellId;
     let storedNavCellId = this.tempNavCellId;
-        
+         
+    
+    this.graph.addMouseListener(
+      {
+          
+          currentState: null,
+          previousStyle: null,
+       
+          mouseMove: function(sender, me)
+          {
+
+              if (this.currentState != null && me.getState() == this.currentState)
+              {
+                  return;
+              }
+
+              var tmp = thisContext.graph.view.getState(me.getCell());
+
+              // Ignores everything but vertices
+              if ((tmp != null && !
+                thisContext.graph.getModel().isVertex(tmp.cell)))
+              {
+                  tmp = null;
+              }
+
+              if (tmp != this.currentState)
+              {
+                  if (this.currentState != null)
+                  {
+                      this.dragLeave(me.getEvent(), this.currentState);
+                  }
+
+                  this.currentState = tmp;
+
+                  if (this.currentState != null)
+                  {
+                      for(let i = 0; i < tempNavArray.length; i++) {
+                        if (tempNavArray[i].cell_id == tmp.cell.id) {
+                          this.dragEnter(me.getEvent(), this.currentState);
+                        }
+                      }
+                  }
+              }
+          },
+          mouseUp: function(sender, me) { },
+          mouseDown: function(sender, me){},
+          dragEnter: function(evt, state)
+          {
+              this.currentState.setCursor('pointer')    
+          },
+          dragLeave: function(evt, state)
+          {
+           
+          }
+      });
+
+
+
     // On Click event ...
     if (this.graphClickable) {
     this.graph.addListener(mxEvent.CLICK, function (sender, evt) {
@@ -794,7 +852,6 @@ export class VisualizationComponent implements OnInit, OnDestroy {
    
       }
     });
-
    }
   }
 
@@ -812,6 +869,7 @@ export class VisualizationComponent implements OnInit, OnDestroy {
   removeClickListener() {
     if (this.graph.eventListeners) {
       this.graph.eventListeners = (this.graph.eventListeners).splice(this.graph.eventListeners.length, 2)
+      this.graph.mouseListeners = (this.graph.mouseListeners).splice(this.graph.mouseListeners, 2)
     }
   }
 
