@@ -7,6 +7,7 @@ import { FormGroup, FormControl, Validators, FormsModule } from '@angular/forms'
 import { Config } from '../../config/config';
 import { NgxSpinnerService } from "ngx-spinner";
 import { LayoutService } from '../layout/layout.service';
+import ResizeObserver from 'resize-observer-polyfill';
 
 
 
@@ -138,6 +139,7 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
   });
   tempHoverField: any;
   tempNavCellId: any;
+  observer: ResizeObserver;
  
 
   constructor(
@@ -649,6 +651,51 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
     });
     // Stops loading spinner in Table
     this.spinner.hide();
+
+    var width = 0; 
+
+    var thisC = this; 
+    
+    function centerGraph() {
+            
+            thisC.graph.view.rendering = true;
+
+            // Center the graph
+            var margin = 2;
+            var max = 3;
+            
+            var bounds = thisC.graph.getGraphBounds();
+            var cw = thisC.graph.container.clientWidth - margin;
+            var ch = thisC.graph.container.clientHeight - margin;
+            var w = bounds.width / thisC.graph.view.scale;
+            var h = bounds.height / thisC.graph.view.scale;
+            var s = Math.min(max, Math.min(cw / w, ch / h));
+            
+            thisC.graph.view.scaleAndTranslate(s,
+              (margin + cw - w * s) / (2 * s) - bounds.x / thisC.graph.view.scale,
+              (margin + ch - h * s) / (2 * s) - bounds.y / thisC.graph.view.scale);
+
+            // Re-scale the graph to fit the container
+            thisC.graph.fit();
+            // Re-render the graph
+            thisC.graph.refresh();
+            }
+
+            function myInterval() {
+            var interval = setInterval(function(){
+            if(width <= 0){
+              width = document.getElementById("graphContainer").clientHeight;
+            } 
+            if(document.getElementById("graphContainer").clientHeight!==width) {   
+              width = document.getElementById("graphContainer").clientHeight;
+              centerGraph();
+            }    
+            
+            }, 100);
+            return interval;
+            }
+            myInterval();
+            
   }
 
   /* Function: Makes the cells on the graph clickable */
@@ -702,18 +749,23 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
                           this.dragEnter(me.getEvent(), this.currentState);
                         }
                       }
+                      for (let i = 0; i < linkMap.length; i++) {
+                        if (linkMap[i].slave_cell_id == tmp.cell.id && linkMap[i].slave_type == "Parameter") {
+                          this.dragEnter(me.getEvent(), this.currentState);
+                        }
+                      }
                   }
               }
           },
-          mouseUp: function(sender, me) { },
-          mouseDown: function(sender, me){},
+          mouseUp: function(sender, me) {} ,
+          mouseDown: function(sender, me) {},
           dragEnter: function(evt, state)
           {
               this.currentState.setCursor('pointer')    
           },
           dragLeave: function(evt, state)
           {
-           
+            this.currentState.setCursor('mouse')
           }
       });
 
