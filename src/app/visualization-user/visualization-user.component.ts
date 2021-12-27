@@ -212,6 +212,7 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
     this.graph = new mxGraph(this.graphContainer.nativeElement);
     
     this.graph.view.rendering = false;
+    this.graph.setTooltips(true);
     
     // Default no graph from config.ts 
     let xml = this.config.XMLnograph;
@@ -634,9 +635,6 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
           this.sub(cells);
         }
 
-        console.log(this.fieldArray);
-        
-
         this.graph.addCells(cells);
 
         // Disable mxGraph editing
@@ -726,7 +724,6 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
 
               var tmp = thisContext.graph.view.getState(me.getCell());
 
-              // Ignores everything but vertices
               if ((tmp != null && !
                 thisContext.graph.getModel().isVertex(tmp.cell)))
               {
@@ -738,30 +735,58 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
                   if (this.currentState != null)
                   {
                       this.dragLeave(me.getEvent(), this.currentState);
+                      thisContext.graph.getTooltipForCell = function(tmp)
+                        {
+                          return "";
+                        }  
                   }
 
                   this.currentState = tmp;
 
                   if (this.currentState != null)
                   {
+
                       for(let i = 0; i < tempNavArray.length; i++) {
                         if (tempNavArray[i].cell_id == tmp.cell.id) {
-                          this.dragEnter(me.getEvent(), this.currentState);
+                          this.dragEnter(me.getEvent(), this.currentState, "Link", tmp, null, null);
+                          console.log(tempNavArray[i])
                         }
                       }
                       for (let i = 0; i < linkMap.length; i++) {
                         if (linkMap[i].slave_cell_id == tmp.cell.id && linkMap[i].slave_type == "Parameter") {
-                          this.dragEnter(me.getEvent(), this.currentState);
+                          this.dragEnter(me.getEvent(), this.currentState, "Parameter", tmp, linkMap[i].slave, linkMap[i].slave_name);
                         }
+                        else if(linkMap[i].slave_cell_id == tmp.cell.id && linkMap[i].slave_type !== "Parameter") {
+                          this.dragEnter(me.getEvent(), this.currentState, "Non-Parameter", tmp, linkMap[i].slave, linkMap[i].slave_name);
+                        }                       
                       }
                   }
               }
           },
           mouseUp: function(sender, me) {} ,
           mouseDown: function(sender, me) {},
-          dragEnter: function(evt, state)
+          dragEnter: function(evt, state, parameter, cell, slave, slave_name)
           {
-              this.currentState.setCursor('pointer')    
+            if(parameter == "Parameter") {
+              this.currentState.setCursor('pointer');
+              if(slave && slave_name){
+                thisContext.graph.getTooltipForCell = function(cell)
+                {
+                  return slave + " - " + slave_name;
+                }  
+              }
+            }
+            else if(parameter == "Non-Parameter"){
+              if(slave && slave_name){
+                thisContext.graph.getTooltipForCell = function(cell)
+                {
+                  return slave + " - " + slave_name;
+                }  
+              }
+            }
+            else{
+              this.currentState.setCursor('pointer');
+            }
           },
           dragLeave: function(evt, state)
           {

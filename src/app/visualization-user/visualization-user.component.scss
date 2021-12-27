@@ -51,10 +51,10 @@
   }
 
   p::after {
-    content: "↕️";               /* We are not forced to use a character, this is just handy for the example. Also notice this particular character is one and half the width of a regular character, as you can see this comment gets a tiny bit misaligned. Hence, changing the char can render differently, you have to take that into account for all browsers */
+    content: "↨";               /* We are not forced to use a character, this is just handy for the example. Also notice this particular character is one and half the width of a regular character, as you can see this comment gets a tiny bit misaligned. Hence, changing the char can render differently, you have to take that into account for all browsers */
     position: absolute;          /* Stick to the <hr> horizontal line */
     margin: -1.1em 0 0 calc(100% - 0.8em); /* You might have to adjust that a little depending your font-size and padding used in your page. The value of 2.2em correspond to two times the page padding, plus a little more corresponding of half the character width, so the character goes right over the resize handle. */
-    font-size: x-large;         /* This set the size of the handle, and a nice alignment depends to it */
+    font-size: large;         /* This set the size of the handle, and a nice alignment depends to it */
     pointer-events: none !important; /* Click trough. The !important rule avoid some blinking on the 2nd hovering. (Test it!) */
 }
 
