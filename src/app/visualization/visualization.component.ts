@@ -1426,6 +1426,8 @@ export class VisualizationComponent implements OnInit, OnDestroy {
 
   // Populate slave name drop down
   async readSlaveChange(event) {
+    this.newAttribute.name = "";
+    this.readConfigClass = "";
     this.isAddError = false;
     await this.config.asyncLocalStorage.setItem('controller', event);
 

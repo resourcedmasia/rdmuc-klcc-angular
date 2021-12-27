@@ -38,7 +38,7 @@
           <thead>
             <tr>
               <th >Index</th>
-              <th style="min-width: 100px;">Controller</th>
+              <th style="min-width: 120px;">Controller</th>
               <th style="min-width: 170px;">Name</th>
               <th style="min-width: 120px;">Class</th>
               <th colspan="2">Action</th>
@@ -53,7 +53,7 @@
               <td><label>{{i + 1}}</label></td>
               <td>
                 <ng-select appendTo="body" [disabled]="i!==readOnly" [clearable]="false" [items]="readSlaveType" bindLabel="type" [(ngModel)]="field.slave"
-                  (change)="readSlaveChange($event)" name={{field.slave}} >
+                  (change)="readSlaveChange($event); field.slave_name=''; field.slave_type='' " name={{field.slave}} >
                 </ng-select>
               </td>
               <td>
