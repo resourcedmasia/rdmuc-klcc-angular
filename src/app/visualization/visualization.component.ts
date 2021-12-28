@@ -110,6 +110,7 @@ export class VisualizationComponent implements OnInit, OnDestroy {
   isAddNavError: boolean;
   activeTab: any;
   selectedTab: any;
+  isHoverTooltip: boolean;
 
   readConfigClass: any;
   readCellID;
@@ -120,6 +121,7 @@ export class VisualizationComponent implements OnInit, OnDestroy {
   temp_mxgraph_name: any;
   tempFieldArray: any;
   isMouseHover: any;
+  currentState: any;
   
 
 
@@ -195,7 +197,8 @@ export class VisualizationComponent implements OnInit, OnDestroy {
     this.isMouseHover = false;
     this.isAddError = false;
     this.isAddNavError = false;
-
+    this.isHoverTooltip = false;
+    this.currentState = "";
     
 
     // Retrieve stored mxGraphs from database and populate dropdown selection
@@ -336,9 +339,19 @@ export class VisualizationComponent implements OnInit, OnDestroy {
     } else {
         var attributeArray;;
         if(Object.keys(this.newNavAttribute).length > 1) {
+          if((this.newNavAttribute.cell_id).includes("-")){
+            var tempCellId = this.newNavAttribute.cell_id;
+            tempCellId = tempCellId.split("-");
+            tempCellId = tempCellId[1];
+          }
+          else {
+            tempCellId = this.newNavAttribute.cell_id;
+          }
+          
           attributeArray = {
             mxgraph_id: this.mxgraphData["Id"],
             cell_id: this.newNavAttribute.cell_id,
+            split_cell_id: tempCellId,
             mxgraph_name: this.newNavAttribute.mxgraph_name.mxgraph_name,
             target_mxgraph_id: this.newNavAttribute.target_mxgraph_id
           }
@@ -350,6 +363,7 @@ export class VisualizationComponent implements OnInit, OnDestroy {
             cell_id: "",
             mxgraph_name: "",
             target_mxgraph_id: "",
+            split_cell_id: ""
           }
         }  
 
@@ -466,11 +480,19 @@ export class VisualizationComponent implements OnInit, OnDestroy {
     this.graphClickable = true;
     // this.addClickListener();
     
-    console.log("edit Graphclickable",this.graphClickable)
+    if((event.cell_id).includes("-")){
+      var tempCellId = (event.cell_id).split("-");
+      tempCellId = tempCellId[1];
+    }
+    else {
+      var tempCellId = event.cell_id;
+    }
+
     this.tempNavLinkMap = {
       Id: event.Id,
       mxgraph_id: event.mxgraph_id,
       cell_id: event.cell_id,
+      split_cell_id: tempCellId,
       mxgraph_name: event.mxgraph_name,
       target_mxgraph_id: event.target_mxgraph_id
     }
@@ -529,11 +551,12 @@ export class VisualizationComponent implements OnInit, OnDestroy {
     this.unsavedStatus = false;
     this.isAddError = false;
     this.isAddNavError = false;
+    this.isHoverTooltip = false;
+    this.currentState = "";
     this.toastr.clear();
     this.activeTab = "tab2";
     this.tabs.select("tab1");
     this._cdRef.detectChanges();
-    console.log(this.activeTab)
 
     localStorage.removeItem('cell_value');
     this.newAttribute = {};
@@ -579,6 +602,16 @@ export class VisualizationComponent implements OnInit, OnDestroy {
           
           for (let i = 0; i < result.length; i++) {
               this.navigationLink=[...this.navigationLink,result[i]];
+              if((this.navigationLink[i].cell_id).includes("-")){
+                var tempCellId = this.navigationLink[i].cell_id;
+                tempCellId = tempCellId.split("-");
+                tempCellId = tempCellId[1];
+                this.navigationLink[i].split_cell_id = tempCellId;
+              }
+              else {
+                var tempCellId = this.navigationLink[i].cell_id;
+              }
+              
               console.log(result)
               await this.restService.postData("getMxGraphCodeByID", this.authService.getToken(), {
                 id: result[i].target_mxgraph_id
@@ -699,6 +732,7 @@ export class VisualizationComponent implements OnInit, OnDestroy {
                   if (this.currentState != null)
                   {
                       this.dragLeave(me.getEvent(), this.currentState);
+                      thisContext.isHoverTooltip = false;
                       thisContext.graph.getTooltipForCell = function(tmp)
                         {
                           return "";
@@ -712,7 +746,6 @@ export class VisualizationComponent implements OnInit, OnDestroy {
                     for(let i = 0; i < tempNavArray.length; i++) {
                       if (tempNavArray[i].cell_id == tmp.cell.id) {
                         this.dragEnter(me.getEvent(), this.currentState, "Link", tmp, null, null);
-                        console.log(tempNavArray[i])
                       }
                     }
                     for (let i = 0; i < linkMap.length; i++) {
@@ -730,7 +763,9 @@ export class VisualizationComponent implements OnInit, OnDestroy {
           mouseDown: function(sender, me){},
           dragEnter: function(evt, state, parameter, cell, slave, slave_name)
           {
+            thisContext.isHoverTooltip = true;
             if(parameter == "Parameter") {
+              thisContext.currentState = this.currentState
               this.currentState.setCursor('pointer');
               if(slave && slave_name){
                 thisContext.graph.getTooltipForCell = function(cell)
@@ -748,12 +783,13 @@ export class VisualizationComponent implements OnInit, OnDestroy {
               }
             }
             else{
+              thisContext.currentState = this.currentState
               this.currentState.setCursor('pointer');
             }
           },
           dragLeave: function(evt, state)
           {
-           
+            // thisContext.isHoverTooltip = false;
           }
       });
 
@@ -761,12 +797,11 @@ export class VisualizationComponent implements OnInit, OnDestroy {
 
     // On Click event ...
     if (this.graphClickable) {
-    this.graph.addListener(mxEvent.CLICK, function (sender, evt) {
+    this.graph.addListener(mxEvent.IS_TOUCH, function (sender, evt) {
       let valued = null
   
       if (evt.properties.cell) {
         if(thisContext.activeTab == "tab2") {
-          console.log("Enter Here IF")
           // Get event 'cell' property, 'id' subproperty (cell ID)
           let cellId = evt.getProperty("cell").id;    
           valued = localStorage.getItem('cell_value');
@@ -792,18 +827,21 @@ export class VisualizationComponent implements OnInit, OnDestroy {
           }
         }
         else {
-          console.log("Enter Here ELSE")
           let cellId = evt.getProperty("cell").id;
           thisContext.newNavAttribute.cell_id = cellId;
-          console.log(cellId)
-          console.log("CELL INDEX", storedCellId)
-          // let tempCellId = cellId.split("-");
-          // thisContext.tempNavAttributeCellId = tempCellId[1];
-              for (let i = 0; i < tempNavArray.length; i++) {
-                if (tempNavArray[i].Id == storedNavCellId) {
+          if(cellId.includes("-")){
+            var splitCellId = cellId.split("-");
+            splitCellId = splitCellId[1];
+          }
+          else {
+            splitCellId = cellId;    
+          }
+          thisContext.newNavAttribute.split_cell_id = splitCellId;  
+          for (let i = 0; i < tempNavArray.length; i++) {
+              if (tempNavArray[i].Id == storedNavCellId) {
                   tempNavArray[i].cell_id = cellId;
                 }
-              }     
+              }   
         }
      }
     });
@@ -820,7 +858,7 @@ export class VisualizationComponent implements OnInit, OnDestroy {
       mxgraph_name: ""
     }
 
-    this.graph.addListener(mxEvent.CLICK, function (sender, evt) {
+    this.graph.addListener(mxEvent.IS_TOUCH, function (sender, evt) {
       if (evt.properties.cell) {
 
         let cellId = evt.properties.cell.id
@@ -838,7 +876,6 @@ export class VisualizationComponent implements OnInit, OnDestroy {
             for (let j = 0; j < getAllSlaveArray[linkMap[i].slave].Items.Item.length; j++) {
                 if (linkMap[i].slave_name == getAllSlaveArray[linkMap[i].slave].Items.Item[j].Name) {
                   let rowArray = {slave_value: getAllSlaveArray[linkMap[i].slave].Items.Item[j].Value, slave_detail: getAllSlaveArray[linkMap[i].slave].Items.Item[j].Detail, ...row};
-                  console.log("rowArray",rowArray)
                   // Open Modal if slave_type is a Parameter
                   const modalRef = modalService.open(WriteVisualizationModalComponent);
                   modalRef.componentInstance.row = rowArray;
@@ -989,6 +1026,9 @@ export class VisualizationComponent implements OnInit, OnDestroy {
       if (this.linkMappingReadConfig.length === 0) {
         console.log("Attribute is empty");
       } else {
+          if(this.isHoverTooltip == true && this.currentState) {
+            this.currentState.setCursor('pointer');
+          }
           if (this.getAllSlaveArray[this.linkMappingReadConfig[i].slave] && this.getAllSlaveArray[this.linkMappingReadConfig[i].slave].Items.Item.length !== 0) {
               // Iterate cells to find the matched controller name
               for (let j = 0; j < this.getAllSlaveArray[this.linkMappingReadConfig[i].slave].Items.Item.length; j++){
@@ -1007,6 +1047,7 @@ export class VisualizationComponent implements OnInit, OnDestroy {
                     else {
                       this.unhighlightRow();
                     }
+
                   }
                   else {
                     // Skip cell
@@ -1589,11 +1630,19 @@ export class VisualizationComponent implements OnInit, OnDestroy {
 
     
   // Update row details after done edit Nav
-    async doneEditNav(i: number, event, state, index) {
-  
+  async doneEditNav(i: number, event, state, index) {
+      if((event.cell_id).includes("-")){
+        var tempCellId = event.cell_id;
+        tempCellId = tempCellId.split("-");
+        tempCellId = tempCellId[1];
+      }
+      else {
+        var tempCellId = event.cell_id
+      }
       let attributeArray = {
         mxgraph_id: event.mxgraph_id,
         cell_id: event.cell_id,
+        split_cell_id: tempCellId,
         target_mxgraph_id: event.mxgraph_name.Id,
         mxgraph_name: event.mxgraph_name.mxgraph_name,
       }
@@ -1619,12 +1668,13 @@ export class VisualizationComponent implements OnInit, OnDestroy {
       this.unhighlightRow();
       this.readOnly = -1;
       this.newNavAttribute.cell_id = "";
+      this.newNavAttribute.split_cell_id = "";
       this.newNavAttribute.mxgraph_name = "";
       this.hideAddRow = false;
       this.graphClickable = false;
       this.removeClickListener();
       this.router.navigate([this.router.url])
-    }
+  }
 
   /* Function: Expands colspan of card */
   expand() {

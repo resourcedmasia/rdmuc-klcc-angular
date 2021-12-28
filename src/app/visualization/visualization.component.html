@@ -134,7 +134,7 @@
                   </ng-select>
                 </td>
                 <td>
-                  <input [readonly]="true" class="form-control" type="text" [(ngModel)]="nav.cell_id"/>
+                  <input [readonly]="true" class="form-control" type="text" [(ngModel)]="nav.split_cell_id"/>
                 </td>
                 <td >
                   <button title="Delete" [hidden]="hideAddRow" type="button" class="btn btn-danger" [id]="nav.cell_id" value="Delete" (click)="deleteNavFieldValue($event)"><i class="ion ion-md-trash"></i></button>
@@ -154,7 +154,7 @@
                   </ng-select>
                 </td>
                 <td>
-                  <input [readonly]="true" class="form-control" [(ngModel)]="newNavAttribute.cell_id" name="{{newNavAttribute.cell_id}}" type="text"/>
+                  <input [readonly]="true" class="form-control" [(ngModel)]="newNavAttribute.split_cell_id" name="{{newNavAttribute.split_cell_id}}" type="text"/>
                 </td>
                 <td colspan="2">
                   <button type="button" class="btn btn-primary" (click)="addNavFieldValue()">+ Add</button>

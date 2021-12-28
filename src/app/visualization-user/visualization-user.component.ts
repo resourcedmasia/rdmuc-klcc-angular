@@ -108,8 +108,11 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
   unsavedStatus: boolean;
   isAddError: boolean;
   isAddNavError: boolean;
+  isHoverTooltip: boolean;
   activeTab: any;
   selectedTab: any;
+  currentState: any;
+
 
   readConfigClass: any;
   readCellID;
@@ -196,6 +199,7 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
     this.isMouseHover = false;
     this.isAddError = false;
     this.isAddNavError = false;
+    this.isHoverTooltip = false;
 
     
 
@@ -528,6 +532,8 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
     this.unsavedStatus = false;
     this.isAddError = false;
     this.isAddNavError = false;
+    this.isHoverTooltip = false;
+    this.currentState = "";
     this.toastr.clear();
 
     localStorage.removeItem('cell_value');
@@ -698,7 +704,6 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
 
   /* Function: Makes the cells on the graph clickable */
   async addClickListener() {
-    console.log("CLICK LISTENER CLICKABLE",this.graphClickable)
     let model = this.graph.getModel();
     let thisContext = this;
     let linkMap = this.linkMappingReadConfig;
@@ -734,6 +739,7 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
               {
                   if (this.currentState != null)
                   {
+                      thisContext.isHoverTooltip = false;
                       this.dragLeave(me.getEvent(), this.currentState);
                       thisContext.graph.getTooltipForCell = function(tmp)
                         {
@@ -767,7 +773,9 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
           mouseDown: function(sender, me) {},
           dragEnter: function(evt, state, parameter, cell, slave, slave_name)
           {
+            thisContext.isHoverTooltip = true;
             if(parameter == "Parameter") {
+              thisContext.currentState = this.currentState
               this.currentState.setCursor('pointer');
               if(slave && slave_name){
                 thisContext.graph.getTooltipForCell = function(cell)
@@ -785,11 +793,13 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
               }
             }
             else{
+              thisContext.currentState = this.currentState
               this.currentState.setCursor('pointer');
             }
           },
           dragLeave: function(evt, state)
           {
+            // thisContext.isHoverTooltip = false;
             this.currentState.setCursor('mouse')
           }
       });
@@ -806,7 +816,7 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
       mxgraph_name: ""
     }
 
-    this.graph.addListener(mxEvent.CLICK, function (sender, evt) {
+    this.graph.addListener(mxEvent.IS_TOUCH, function (sender, evt) {
       if (evt.properties.cell) {
 
         let cellId = evt.properties.cell.id
@@ -976,6 +986,9 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
       if (this.linkMappingReadConfig.length === 0) {
         console.log("Attribute is empty");
       } else {
+          if(this.isHoverTooltip == true && this.currentState) {
+            this.currentState.setCursor('pointer');
+          }
           if (this.getAllSlaveArray[this.linkMappingReadConfig[i].slave] && this.getAllSlaveArray[this.linkMappingReadConfig[i].slave].Items.Item.length !== 0) {
               // Iterate cells to find the matched controller name
               for (let j = 0; j < this.getAllSlaveArray[this.linkMappingReadConfig[i].slave].Items.Item.length; j++){
@@ -994,6 +1007,7 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
                     else {
                       this.unhighlightRow();
                     }
+
                   }
                   else {
                     // Skip cell
