@@ -21,6 +21,7 @@ import { WriteVisualizationModalComponent } from './write-visualization-modal/wr
 import { VerifyUserModalComponent } from './verify-user-modal/verify-user-modal.component';
 import { DeleteGraphModalComponent } from './delete-graph-modal/delete-graph-modal.component';
 import { VerifyDeleteGraphModalComponent } from './verify-delete-graph-modal/verify-delete-graph-modal.component';
+import { CdkDragDrop, moveItemInArray } from "@angular/cdk/drag-drop";
 
 
 declare var mxUtils: any;
@@ -111,6 +112,7 @@ export class VisualizationComponent implements OnInit, OnDestroy {
   activeTab: any;
   selectedTab: any;
   isHoverTooltip: boolean;
+  isEditNav: boolean;
 
   readConfigClass: any;
   readCellID;
@@ -199,6 +201,7 @@ export class VisualizationComponent implements OnInit, OnDestroy {
     this.isAddNavError = false;
     this.isHoverTooltip = false;
     this.currentState = "";
+    this.isEditNav = false;
     
 
     // Retrieve stored mxGraphs from database and populate dropdown selection
@@ -380,7 +383,7 @@ export class VisualizationComponent implements OnInit, OnDestroy {
         else {
           this.isAddNavError = true;
         }
-        
+        this.isEditNav = false;
     }
     
   }
@@ -476,6 +479,8 @@ export class VisualizationComponent implements OnInit, OnDestroy {
    
   /* Function: Edits row */
    async onEditNav(i: number, event, e) {
+    this.tempNavCellId = "";
+    this.isEditNav = true;
     this.removeClickListener();
     this.graphClickable = true;
     // this.addClickListener();
@@ -497,21 +502,21 @@ export class VisualizationComponent implements OnInit, OnDestroy {
       target_mxgraph_id: event.target_mxgraph_id
     }
 
-    console.log(this.tempNavLinkMap)
-
-    let tableIndex = e.target.id;
-
-    for(let i = 0; i < this.navigationLink.length; i++){
-      if(this.navigationLink[i]==this.navigationLink[tableIndex]){
-         this.tempNavCellId = this.navigationLink[tableIndex].Id;
-          // Clear the fields when on edit
-          this.navigationLink[tableIndex].mxgraph_name = "";
+    console.log("e.target.id",e.target.id)
+    if(e.target.id){
+      for(let i = 0; i < this.navigationLink.length; i++){
+        if(this.navigationLink[i]==this.navigationLink[e.target.id]){
+           this.tempNavCellId = e.target.id;
+            // Clear the fields when on edit
+            this.navigationLink[i].mxgraph_name = "";
+        }
       }
+  
+      this.readOnly = i
+      this.hideAddRow = true;
+      this.addClickListener();
     }
-
-    this.readOnly = i
-    this.hideAddRow = true;
-    this.addClickListener();
+  
   }
 
   /*  Function: Retrieve stored mxGraph data from MySQL database (id, mxgraph_name, mxgraph_code), populate 'this.selected' dropdown list */
@@ -552,6 +557,7 @@ export class VisualizationComponent implements OnInit, OnDestroy {
     this.isAddError = false;
     this.isAddNavError = false;
     this.isHoverTooltip = false;
+    this.isEditNav = false;
     this.currentState = "";
     this.toastr.clear();
     this.activeTab = "tab2";
@@ -610,6 +616,7 @@ export class VisualizationComponent implements OnInit, OnDestroy {
               }
               else {
                 var tempCellId = this.navigationLink[i].cell_id;
+                this.navigationLink[i].split_cell_id = tempCellId;
               }
               
               console.log(result)
@@ -834,14 +841,19 @@ export class VisualizationComponent implements OnInit, OnDestroy {
             splitCellId = splitCellId[1];
           }
           else {
-            splitCellId = cellId;    
+            var splitCellId = cellId;   
           }
-          thisContext.newNavAttribute.split_cell_id = splitCellId;  
-          for (let i = 0; i < tempNavArray.length; i++) {
-              if (tempNavArray[i].Id == storedNavCellId) {
+          thisContext.newNavAttribute.split_cell_id = splitCellId; 
+          console.log("thisContext.isEditNav",thisContext.isEditNav) 
+          if(thisContext.isEditNav){
+            for (let i = 0; i < tempNavArray.length; i++) {
+              if (tempNavArray[i] == tempNavArray[storedNavCellId]) {
                   tempNavArray[i].cell_id = cellId;
+                  tempNavArray[i].split_cell_id = splitCellId;
                 }
-              }   
+              }  
+          }
+          
         }
      }
     });
@@ -1672,6 +1684,8 @@ export class VisualizationComponent implements OnInit, OnDestroy {
       this.newNavAttribute.mxgraph_name = "";
       this.hideAddRow = false;
       this.graphClickable = false;
+      this.isEditNav = false;
+      this.tempNavCellId = "";
       this.removeClickListener();
       this.router.navigate([this.router.url])
   }
@@ -1752,6 +1766,15 @@ export class VisualizationComponent implements OnInit, OnDestroy {
       mxgraph_name: this.temp_mxgraph_name
     });
     
+  }
+
+  drop(event: CdkDragDrop<string[]>) {
+    moveItemInArray(this.fieldArray, event.previousIndex, event.currentIndex);
+    this.linkMappingReadConfig = this.fieldArray;
+  }
+
+  dropNav(event: CdkDragDrop<string[]>) {
+    moveItemInArray(this.navigationLink, event.previousIndex, event.currentIndex);
   }
 
   successToast(msg) {

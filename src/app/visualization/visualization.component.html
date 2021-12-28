@@ -44,13 +44,13 @@
               <th colspan="2">Action</th>
             </tr>
           </thead>
-          <tbody>
+          <tbody cdkDropList (cdkDropListDropped)="drop($event)">
             <ngx-spinner [fullScreen]="false" type = "ball-beat" size="small" bdColor="rgba(39,39,45,0.8)">
               <br>
               <p style="color: white" > Loading... </p>
             </ngx-spinner>
-            <tr (mouseover)="highlightRow(field)" (mouseout)="unhighlightRow()" *ngFor="let field of fieldArray; let i = index; let j = index">
-              <td><label>{{i + 1}}</label></td>
+            <tr cdkDrag cdkDragLockAxis="y" (mouseover)="highlightRow(field)" (mouseout)="unhighlightRow()" *ngFor="let field of fieldArray; let i = index; let j = index">
+              <td cdkDragHandle><label>{{i + 1}}</label></td>
               <td>
                 <ng-select appendTo="body" [disabled]="i!==readOnly" [clearable]="false" [items]="readSlaveType" bindLabel="type" [(ngModel)]="field.slave"
                   (change)="readSlaveChange($event); field.slave_name=''; field.slave_type='' " name={{field.slave}} >
@@ -74,6 +74,10 @@
                 <button [hidden]="i!==readOnly" type="button" class="btn btn-default" [id]="field.slave_cell_id" (click)="doneEdit(i,field,'cancel', j)">Cancel</button>
                 <button title="Edit" [hidden]="hideAddRow" class="btn btn-info" value="Edit" [id]="j"  (click)="onSelect(i,field, $event)" ><i class="ion ion-md-clipboard"></i></button>
               </td>
+              <!-- Preview -->
+                <div *cdkDragPreview matchSize="true" class="container dragdrop-placeholder">
+                  {{field.slave}} {{field.slave_name}}
+                </div>
             </tr>
       
               
@@ -122,13 +126,13 @@
                 <th colspan="2">Action</th>
               </tr>
             </thead>
-            <tbody>
+            <tbody cdkDropList (cdkDropListDropped)="dropNav($event)">
               <ngx-spinner [fullScreen]="false" type = "ball-beat" size="small" bdColor="rgba(39,39,45,0.8)">
                 <br>
                 <p style="color: white" > Loading... </p>
               </ngx-spinner>
-              <tr (mouseover)="highlightRow(nav)" (mouseout)="unhighlightRow()" *ngFor="let nav of navigationLink; let i = index; let j = index">
-                <td><label>{{i + 1}}</label></td>
+              <tr cdkDrag cdkDragLockAxis="y" (mouseover)="highlightRow(nav)" (mouseout)="unhighlightRow()" *ngFor="let nav of navigationLink; let i = index; let j = index">
+                <td cdkDragHandle><label>{{i + 1}}</label></td>
                 <td>
                   <ng-select [disabled]="i!==readOnly" placeholder="Select Graph" appendTo="body" [clearable]="false" [items]="selectedMxGraph" bindLabel="mxgraph_name" [(ngModel)]="nav.mxgraph_name"> 
                   </ng-select>
@@ -144,6 +148,10 @@
                   <button [hidden]="i!==readOnly" type="button" class="btn btn-default" (click)="doneEditNav(i,nav,'cancel', j)">Cancel</button>
                   <button title="Edit" [hidden]="hideAddRow" class="btn btn-info" [id]="j" value="Edit" (click)="onEditNav(i,nav, $event)" ><i class="ion ion-md-clipboard"></i></button>
                 </td>
+                <!-- Preview -->
+                <div *cdkDragPreview matchSize="true" class="container dragdrop-placeholder">
+                  {{nav.mxgraph_name}}
+                </div>
               </tr>
         
                 

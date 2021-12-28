@@ -67,6 +67,7 @@ import { VerifyUserModalComponent } from './visualization/verify-user-modal/veri
 import { DeleteGraphModalComponent } from './visualization/delete-graph-modal/delete-graph-modal.component'; 
 import { VerifyDeleteGraphModalComponent } from './visualization/verify-delete-graph-modal/verify-delete-graph-modal.component'; 
 import { ToastrModule } from 'ngx-toastr';
+import { DragDropModule } from '@angular/cdk/drag-drop';
 
 
 // *******************************************************************************
@@ -136,6 +137,7 @@ import { Config } from '../config/config';
     MomentModule,
     NgxSpinnerModule,
     ArchwizardModule,
+    DragDropModule,
     ToastrModule.forRoot({
       preventDuplicates: true,
     })
