@@ -424,99 +424,109 @@ export class VisualizationComponent implements OnInit, OnDestroy {
  
   /* Function: Edits row */
   async onSelect(i: number, event, e) {
-    this.removeClickListener();
-    this.graphClickable = true;
-    // this.addClickListener();
-    this.tempLinkMap = {
-      mxgraph_id: event.mxgraph_id,
-      slave: event.slave,
-      slave_cell_id: event.slave_cell_id,
-      slave_name: event.slave_name,
-      slave_type: event.slave_type
-    }
-    this.readTableData = [];
-    let tableIndex = e.target.id;
-
-    for(let i = 0; i < this.fieldArray.length; i++){
-      if(this.fieldArray[i]==this.fieldArray[tableIndex]){
-         this.tempFieldArray = this.fieldArray[tableIndex].slave_cell_id;
-          // Clear the fields when on edit
-          this.fieldArray[tableIndex].slave = "";
-          this.fieldArray[tableIndex].slave_name = "";
-          this.fieldArray[tableIndex].slave_type = "";
+    console.log("e.target.id",e.target.id)
+    this._cdRef.detectChanges();
+    setTimeout(async ()=>{
+      this.removeClickListener();
+      this.graphClickable = true;
+      // this.addClickListener();
+      this.tempLinkMap = {
+        mxgraph_id: event.mxgraph_id,
+        slave: event.slave,
+        slave_cell_id: event.slave_cell_id,
+        slave_name: event.slave_name,
+        slave_type: event.slave_type
       }
-    }
+      this.readTableData = [];
+      let tableIndex = e.target.id;
 
-    let tempFieldArray = this.tempFieldArray;
-    this.storedCellId = tempFieldArray;
-   
-    // Call API if the selected slave is not in getAllSlaveArray to get the slave value
-    if (this.getAllSlaveArray[event.slave] === "" || this.getAllSlaveArray[event.slave] == false) {
-      await this.restService.postData("getSlave", this.authService.getToken(), { type: event.slave }).toPromise().then(async data => {
-        // Success
-        if (data["status"] == 200 && data["data"]["rows"] !== false) {    
-           this.getAllSlaveArray[event.slave] = data["data"]["rows"];
-           console.log("getAllSlaveArray:", this.getAllSlaveArray);
-           for (let i = 0; i < this.getAllSlaveArray[event.slave].Items.Item.length; i++) {
-            if (this.getAllSlaveArray[event.slave].Items.Item[i].Name == event.slave_name) {
-              let cell_value = this.getAllSlaveArray[event.slave].Items.Item[i].Value
-              await this.config.asyncLocalStorage.setItem('cell_value', cell_value)
+      for(let i = 0; i < this.fieldArray.length; i++){
+        if(this.fieldArray[i]==this.fieldArray[tableIndex]){
+          this.tempFieldArray = this.fieldArray[tableIndex].slave_cell_id;
+            // Clear the fields when on edit
+            this.fieldArray[tableIndex].slave = "";
+            this.fieldArray[tableIndex].slave_name = "";
+            this.fieldArray[tableIndex].slave_type = "";
+        }
+      }
+
+      let tempFieldArray = this.tempFieldArray;
+      this.storedCellId = tempFieldArray;
+    
+      // Call API if the selected slave is not in getAllSlaveArray to get the slave value
+      if (this.getAllSlaveArray[event.slave] === "" || this.getAllSlaveArray[event.slave] == false) {
+        await this.restService.postData("getSlave", this.authService.getToken(), { type: event.slave }).toPromise().then(async data => {
+          // Success
+          if (data["status"] == 200 && data["data"]["rows"] !== false) {    
+            this.getAllSlaveArray[event.slave] = data["data"]["rows"];
+            console.log("getAllSlaveArray:", this.getAllSlaveArray);
+            for (let i = 0; i < this.getAllSlaveArray[event.slave].Items.Item.length; i++) {
+              if (this.getAllSlaveArray[event.slave].Items.Item[i].Name == event.slave_name) {
+                let cell_value = this.getAllSlaveArray[event.slave].Items.Item[i].Value
+                await this.config.asyncLocalStorage.setItem('cell_value', cell_value)
+              }
             }
           }
-        }
-        else {
-          console.log("Can't get data for Slave")
-        }
-      });
-    } 
+          else {
+            console.log("Can't get data for Slave")
+          }
+        });
+      } 
 
-    this.readOnly = i
-    this.hideAddRow = true;
-    this.graphClickable = true;
-    this.addClickListener();
+      this.readOnly = i
+      this.hideAddRow = true;
+      this.graphClickable = true;
+      this._cdRef.detectChanges();
+      this.addClickListener();
+    },10);
   }
 
    
   /* Function: Edits row */
    async onEditNav(i: number, event, e) {
-    this.tempNavCellId = "";
-    this.isEditNav = true;
-    this.removeClickListener();
-    this.graphClickable = true;
-    // this.addClickListener();
-    
-    if((event.cell_id).includes("-")){
-      var tempCellId = (event.cell_id).split("-");
-      tempCellId = tempCellId[1];
-    }
-    else {
-      var tempCellId = event.cell_id;
-    }
-
-    this.tempNavLinkMap = {
-      Id: event.Id,
-      mxgraph_id: event.mxgraph_id,
-      cell_id: event.cell_id,
-      split_cell_id: tempCellId,
-      mxgraph_name: event.mxgraph_name,
-      target_mxgraph_id: event.target_mxgraph_id
-    }
-
-    console.log("e.target.id",e.target.id)
-    if(e.target.id){
-      for(let i = 0; i < this.navigationLink.length; i++){
-        if(this.navigationLink[i]==this.navigationLink[e.target.id]){
-           this.tempNavCellId = e.target.id;
-            // Clear the fields when on edit
-            this.navigationLink[i].mxgraph_name = "";
-        }
+    this._cdRef.detectChanges();
+    setTimeout(()=>{
+      this.tempNavCellId = "";
+      this.isEditNav = true;
+      this.removeClickListener();
+      this.graphClickable = true;
+      // this.addClickListener();
+      
+      if((event.cell_id).includes("-")){
+        var tempCellId = (event.cell_id).split("-");
+        tempCellId = tempCellId[1];
       }
-  
-      this.readOnly = i
-      this.hideAddRow = true;
-      this.addClickListener();
-    }
-  
+      else {
+        var tempCellId = event.cell_id;
+      }
+
+      this.tempNavLinkMap = {
+        Id: event.Id,
+        mxgraph_id: event.mxgraph_id,
+        cell_id: event.cell_id,
+        split_cell_id: tempCellId,
+        mxgraph_name: event.mxgraph_name,
+        target_mxgraph_id: event.target_mxgraph_id
+      }
+
+      console.log("e.target.id",e.target.id)
+      if(e.target.id){
+        for(let i = 0; i < this.navigationLink.length; i++){
+          if(this.navigationLink[i]==this.navigationLink[e.target.id]){
+            this.tempNavCellId = e.target.id;
+              // Clear the fields when on edit
+              this.navigationLink[i].mxgraph_name = "";
+              this._cdRef.detectChanges();
+          }
+        }
+    
+        this.readOnly = i
+        this.hideAddRow = true;
+        this._cdRef.detectChanges();
+        this.addClickListener();
+        
+      }
+    }, 10);
   }
 
   /*  Function: Retrieve stored mxGraph data from MySQL database (id, mxgraph_name, mxgraph_code), populate 'this.selected' dropdown list */
@@ -1637,12 +1647,14 @@ export class VisualizationComponent implements OnInit, OnDestroy {
     this.hideAddRow = false;
     this.graphClickable = false;
     this.removeClickListener();
+    this._cdRef.detectChanges();
     this.router.navigate([this.router.url])
   }
 
     
   // Update row details after done edit Nav
   async doneEditNav(i: number, event, state, index) {
+      
       if((event.cell_id).includes("-")){
         var tempCellId = event.cell_id;
         tempCellId = tempCellId.split("-");
@@ -1687,6 +1699,7 @@ export class VisualizationComponent implements OnInit, OnDestroy {
       this.isEditNav = false;
       this.tempNavCellId = "";
       this.removeClickListener();
+      this._cdRef.detectChanges();
       this.router.navigate([this.router.url])
   }
 
