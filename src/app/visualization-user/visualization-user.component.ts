@@ -10,7 +10,6 @@ import { LayoutService } from '../layout/layout.service';
 import ResizeObserver from 'resize-observer-polyfill';
 
 
-
 import { NgbModal, NgbTabset } from '@ng-bootstrap/ng-bootstrap';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { MxgraphEditComponent } from '../mxgraph-edit/mxgraph-edit.component';
@@ -19,6 +18,7 @@ import { Subscription, timer } from 'rxjs';
 import { deserialize } from 'chartist';
 import { ToastrService } from 'ngx-toastr';
 import { WriteVisualizationModalComponent } from '../visualization/write-visualization-modal/write-visualization-modal.component';
+import { ReadOnlyGptimerModalComponent } from '../visualization-user/read-only-gptimer-modal/read-only-gptimer-modal.component';
 import { VerifyUserModalComponent } from '../visualization/verify-user-modal/verify-user-modal.component';
 import { DeleteGraphModalComponent } from '../visualization/delete-graph-modal/delete-graph-modal.component';
 import { VerifyDeleteGraphModalComponent } from '../visualization/verify-delete-graph-modal/verify-delete-graph-modal.component';
@@ -32,6 +32,9 @@ declare var mxCellHighlight: any;
 declare var mxGraphView: any;
 declare var cellName: any;
 declare var mxConstants: any;
+declare var mxCellOverlay: any;
+declare var mxImage: any;
+declare var mxPoint: any;
 
 @Component({
   selector: 'app-visualization-user',
@@ -81,6 +84,9 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
   mxGraphFloors = [];
   tempLinkMap = {};
   tempNavLinkMap = {};
+  gpTimerChannels = [];
+  gpTimerChannelsDetail = [];
+
 
   readTableData = [];
   writeTableData = [];
@@ -222,6 +228,11 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
 
     this.graph.addCells(cells);
 
+    // var cell = this.graph.getModel().getCell(id);
+    // this.graph.removeCellOverlays(cells);
+    // var overlay = new mxCellOverlay(new mxImage('../../assets/img/logo.png',20, 20), 'Overlay tooltip',mxConstants.ALIGN_RIGHT,mxConstants.ALIGN_MIDDLE);
+    // this.graph.addCellOverlay(cell, overlay);
+
     // Disable mxGraph editing
     this.graph.setEnabled(false);
 
@@ -309,6 +320,8 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
     this.unsavedStatus = false;
     this.isHoverTooltip = false;
     this.currentState = "";
+    this.gpTimerChannelsDetail = [];
+    this.gpTimerChannels = [];
     this.toastr.clear();
 
     localStorage.removeItem('cell_value');
@@ -355,7 +368,6 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
           
           for (let i = 0; i < result.length; i++) {
               this.navigationLink=[...this.navigationLink,result[i]];
-              console.log(result)
               await this.restService.postData("getMxGraphCodeByID", this.authService.getToken(), {
                 id: result[i].target_mxgraph_id
               }).toPromise().then(async data => {
@@ -372,6 +384,8 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
      }
     });
     
+    //Get GPTimerChannel
+    await this.getGPTimerChannels();
 
     // Clear the existing graph
     this.graph.getModel().clear();
@@ -402,6 +416,8 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
      
         // Iterate read config field and change value of cells
         await this.generateCells(cells) 
+
+     
         // Stops loading indicator  
         this.loadingIndicator = false;    
 
@@ -417,6 +433,8 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
         }
 
         this.graph.addCells(cells);
+
+        this.addCellOverlay(cells);
 
         // Disable mxGraph editing
         this.graph.setEnabled(false);
@@ -524,7 +542,6 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
                       for(let i = 0; i < tempNavArray.length; i++) {
                         if (tempNavArray[i].cell_id == tmp.cell.id) {
                           this.dragEnter(me.getEvent(), this.currentState, "Link", tmp, null, null);
-                          console.log(tempNavArray[i])
                         }
                       }
                       for (let i = 0; i < linkMap.length; i++) {
@@ -654,6 +671,55 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
    
   }
 
+  /*Function to add GP Timer Overlay on Cells */
+  addCellOverlay(cells){
+    var modalService = this.modalService;
+    var thisContext = this;
+    for(let i = 0; i < this.linkMappingReadConfig.length; i++ ) {
+      for(let j = 0; j < cells.length; j++){
+        if(cells[j]=="" || cells[j]==null){
+          //Skip
+        }
+        else if(cells[j].id == this.linkMappingReadConfig[i].slave_cell_id) {
+          let id = this.linkMappingReadConfig[i].slave_cell_id;
+          var cell = this.graph.getModel().getCell(id);
+          for(let k = 0; k < this.gpTimerChannelsDetail.length; k++) {
+            if(this.gpTimerChannelsDetail[k].Details.OutputMask == this.linkMappingReadConfig[i].slave){
+              if(this.gpTimerChannelsDetail[k].Status == true) {
+                let status = "On"
+                this.graph.removeCellOverlays(cell);
+                var overlay = new mxCellOverlay(new mxImage('../../assets/img/greenClock.png',10, 10), 'GPTimer Status: '+status,mxConstants.ALIGN_RIGHT,mxConstants.ALIGN_RIGHT,new mxPoint(-6, -6),mxConstants.CURSOR_TERMINAL_HANDLE);
+                overlay.addListener(mxEvent.CLICK, function(sender, evt){
+                  let row = thisContext.gpTimerChannelsDetail[k];
+                  const modalRef = modalService.open(ReadOnlyGptimerModalComponent);
+                  modalRef.componentInstance.row = row;
+                  modalRef.result.then((result) => {})
+                });
+                this.graph.addCellOverlay(cell, overlay);
+              }
+              else {
+                let status = "Off"
+                this.graph.removeCellOverlays(cell);
+                var overlay = new mxCellOverlay(new mxImage('../../assets/img/redClock.png',10, 10), 'GPTimer Status: '+status,mxConstants.ALIGN_RIGHT,mxConstants.ALIGN_RIGHT,new mxPoint(-6, -6),mxConstants.CURSOR_TERMINAL_HANDLE);
+                overlay.addListener(mxEvent.CLICK, function(sender, evt){
+                  let row = thisContext.gpTimerChannelsDetail[k];
+                  const modalRef = modalService.open(ReadOnlyGptimerModalComponent);
+                  modalRef.componentInstance.row = row;
+                  modalRef.result.then((result) => {})
+                });
+                this.graph.addCellOverlay(cell, overlay);
+              }
+            }
+          }
+        }
+        else {
+          //Skip
+        }
+      }
+    }
+        
+  }
+
   /* Function: Refresh component */
   refreshPage() {
     this.router.navigate([this.router.url]);
@@ -732,7 +798,7 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
                       else if (cells[k].id == this.linkMappingReadConfig[i].slave_cell_id){
                         // Sets the cell value using the mapped ID
                         cells[k].value = this.getAllSlaveArray[this.linkMappingReadConfig[i].slave].Items.Item[j].Value;
-                      
+                       
                       }
                       else {
                         // Skip cell
@@ -780,6 +846,37 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
          } 
         }
     }
+  }
+
+  /* Function: Get GPTimerChannels */
+  async getGPTimerChannels() {
+    await this.restService.postData("getAllGPTimerChannel", this.authService.getToken())
+    .toPromise().then(async data => {
+      if (data["status"] == 200) {
+    
+          let gptimerChannel = data["data"].rows.GPChannel;
+          this.gpTimerChannels = gptimerChannel;
+          for(let i = 0; i < this.gpTimerChannels.length; i++) {
+              this.restService.postData("getGPTimerChannel", this.authService.getToken(), {
+                index: this.gpTimerChannels[i].Index
+              }).toPromise().then(async data => {
+                let result = data["data"].rows;
+                if(result.Index == this.gpTimerChannels[i].Index) {
+                  if(result.OutputMask == "" || result.OutputMask == null){
+                    // Skip
+                  }
+                  else {
+                    this.gpTimerChannels[i].Details = result;
+                    this.gpTimerChannelsDetail.push(this.gpTimerChannels[i]);
+                  }
+                }
+                else {
+                  // Skip
+                }
+              })
+            }
+      }
+    });
   }
 
   /* Function: Re-draw graph */

@@ -5,9 +5,10 @@ import { FormsModule } from '@angular/forms';
 import { VerifyUserModalComponent } from '../visualization/verify-user-modal/verify-user-modal.component';
 import { DeleteGraphModalComponent } from '../visualization/delete-graph-modal/delete-graph-modal.component';
 import { VerifyDeleteGraphModalComponent } from '../visualization/verify-delete-graph-modal/verify-delete-graph-modal.component';
+import { ReadOnlyGptimerModalComponent } from './read-only-gptimer-modal/read-only-gptimer-modal.component';
 
 @NgModule({
-  declarations: [WriteVisualizationModalComponent, VerifyUserModalComponent, DeleteGraphModalComponent, VerifyDeleteGraphModalComponent],
+  declarations: [WriteVisualizationModalComponent, VerifyUserModalComponent, DeleteGraphModalComponent, VerifyDeleteGraphModalComponent, ReadOnlyGptimerModalComponent],
   imports: [
     CommonModule,
     FormsModule,
@@ -19,6 +20,7 @@ import { VerifyDeleteGraphModalComponent } from '../visualization/verify-delete-
     WriteVisualizationModalComponent,
     VerifyUserModalComponent,
     DeleteGraphModalComponent,
-    VerifyDeleteGraphModalComponent]
+    VerifyDeleteGraphModalComponent,
+    ReadOnlyGptimerModalComponent]
 })
 export class VisualizationUserModule { }

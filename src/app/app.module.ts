@@ -7,7 +7,7 @@ import { HttpClientModule } from '@angular/common/http';
 // *******************************************************************************
 // NgBootstrap
 
-import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
+import { NgbModule, NgbCalendar } from '@ng-bootstrap/ng-bootstrap';
 
 // *******************************************************************************
 // App
@@ -66,6 +66,7 @@ import { WriteVisualizationModalComponent } from './visualization/write-visualiz
 import { VerifyUserModalComponent } from './visualization/verify-user-modal/verify-user-modal.component';
 import { DeleteGraphModalComponent } from './visualization/delete-graph-modal/delete-graph-modal.component'; 
 import { VerifyDeleteGraphModalComponent } from './visualization/verify-delete-graph-modal/verify-delete-graph-modal.component'; 
+import { ReadOnlyGptimerModalComponent } from './visualization-user/read-only-gptimer-modal/read-only-gptimer-modal.component';
 import { ToastrModule } from 'ngx-toastr';
 import { DragDropModule } from '@angular/cdk/drag-drop';
 
@@ -103,7 +104,8 @@ import { Config } from '../config/config';
     VerifyUserModalComponent,
     DeleteGraphModalComponent,
     VerifyDeleteGraphModalComponent,
-    VisualizationUserComponent
+    VisualizationUserComponent,
+    ReadOnlyGptimerModalComponent
   ],
 
   imports: [
@@ -146,7 +148,7 @@ import { Config } from '../config/config';
     Title,
     AppService,
     RestService,
-    Config
+    Config,
   ],
 
   bootstrap: [
@@ -156,7 +158,8 @@ import { Config } from '../config/config';
     WriteVisualizationModalComponent,
     VerifyUserModalComponent,
     DeleteGraphModalComponent,
-    VerifyDeleteGraphModalComponent
+    VerifyDeleteGraphModalComponent,
+    ReadOnlyGptimerModalComponent
   ]
 })
 export class AppModule { }
