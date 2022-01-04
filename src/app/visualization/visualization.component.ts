@@ -21,17 +21,21 @@ import { WriteVisualizationModalComponent } from './write-visualization-modal/wr
 import { VerifyUserModalComponent } from './verify-user-modal/verify-user-modal.component';
 import { DeleteGraphModalComponent } from './delete-graph-modal/delete-graph-modal.component';
 import { VerifyDeleteGraphModalComponent } from './verify-delete-graph-modal/verify-delete-graph-modal.component';
+import { SetGptimerModalComponent } from './set-gptimer-modal/set-gptimer-modal.component';
 import { CdkDragDrop, moveItemInArray } from "@angular/cdk/drag-drop";
 
 
 declare var mxUtils: any;
 declare var mxCodec: any;
+declare var mxPoint: any;
+declare var mxImage: any;
 declare var mxGraph: any;
 declare var mxEvent: any;
 declare var mxCellHighlight: any;
 declare var mxGraphView: any;
 declare var cellName: any;
 declare var mxConstants: any;
+declare var mxCellOverlay: any;
 declare var mxGraphHandler: any;
 
 @Component({
@@ -70,6 +74,8 @@ export class VisualizationComponent implements OnInit, OnDestroy {
   description = [];
   items = [];
   cells = [];
+  gpTimerChannels = [];
+  gpTimerChannelsDetail = [];
 
   writeSlaveType = [];
   readSlaveType = [];
@@ -569,6 +575,8 @@ export class VisualizationComponent implements OnInit, OnDestroy {
     this.isHoverTooltip = false;
     this.isEditNav = false;
     this.currentState = "";
+    this.gpTimerChannelsDetail = [];
+    this.gpTimerChannels = [];
     this.toastr.clear();
     this.activeTab = "tab2";
     this.tabs.select("tab1");
@@ -646,6 +654,8 @@ export class VisualizationComponent implements OnInit, OnDestroy {
      }
     });
     
+    //Get GPTimerChannel
+    await this.getGPTimerChannels();
 
     // Clear the existing graph
     this.graph.getModel().clear();
@@ -694,6 +704,8 @@ export class VisualizationComponent implements OnInit, OnDestroy {
         
 
         this.graph.addCells(cells);
+
+        this.addCellOverlay(cells);
 
         // Disable mxGraph editing
         this.graph.setEnabled(false);
@@ -945,6 +957,67 @@ export class VisualizationComponent implements OnInit, OnDestroy {
       }
     });
    }
+  }
+
+  /*Function to add GP Timer Overlay on Cells */
+  addCellOverlay(cells){
+    var modalService = this.modalService;
+    var thisContext = this;
+    for(let i = 0; i < this.linkMappingReadConfig.length; i++ ) {
+      for(let j = 0; j < cells.length; j++){
+        if(cells[j]=="" || cells[j]==null){
+          //Skip
+        }
+        else if(cells[j].id == this.linkMappingReadConfig[i].slave_cell_id) {
+          let id = this.linkMappingReadConfig[i].slave_cell_id;
+          var cell = this.graph.getModel().getCell(id);
+          for(let k = 0; k < this.gpTimerChannelsDetail.length; k++) {
+            if(this.gpTimerChannelsDetail[k].Details.OutputMask == this.linkMappingReadConfig[i].slave){
+              if(this.gpTimerChannelsDetail[k].Status == true) {
+                let status = "On"
+                this.graph.removeCellOverlays(cell);
+                var overlay = new mxCellOverlay(new mxImage('../../assets/img/greenClock.png',10, 10), 'GPTimer Status: '+status,mxConstants.ALIGN_RIGHT,mxConstants.ALIGN_RIGHT,new mxPoint(-6, -6),mxConstants.CURSOR_TERMINAL_HANDLE);
+                overlay.addListener(mxEvent.CLICK, function(sender, evt){
+                  let row = thisContext.gpTimerChannelsDetail[k];
+                  const modalRef = modalService.open(SetGptimerModalComponent);
+                  thisContext.isHoverTooltip = false;
+                  thisContext.graph.getTooltipForCell = function(tmp){return "";} 
+                  modalRef.componentInstance.row = row;
+                  modalRef.result.then((result) => {
+                    console.log(result)
+                  }).catch(err => {
+                    console.log(err)
+                  })
+                });
+                this.graph.addCellOverlay(cell, overlay);
+              }
+              else {
+                let status = "Off"
+                this.graph.removeCellOverlays(cell);
+                var overlay = new mxCellOverlay(new mxImage('../../assets/img/redClock.png',10, 10), 'GPTimer Status: '+status,mxConstants.ALIGN_RIGHT,mxConstants.ALIGN_RIGHT,new mxPoint(-6, -6),mxConstants.CURSOR_TERMINAL_HANDLE);
+                overlay.addListener(mxEvent.CLICK, function(sender, evt){
+                  let row = thisContext.gpTimerChannelsDetail[k];
+                  const modalRef = modalService.open(SetGptimerModalComponent);
+                  thisContext.isHoverTooltip = false;
+                  thisContext.graph.getTooltipForCell = function(tmp){return "";} 
+                  modalRef.componentInstance.row = row;
+                  modalRef.result.then((result) => {
+                    console.log(result)
+                  }).catch(err => {
+                    console.log(err)
+                  })
+                });
+                this.graph.addCellOverlay(cell, overlay);
+              }
+            }
+          }
+        }
+        else {
+          //Skip
+        }
+      }
+    }
+        
   }
 
   /* Function: Refresh component */
@@ -1506,6 +1579,37 @@ export class VisualizationComponent implements OnInit, OnDestroy {
       }
     });
   }
+
+    /* Function: Get GPTimerChannels */
+    async getGPTimerChannels() {
+      await this.restService.postData("getAllGPTimerChannel", this.authService.getToken())
+      .toPromise().then(async data => {
+        if (data["status"] == 200) {
+      
+            let gptimerChannel = data["data"].rows.GPChannel;
+            this.gpTimerChannels = gptimerChannel;
+            for(let i = 0; i < this.gpTimerChannels.length; i++) {
+                this.restService.postData("getGPTimerChannel", this.authService.getToken(), {
+                  index: this.gpTimerChannels[i].Index
+                }).toPromise().then(async data => {
+                  let result = data["data"].rows;
+                  if(result.Index == this.gpTimerChannels[i].Index) {
+                    if(result.OutputMask == "" || result.OutputMask == null){
+                      // Skip
+                    }
+                    else {
+                      this.gpTimerChannels[i].Details = result;
+                      this.gpTimerChannelsDetail.push(this.gpTimerChannels[i]);
+                    }
+                  }
+                  else {
+                    // Skip
+                  }
+                })
+              }
+        }
+      });
+    }
 
   // Call dragEnter function when hover in a row
   highlightRow(field) {

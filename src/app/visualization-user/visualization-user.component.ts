@@ -690,6 +690,8 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
                 this.graph.removeCellOverlays(cell);
                 var overlay = new mxCellOverlay(new mxImage('../../assets/img/greenClock.png',10, 10), 'GPTimer Status: '+status,mxConstants.ALIGN_RIGHT,mxConstants.ALIGN_RIGHT,new mxPoint(-6, -6),mxConstants.CURSOR_TERMINAL_HANDLE);
                 overlay.addListener(mxEvent.CLICK, function(sender, evt){
+                  thisContext.isHoverTooltip = false;
+                  thisContext.graph.getTooltipForCell = function(tmp){return "";}  
                   let row = thisContext.gpTimerChannelsDetail[k];
                   const modalRef = modalService.open(ReadOnlyGptimerModalComponent);
                   modalRef.componentInstance.row = row;
@@ -702,6 +704,8 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
                 this.graph.removeCellOverlays(cell);
                 var overlay = new mxCellOverlay(new mxImage('../../assets/img/redClock.png',10, 10), 'GPTimer Status: '+status,mxConstants.ALIGN_RIGHT,mxConstants.ALIGN_RIGHT,new mxPoint(-6, -6),mxConstants.CURSOR_TERMINAL_HANDLE);
                 overlay.addListener(mxEvent.CLICK, function(sender, evt){
+                  thisContext.isHoverTooltip = false;
+                  thisContext.graph.getTooltipForCell = function(tmp){return "";} 
                   let row = thisContext.gpTimerChannelsDetail[k];
                   const modalRef = modalService.open(ReadOnlyGptimerModalComponent);
                   modalRef.componentInstance.row = row;

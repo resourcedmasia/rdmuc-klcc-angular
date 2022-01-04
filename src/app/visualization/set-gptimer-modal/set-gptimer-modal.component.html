@@ -1,0 +1,90 @@
+<div class="modal-header">
+  <h5 class="modal-title">
+      {{row.Name}}<br>
+  </h5>
+</div>
+<div class="modal-body">
+  <form [formGroup]="gptimerForm">
+    <div class="form-group">
+      <label class="form-label">Status</label>
+      <input [readonly]="true" type="text" class="form-control" formControlName="Status">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Channel Type</label>
+      <input [readonly]="true" type="text" class="form-control" formControlName="Type">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Channel Name</label>
+      <input [readonly]="true" type="text" class="form-control" formControlName="Name">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Input Type</label>
+      <input [readonly]="true" type="text" class="form-control" formControlName="InputType">
+    </div>
+    <div class="form-row">
+      <div class="form-group col-md-6">
+        <label class="form-label">Output Type</label>
+        <input [readonly]="true" type="text" class="form-control" formControlName="OutputType">
+      </div>
+      <div class="form-group col-md-6">
+        <label class="form-label">Output Mask</label>
+        <input [readonly]="true" type="text" class="form-control" formControlName="OutputMask">
+      </div>
+    </div>
+    <div class="form-group row">
+      <div class="col-sm-10">
+        <div class="form-check">
+          <input class="form-check-input" type="checkbox" formControlName="InvertOutput">
+          <label class="form-check-label">
+            Invert Output
+          </label>
+        </div>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Run-On</label>
+      <input [readonly]="true" type="text" class="form-control" formControlName="RunOn">
+    </div>
+  </form>
+  <div class="period">
+    <h6 style="color: red;">Schedule </h6>
+  </div>
+  <div class="schedule-button">
+    <button type="button" class="btn btn-primary" (click)="removeAll()">Remove All</button>
+    <button type="button" class="btn btn-primary" (click)="removeSingle()">Remove</button>
+    <button type="button" class="btn btn-primary" (click)="addSchedule()">Add Schedule</button>
+  </div>
+  <div class="q-datepicker row">
+    <ngb-datepicker #dp [(ngModel)]="model" (navigate)="date = $event.next" [dayTemplate]="customDay"></ngb-datepicker>
+    <div style="text-align:left; padding-left: 1.5rem; padding-top: 4.5rem;">
+      <h6 style="color: red;">Key </h6> <div><span style="color: #04D693;">■&nbsp;</span>Daily</div> <div><span style="color: #c451f0;">■&nbsp;</span>Weekly</div> <div><span style="color: #2a5bf5;">■&nbsp;</span>Yearly</div> <div><span style="color: #ff3992;">■&nbsp;</span>Once</div>
+    </div>
+  </div>
+  <div class="period">
+    <h6 style="color: red;">Period 1 </h6> <div class="row time-pick" ><ngb-timepicker disabled [spinners]="false" [(ngModel)]="OnTime1" [minuteStep]="5"></ngb-timepicker> <h2 class="dash"> - </h2> <ngb-timepicker disabled [spinners]="false" [(ngModel)]="OffTime1" [minuteStep]="5"></ngb-timepicker></div>
+  </div>
+  <div class="period">
+    <h6 style="color: red;">Period 2 </h6> <div class="row time-pick" ><ngb-timepicker disabled [spinners]="false" [(ngModel)]="OnTime2" [minuteStep]="5"></ngb-timepicker> <h2 class="dash"> - </h2> <ngb-timepicker disabled [spinners]="false" [(ngModel)]="OffTime2" [minuteStep]="5"></ngb-timepicker></div>
+  </div>
+  <!-- <div>Model: {{ model | json }}</div> -->
+</div>
+<div class="modal-footer">
+  <button type="button" class="btn btn-primary" >Set Channel</button>
+  <button type="button" class="btn btn-default" (click)="closeModal()">Close</button>
+</div>
+
+<ng-template #customDay let-date="date" let-currentMonth="currentMonth" let-selected="selected" let-disabled="disabled" let-focused="focused">
+  <span class="custom-day" 
+        [class.removeAll]="isRemoveAll"
+        [class.select]="selected" 
+        [class.hidden]="date.month !== currentMonth" 
+        [class.text-muted]="disabled"
+        [class.event-daily]="eventDaily(date)"
+        [class.event-weekly]="eventWeekly(date)"
+        [class.event-once]="eventOnce(date)"
+        [class.event-yearly]="eventYearly(date)"
+        (click)="clickEvent(date)"
+        >
+    {{ date.day }}
+  </span>
+</ng-template>

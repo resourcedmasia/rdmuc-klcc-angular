@@ -1,0 +1,66 @@
+<div class="modal-header">
+  <h5 class="modal-title">
+      GP Timer Add/Edit Schedule Wizard<br>
+  </h5>
+</div>
+<div class="modal-body">
+  <div style="padding-bottom: 1rem;"><h6>Select a schedule type from the options below</h6></div>
+  <form [formGroup]="gptimerForm">
+    <div class="form-group row">
+      <div class="col-sm-10">
+        <div class="form-check">
+          <input class="form-check-input" value="Daily" type="radio" formControlName="Event">
+          <label class="form-check-label radio-label">
+            Daily
+          </label>
+          <div class="desc"> 
+            <p>Create a schedule that will trigger on all days</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="form-group row">
+      <div class="col-sm-10">
+        <div class="form-check">
+          <input class="form-check-input" value="Weekly" type="radio" formControlName="Event">
+          <label class="form-check-label radio-label">
+            Weekly
+          </label>
+          <div class="desc"> 
+            <p>Create a schedule that will trigger on the given days each week</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="form-group row">
+      <div class="col-sm-10">
+        <div class="form-check">
+          <input class="form-check-input" value="Yearly" type="radio" formControlName="Event">
+          <label class="form-check-label radio-label">
+            Yearly
+          </label>
+          <div class="desc"> 
+            <p>Create a schedule that will trigger on the given days once every year</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="form-group row">
+      <div class="col-sm-10">
+        <div class="form-check">
+          <input class="form-check-input" value="Once" type="radio" formControlName="Event">
+          <label class="form-check-label radio-label">
+            Once
+          </label>
+          <div class="desc"> 
+            <p>Create a schedule that will trigger on the given days once only, and then expire</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </form>
+</div>
+<div class="modal-footer">
+  <button type="button" class="btn btn-primary" >Next</button>
+  <button type="button" class="btn btn-default" (click)="closeModal()">Close</button>
+</div>

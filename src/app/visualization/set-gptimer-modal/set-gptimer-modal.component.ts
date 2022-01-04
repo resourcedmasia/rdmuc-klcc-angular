@@ -5,23 +5,30 @@ import { AuthService } from '../../auth.service';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { NgSelectModule } from '@ng-select/ng-select';
 import { Router, NavigationEnd, ActivatedRoute } from '@angular/router';
-import { NgbCalendar, NgbDateParserFormatter} from '@ng-bootstrap/ng-bootstrap'
+import { NgbCalendar, NgbDateParserFormatter, NgbModal} from '@ng-bootstrap/ng-bootstrap';
+import { AddScheduleModalComponent } from '../add-schedule-modal/add-schedule-modal.component'; 
 
 const now = new Date();
 
 
 @Component({
-  selector: 'app-read-only-gptimer-modal',
-  templateUrl: './read-only-gptimer-modal.component.html',
-  styleUrls: ['./read-only-gptimer-modal.component.scss']
+  selector: 'app-set-gptimer-modal',
+  templateUrl: './set-gptimer-modal.component.html',
+  styleUrls: ['./set-gptimer-modal.component.scss']
 })
-export class ReadOnlyGptimerModalComponent implements OnInit {
+export class SetGptimerModalComponent implements OnInit {
   @Input() row: any;
   @Output() valueChange = new EventEmitter();
 
   GPEvent: any[];
+  GPEventModal: any[];
+  rowTemp: any;
+  GPEventTemp: any[];
   dayOnceTaken: any[];
+  dates: any;
   isEventOnce: boolean;
+  isRemoveSingle: boolean;
+  isRemoveAll: boolean;
   date: {year: number, month: number};
   model: NgbDateStruct;
   OnTime1: any;
@@ -48,17 +55,34 @@ export class ReadOnlyGptimerModalComponent implements OnInit {
       private router: Router,
       private calendar: NgbCalendar,
       private parserFormatter: NgbDateParserFormatter,
-    ) { }
+      private modalService: NgbModal
+    ) { 
+      
+    }
 
-  ngOnInit() {
+  async ngOnInit() {
+    await this.init();
+  }
+
+  // async ngAfterViewInit() {
+  //   await this.init();
+  // }
+
+  async init() {
     this.OnTime1 = {hour: 0, minute: 0};
     this.OnTime2 = {hour: 0, minute: 0};
     this.OffTime1 = {hour: 0, minute: 0};
     this.OffTime2 = {hour: 0, minute: 0};
     console.log(this.row)
     this.GPEvent = [];
+    this.GPEventTemp = [];
+    this.isRemoveSingle = false;
+    this.isRemoveAll = false;
     var status;
     var runOn;
+
+    this.rowTemp = this.row;
+
     if(this.row.Status == false){
       status = "Off";
     }
@@ -87,17 +111,26 @@ export class ReadOnlyGptimerModalComponent implements OnInit {
     if(this.row.Details.Events) {
       if(this.row.Details.Events.GPEvent.length === undefined || this.row.Details.Events.GPEvent.length === "") {
         this.GPEvent.push(this.row.Details.Events.GPEvent);
+        this.GPEventTemp = this.GPEvent;
       }
       else {
         this.GPEvent = this.row.Details.Events.GPEvent;
+        this.GPEventTemp = this.GPEvent;
       }
     }
     else {
       this.GPEvent = [];
+      this.GPEventTemp = this.GPEvent;
     }
-    
+
     this.selectToday();
+    
+    
     console.log(this.GPEvent);
+    console.log("TEMP",this.GPEventTemp);
+  }
+
+  ngOnDestroy() {
 
   }
 
@@ -108,23 +141,99 @@ export class ReadOnlyGptimerModalComponent implements OnInit {
     this.clickEvent(this.model) 
   }
 
+  removeAll() {
+    this.isRemoveAll = true;
+    this.OnTime1 = {hour: 0, minute: 0};
+    this.OnTime2 = {hour: 0, minute: 0};
+    this.OffTime1 = {hour: 0, minute: 0};
+    this.OffTime2 = {hour: 0, minute: 0};
+    this.GPEvent = [];
+    
+    if(this.row.Details.Events) {
+      this.row.Details.Events = "";
+    }
+
+  }
+
+  removeSingle() {
+    let date = this.model
+    const d = new Date(date.year, date.month - 1, date.day);
+    let dWeek = d.getDay();
+
+    for(let i = 0; i < this.GPEvent.length; i++) {
+      if (this.GPEvent[i].Type == "Year" && this.GPEvent[i].Day === date.day && this.GPEvent[i].Month === date.month){
+        console.log("Year")
+        return this.GPEvent.splice(i,1);
+      }
+      else if(this.GPEvent[i].Type == "Once" && this.GPEvent[i].Day === date.day && this.GPEvent[i].Month === date.month && this.GPEvent[i].Year === date.year) {
+        console.log("Once")
+        return this.GPEvent.splice(i,1);
+      }
+      else if (this.GPEvent[i].Type == "Week" && this.GPEvent[i].DayMask !== 0){
+
+        if(this.GPEvent[i].DayMask == 1 && dWeek === 0) {
+          console.log("Week")
+          return this.GPEvent.splice(i,1);
+        }
+        //Daymask 2 == Monday
+        else if (this.GPEvent[i].DayMask == 2 && dWeek === 1) {
+          console.log("Week")
+          return this.GPEvent.splice(i,1);
+        }
+        //Daymask 4 == Tuesday
+        else if (this.GPEvent[i].DayMask == 4 && dWeek === 2) {
+          console.log("Week")
+          return this.GPEvent.splice(i,1);
+        }
+        //Daymask 8 == Wednesday
+        else if (this.GPEvent[i].DayMask == 8 && dWeek === 3) {
+          console.log("Week")
+          return this.GPEvent.splice(i,1);
+        }
+        //Daymask 16 == Thursday
+        else if (this.GPEvent[i].DayMask == 16 && dWeek === 4) {
+          console.log("Week")
+          return this.GPEvent.splice(i,1);
+        }
+        //Daymask 32 == Friday
+        else if (this.GPEvent[i].DayMask == 32 && dWeek === 5) {
+          console.log("Week")
+          return this.GPEvent.splice(i,1);
+        }
+        //Daymask 64 == Saturday
+        else if (this.GPEvent[i].DayMask == 64 && dWeek === 6) {
+          console.log("Week")
+          return this.GPEvent.splice(i,1);
+        }
+      }
+      else if (this.GPEvent[i].Type == "Day" && this.GPEvent[i].DayMask == 0){
+        console.log("Day")
+        return this.GPEvent.splice(i,1);
+      }
+    }
+  }
+
   isDisabled(date: NgbDateStruct, current: {month: number}) {
     return date.month !== current.month;
   }
 
   eventOnce(date: NgbDateStruct) {
+    this.dates = date;
     return this.dateHasTask(date);
   }
 
   eventWeekly(date: NgbDateStruct) {
+    this.dates = date;
     return this.dateHasTaskWeek(date);
   }
 
   eventDaily(date: NgbDateStruct) {
+    this.dates = date;
     return this.dateHasTaskDay(date);
   }
 
   eventYearly(date: NgbDateStruct) {
+    this.dates = date;
     return this.dateHasTaskYear(date);
   }
 
@@ -275,9 +384,12 @@ export class ReadOnlyGptimerModalComponent implements OnInit {
   }
 
   clickEvent(date: NgbDateStruct) {
+    this.GPEventModal = [];
+    this.model = date;
     let dWeek;
     const d = new Date(date.year, date.month - 1, date.day);
     dWeek = d.getDay();
+  
 
     for(let i = 0; i < this.GPEvent.length; i++) {
       if (this.GPEvent[i].Type == "Year" && this.GPEvent[i].Day === date.day && this.GPEvent[i].Month === date.month){
@@ -286,6 +398,7 @@ export class ReadOnlyGptimerModalComponent implements OnInit {
         this.OnTime2 = this.GPEvent[i].OnTime2;
         this.OffTime1 = this.GPEvent[i].OffTime1;
         this.OffTime2 = this.GPEvent[i].OffTime2;
+        this.GPEventModal = this.GPEvent[i];
         return this.calculateHours(this.OnTime1,this.OnTime2,this.OffTime1,this.OffTime2)
       }
       else if(this.GPEvent[i].Type == "Once" && this.GPEvent[i].Day === date.day && this.GPEvent[i].Month === date.month && this.GPEvent[i].Year === date.year) {
@@ -294,6 +407,7 @@ export class ReadOnlyGptimerModalComponent implements OnInit {
         this.OnTime2 = this.GPEvent[i].OnTime2;
         this.OffTime1 = this.GPEvent[i].OffTime1;
         this.OffTime2 = this.GPEvent[i].OffTime2;
+        this.GPEventModal = this.GPEvent[i];
         return this.calculateHours(this.OnTime1,this.OnTime2,this.OffTime1,this.OffTime2)
       }
       else if (this.GPEvent[i].Type == "Week" && this.GPEvent[i].DayMask !== 0){
@@ -304,6 +418,7 @@ export class ReadOnlyGptimerModalComponent implements OnInit {
           this.OnTime2 = this.GPEvent[i].OnTime2;
           this.OffTime1 = this.GPEvent[i].OffTime1;
           this.OffTime2 = this.GPEvent[i].OffTime2;
+          this.GPEventModal = this.GPEvent[i];
           return this.calculateHours(this.OnTime1,this.OnTime2,this.OffTime1,this.OffTime2)
         }
         //Daymask 2 == Monday
@@ -313,6 +428,7 @@ export class ReadOnlyGptimerModalComponent implements OnInit {
           this.OnTime2 = this.GPEvent[i].OnTime2;
           this.OffTime1 = this.GPEvent[i].OffTime1;
           this.OffTime2 = this.GPEvent[i].OffTime2;
+          this.GPEventModal = this.GPEvent[i];
           return this.calculateHours(this.OnTime1,this.OnTime2,this.OffTime1,this.OffTime2)
         }
         //Daymask 4 == Tuesday
@@ -322,6 +438,7 @@ export class ReadOnlyGptimerModalComponent implements OnInit {
           this.OnTime2 = this.GPEvent[i].OnTime2;
           this.OffTime1 = this.GPEvent[i].OffTime1;
           this.OffTime2 = this.GPEvent[i].OffTime2;
+          this.GPEventModal = this.GPEvent[i];
           return this.calculateHours(this.OnTime1,this.OnTime2,this.OffTime1,this.OffTime2)
         }
         //Daymask 8 == Wednesday
@@ -331,6 +448,7 @@ export class ReadOnlyGptimerModalComponent implements OnInit {
           this.OnTime2 = this.GPEvent[i].OnTime2;
           this.OffTime1 = this.GPEvent[i].OffTime1;
           this.OffTime2 = this.GPEvent[i].OffTime2;
+          this.GPEventModal = this.GPEvent[i];
           return this.calculateHours(this.OnTime1,this.OnTime2,this.OffTime1,this.OffTime2)
         }
         //Daymask 16 == Thursday
@@ -340,6 +458,7 @@ export class ReadOnlyGptimerModalComponent implements OnInit {
           this.OnTime2 = this.GPEvent[i].OnTime2;
           this.OffTime1 = this.GPEvent[i].OffTime1;
           this.OffTime2 = this.GPEvent[i].OffTime2;
+          this.GPEventModal = this.GPEvent[i];
           return this.calculateHours(this.OnTime1,this.OnTime2,this.OffTime1,this.OffTime2)
         }
         //Daymask 32 == Friday
@@ -349,6 +468,7 @@ export class ReadOnlyGptimerModalComponent implements OnInit {
           this.OnTime2 = this.GPEvent[i].OnTime2;
           this.OffTime1 = this.GPEvent[i].OffTime1;
           this.OffTime2 = this.GPEvent[i].OffTime2;
+          this.GPEventModal = this.GPEvent[i];
           return this.calculateHours(this.OnTime1,this.OnTime2,this.OffTime1,this.OffTime2)
         }
         //Daymask 64 == Saturday
@@ -358,6 +478,7 @@ export class ReadOnlyGptimerModalComponent implements OnInit {
           this.OnTime2 = this.GPEvent[i].OnTime2;
           this.OffTime1 = this.GPEvent[i].OffTime1;
           this.OffTime2 = this.GPEvent[i].OffTime2;
+          this.GPEventModal = this.GPEvent[i];
           return this.calculateHours(this.OnTime1,this.OnTime2,this.OffTime1,this.OffTime2)
         }
       }
@@ -367,10 +488,29 @@ export class ReadOnlyGptimerModalComponent implements OnInit {
         this.OnTime2 = this.GPEvent[i].OnTime2;
         this.OffTime1 = this.GPEvent[i].OffTime1;
         this.OffTime2 = this.GPEvent[i].OffTime2;
+        this.GPEventModal = this.GPEvent[i];
         return this.calculateHours(this.OnTime1,this.OnTime2,this.OffTime1,this.OffTime2)
       }
     }
     return this.calculateHours(0,0,0,0)
+  }
+
+  addSchedule() {
+    const modalRef = this.modalService.open(AddScheduleModalComponent, {backdrop: 'static', size:'lg'});
+    let row = this.model
+    let gpEvents = this.GPEventModal
+    modalRef.componentInstance.row = row;
+    modalRef.componentInstance.gpEvents = gpEvents;
+    modalRef.result.then((result) => {
+      console.log(result)
+    }).catch(err => {
+            console.log(err)
+            })
+  }
+
+  closeModal() {
+    this.GPEvent = this.GPEventTemp;
+    this.activeModal.close("dismiss");
   }
 
 }
