@@ -498,7 +498,7 @@ export class SetGptimerModalComponent implements OnInit {
   addSchedule() {
     const modalRef = this.modalService.open(AddScheduleModalComponent, {backdrop: 'static', size:'lg'});
     let row = this.model
-    let gpEvents = this.GPEventModal
+    let gpEvents = this.GPEvent
     modalRef.componentInstance.row = row;
     modalRef.componentInstance.gpEvents = gpEvents;
     modalRef.result.then((result) => {

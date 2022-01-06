@@ -68,6 +68,7 @@ export class VisualizationComponent implements OnInit, OnDestroy {
   storedCellId: any;
   tempNavAttributeCellId: any;
   selectRow: any;
+  rowIndex: number;
 
   temp = [];
   loadingIndicator = true;
@@ -119,6 +120,7 @@ export class VisualizationComponent implements OnInit, OnDestroy {
   selectedTab: any;
   isHoverTooltip: boolean;
   isEditNav: boolean;
+  isRowMoved: boolean;
 
   readConfigClass: any;
   readCellID;
@@ -208,6 +210,8 @@ export class VisualizationComponent implements OnInit, OnDestroy {
     this.isHoverTooltip = false;
     this.currentState = "";
     this.isEditNav = false;
+    this.rowIndex = -1;
+    this.isRowMoved = false;
     
 
     // Retrieve stored mxGraphs from database and populate dropdown selection
@@ -324,8 +328,13 @@ export class VisualizationComponent implements OnInit, OnDestroy {
         this.readTableData = [];
         // Make sure the fields are not empty when adding new row
         if (attributeArray.slave && attributeArray.slave_cell_id && attributeArray.slave_name && attributeArray.slave_type) {
-          this.fieldArray.push(attributeArray)
-          this.linkMappingReadConfig.push(attributeArray)
+          if(this.isRowMoved == true) {
+            this.fieldArray.push(attributeArray)
+          }
+          else {
+            this.fieldArray.push(attributeArray)
+            this.linkMappingReadConfig.push(attributeArray)
+          }
           this.readConfigClass = "";
           this.graphClickable = false;
           this.removeClickListener();
@@ -394,27 +403,45 @@ export class VisualizationComponent implements OnInit, OnDestroy {
     
   }
 
-  deleteFieldValue(event) {
-    for(let i = 0; i < this.fieldArray.length; ++i){
-      if (this.fieldArray[i].slave_cell_id === event.target.id) {
-        // Splice array in Read Config
-        this.fieldArray.splice(i,1);
-        // Splice in Link Mapping, so that the API don't need to call for this value
-        this.linkMappingReadConfig.splice(i,1);
-        this.unsavedToast();
-      }
+  deleteFieldValue(event, index) {
+    console.log("INDEX", index)
+    let cell_id;
+    if(index == null || index == undefined || index == "") {
+      index = this.rowIndex;
     }
-    
+    if(this.subscription){
+      this.subscription.unsubscribe();
+    }
 
-    // Change value cell value to "" after delete
-    this.resetCells(this.cells, event.target.id);
-    this.graph.refresh();
-    this.unhighlightRow();
-  
+    if(index !== null || index !== undefined || index !== "") {
+      setTimeout(async ()=> {
+        
+          
+        if(this.isRowMoved == true) {
+          cell_id = this.fieldArray[index].slave_cell_id;
+          // Change value cell value to "" after delete
+          this.resetCells(this.cells, cell_id);
+          // Splice array in Read Config
+          this.fieldArray.splice(index,1);
+        }
+        else {
+          cell_id = this.fieldArray[index].slave_cell_id;
+          // Change value cell value to "" after delete
+          this.resetCells(this.cells, cell_id);
+          // Splice array in Read Config
+          this.fieldArray.splice(index,1);
+          this.linkMappingReadConfig.splice(index,1);
+        }
+
+        this.unsavedToast();  
+        this.graph.refresh();
+        this.unhighlightRow();
+     
+      },10)
+    }
   }
 
   deleteNavFieldValue(event) {
-    console.log(event.target.id)
     for(let i = 0; i < this.navigationLink.length; ++i){
       if (this.navigationLink[i].cell_id === event.target.id) {
         // Splice array in navigation link
@@ -430,11 +457,23 @@ export class VisualizationComponent implements OnInit, OnDestroy {
  
   /* Function: Edits row */
   async onSelect(i: number, event, e) {
+    
+    if (this.subscription) {
+      // Stops subscription when on edit
+      this.subscription.unsubscribe();
+    }
     console.log("e.target.id",e.target.id)
+    let tableIndex = e.target.id;
     this._cdRef.detectChanges();
-    setTimeout(async ()=>{
+    if(e.target.id === undefined || e.target.id === null || e.target.id === "") {
+      console.log("Index", this.rowIndex)
+      tableIndex = this.rowIndex;
+    }
+    
+    if(tableIndex !== null || tableIndex !== undefined || tableIndex !== "") {
       this.removeClickListener();
       this.graphClickable = true;
+    setTimeout(async ()=>{
       // this.addClickListener();
       this.tempLinkMap = {
         mxgraph_id: event.mxgraph_id,
@@ -444,52 +483,59 @@ export class VisualizationComponent implements OnInit, OnDestroy {
         slave_type: event.slave_type
       }
       this.readTableData = [];
-      let tableIndex = e.target.id;
 
       for(let i = 0; i < this.fieldArray.length; i++){
-        if(this.fieldArray[i]==this.fieldArray[tableIndex]){
-          this.tempFieldArray = this.fieldArray[tableIndex].slave_cell_id;
+        if(i==tableIndex){
+          this.tempFieldArray = this.fieldArray[i].slave_cell_id;
             // Clear the fields when on edit
-            this.fieldArray[tableIndex].slave = "";
-            this.fieldArray[tableIndex].slave_name = "";
-            this.fieldArray[tableIndex].slave_type = "";
-        }
+            this.fieldArray[i].slave = "";
+            this.fieldArray[i].slave_name = "";
+            this.fieldArray[i].slave_type = "";
+          
+            let tempFieldArray = this.tempFieldArray;
+            this.storedCellId = tempFieldArray;
+          
+            // Call API if the selected slave is not in getAllSlaveArray to get the slave value
+            if (this.getAllSlaveArray[event.slave] === "" || this.getAllSlaveArray[event.slave] == false) {
+              await this.restService.postData("getSlave", this.authService.getToken(), { type: event.slave }).toPromise().then(async data => {
+                // Success
+                if (data["status"] == 200 && data["data"]["rows"] !== false) {    
+                  this.getAllSlaveArray[event.slave] = data["data"]["rows"];
+                  console.log("getAllSlaveArray:", this.getAllSlaveArray);
+                  for (let i = 0; i < this.getAllSlaveArray[event.slave].Items.Item.length; i++) {
+                    if (this.getAllSlaveArray[event.slave].Items.Item[i].Name == event.slave_name) {
+                      let cell_value = this.getAllSlaveArray[event.slave].Items.Item[i].Value
+                      await this.config.asyncLocalStorage.setItem('cell_value', cell_value)
+                    }
+                  }
+                }
+                else {
+                  console.log("Can't get data for Slave")
+                }
+              });
+            } 
+      
+            this.readOnly = i
+            this.hideAddRow = true;
+            this.graphClickable = true;
+            this._cdRef.detectChanges();
+            this.addClickListener();
+          }
       }
 
-      let tempFieldArray = this.tempFieldArray;
-      this.storedCellId = tempFieldArray;
-    
-      // Call API if the selected slave is not in getAllSlaveArray to get the slave value
-      if (this.getAllSlaveArray[event.slave] === "" || this.getAllSlaveArray[event.slave] == false) {
-        await this.restService.postData("getSlave", this.authService.getToken(), { type: event.slave }).toPromise().then(async data => {
-          // Success
-          if (data["status"] == 200 && data["data"]["rows"] !== false) {    
-            this.getAllSlaveArray[event.slave] = data["data"]["rows"];
-            console.log("getAllSlaveArray:", this.getAllSlaveArray);
-            for (let i = 0; i < this.getAllSlaveArray[event.slave].Items.Item.length; i++) {
-              if (this.getAllSlaveArray[event.slave].Items.Item[i].Name == event.slave_name) {
-                let cell_value = this.getAllSlaveArray[event.slave].Items.Item[i].Value
-                await this.config.asyncLocalStorage.setItem('cell_value', cell_value)
-              }
-            }
-          }
-          else {
-            console.log("Can't get data for Slave")
-          }
-        });
-      } 
-
-      this.readOnly = i
-      this.hideAddRow = true;
-      this.graphClickable = true;
-      this._cdRef.detectChanges();
-      this.addClickListener();
     },10);
+   }
   }
 
    
   /* Function: Edits row */
    async onEditNav(i: number, event, e) {
+    let tableIndex = e.target.id
+    if(tableIndex === undefined || tableIndex === null || tableIndex === ""){
+      tableIndex = this.rowIndex;
+    }
+
+    if(tableIndex !== null || tableIndex !== undefined || tableIndex !== "") {
     this._cdRef.detectChanges();
     setTimeout(()=>{
       this.tempNavCellId = "";
@@ -515,11 +561,9 @@ export class VisualizationComponent implements OnInit, OnDestroy {
         target_mxgraph_id: event.target_mxgraph_id
       }
 
-      console.log("e.target.id",e.target.id)
-      if(e.target.id){
         for(let i = 0; i < this.navigationLink.length; i++){
-          if(this.navigationLink[i]==this.navigationLink[e.target.id]){
-            this.tempNavCellId = e.target.id;
+          if(i==tableIndex){
+            this.tempNavCellId = tableIndex;
               // Clear the fields when on edit
               this.navigationLink[i].mxgraph_name = "";
               this._cdRef.detectChanges();
@@ -530,9 +574,9 @@ export class VisualizationComponent implements OnInit, OnDestroy {
         this.hideAddRow = true;
         this._cdRef.detectChanges();
         this.addClickListener();
-        
-      }
+     
     }, 10);
+   }
   }
 
   /*  Function: Retrieve stored mxGraph data from MySQL database (id, mxgraph_name, mxgraph_code), populate 'this.selected' dropdown list */
@@ -574,12 +618,15 @@ export class VisualizationComponent implements OnInit, OnDestroy {
     this.isAddNavError = false;
     this.isHoverTooltip = false;
     this.isEditNav = false;
+    this.isRowMoved = false;
     this.currentState = "";
+    this.rowIndex = -1;
     this.gpTimerChannelsDetail = [];
     this.gpTimerChannels = [];
     this.toastr.clear();
     this.activeTab = "tab2";
     this.tabs.select("tab1");
+    this.unhighlightRow();
     this._cdRef.detectChanges();
 
     localStorage.removeItem('cell_value');
@@ -655,7 +702,7 @@ export class VisualizationComponent implements OnInit, OnDestroy {
     });
     
     //Get GPTimerChannel
-    await this.getGPTimerChannels();
+    // await this.getGPTimerChannels();
 
     // Clear the existing graph
     this.graph.getModel().clear();
@@ -705,7 +752,8 @@ export class VisualizationComponent implements OnInit, OnDestroy {
 
         this.graph.addCells(cells);
 
-        this.addCellOverlay(cells);
+        // GPTimer Overlay
+        // this.addCellOverlay(cells);
 
         // Disable mxGraph editing
         this.graph.setEnabled(false);
@@ -907,11 +955,12 @@ export class VisualizationComponent implements OnInit, OnDestroy {
               mxgraph_id: linkMap[i].mxgraph_id
             }
 
+            console.log("TYPE ****", getAllSlaveArray)
             for (let j = 0; j < getAllSlaveArray[linkMap[i].slave].Items.Item.length; j++) {
-                if (linkMap[i].slave_name == getAllSlaveArray[linkMap[i].slave].Items.Item[j].Name) {
+                if (linkMap[i].slave_name == getAllSlaveArray[linkMap[i].slave].Items.Item[j].Name && linkMap[i].slave_type == getAllSlaveArray[linkMap[i].slave].Items.Item[j].Class) {
                   let rowArray = {slave_value: getAllSlaveArray[linkMap[i].slave].Items.Item[j].Value, slave_detail: getAllSlaveArray[linkMap[i].slave].Items.Item[j].Detail, ...row};
                   // Open Modal if slave_type is a Parameter
-                  const modalRef = modalService.open(WriteVisualizationModalComponent);
+                  const modalRef = modalService.open(WriteVisualizationModalComponent, {centered:true});
                   modalRef.componentInstance.row = rowArray;
                   modalRef.result.then((result) => {
                     if (result !== 'fail') {
@@ -1115,7 +1164,7 @@ export class VisualizationComponent implements OnInit, OnDestroy {
   }
 
   /* Function: Change the value of the cells after getting value from function "sub" */
-  async refreshCells(cells) {
+  refreshCells(cells) {
     
     for (let i = 0; i < this.linkMappingReadConfig.length; i++) {
       if (this.linkMappingReadConfig.length === 0) {
@@ -1137,7 +1186,7 @@ export class VisualizationComponent implements OnInit, OnDestroy {
                     cells[k].value = this.getAllSlaveArray[this.linkMappingReadConfig[i].slave].Items.Item[j].Value;
                     this.graph.refresh();
                     if (this.isMouseHover == true) {
-                      this.highlightRow(this.tempHoverField);
+                      this.highlightRow(this.tempHoverField,event);
                     }
                     else {
                       this.unhighlightRow();
@@ -1580,8 +1629,8 @@ export class VisualizationComponent implements OnInit, OnDestroy {
     });
   }
 
-    /* Function: Get GPTimerChannels */
-    async getGPTimerChannels() {
+  /* Function: Get GPTimerChannels */
+  async getGPTimerChannels() {
       await this.restService.postData("getAllGPTimerChannel", this.authService.getToken())
       .toPromise().then(async data => {
         if (data["status"] == 200) {
@@ -1609,14 +1658,14 @@ export class VisualizationComponent implements OnInit, OnDestroy {
               }
         }
       });
-    }
+  }
 
   // Call dragEnter function when hover in a row
-  highlightRow(field) {
+  highlightRow(field,event) {
     this.tempHoverField = field;
     this.previousStyle = null;
     this.isMouseHover = true;
-
+    this.rowIndex = event;
     var graph = this.graph;
 
     // Highlights Nav Link Cells
@@ -1647,6 +1696,7 @@ export class VisualizationComponent implements OnInit, OnDestroy {
 
   // Call dragLeave function when hover out of a row
   unhighlightRow() {
+    this.rowIndex = -1;
     this.isMouseHover = false;
     var graph = this.graph;
     this.dragLeave(graph.view.getState(this.tempState))  
@@ -1708,6 +1758,12 @@ export class VisualizationComponent implements OnInit, OnDestroy {
   // Update row details after done edit
   async doneEdit(i: number, event, state, index) {
 
+    console.log(index)
+    if(index === undefined || index === null || index === "") {
+      index = this.rowIndex;
+    }
+
+    
     // Remove cell_value so that other cells wont change value when clicked
     localStorage.removeItem("cell_value");
     console.log(event)
@@ -1736,11 +1792,13 @@ export class VisualizationComponent implements OnInit, OnDestroy {
       else {
         // If any of the field is empty, revert to original value
         this.fieldArray[index] = this.tempLinkMap;
+        this.linkMappingReadConfig[index] = this.tempLinkMap;
       }
     }
     // If click cancel edit, it should revert to original value
     else {
       this.fieldArray[index] = this.tempLinkMap;
+      this.linkMappingReadConfig[index] = this.tempLinkMap;
     }
     
     this.unhighlightRow();
@@ -1752,12 +1810,23 @@ export class VisualizationComponent implements OnInit, OnDestroy {
     this.graphClickable = false;
     this.removeClickListener();
     this._cdRef.detectChanges();
+    
+    // // Start 5 seconds interval subscription
+    // this.sub(this.cells);
+    console.log("this.fieldArray[index]",this.fieldArray[index])
+    console.log("this.linkMappingReadConfig",this.linkMappingReadConfig)
     this.router.navigate([this.router.url])
+   
   }
 
     
   // Update row details after done edit Nav
   async doneEditNav(i: number, event, state, index) {
+
+    console.log(index)
+    if(index === undefined || index === null || index === "") {
+      index = this.rowIndex;
+    }
       
       if((event.cell_id).includes("-")){
         var tempCellId = event.cell_id;
@@ -1825,12 +1894,12 @@ export class VisualizationComponent implements OnInit, OnDestroy {
   deleteGraph() {
     let rowArray = {mxgraph_id: this.editGraphForm.value.mxgraph_id, mxgraph_name: this.editGraphForm.value.mxgraph_name};
     // Open delete graph modal
-    const modalRef = this.modalService.open(DeleteGraphModalComponent);
+    const modalRef = this.modalService.open(DeleteGraphModalComponent, {centered:true});
                   modalRef.componentInstance.row = rowArray;
                   modalRef.result.then((result) => {
                     if(result) {
                       // Open verify user modal
-                      const modalRef = this.modalService.open(VerifyDeleteGraphModalComponent);
+                      const modalRef = this.modalService.open(VerifyDeleteGraphModalComponent, {centered:true});
                       modalRef.componentInstance.row = rowArray;
                       modalRef.result.then((result) => {
                         if(result){
@@ -1888,6 +1957,7 @@ export class VisualizationComponent implements OnInit, OnDestroy {
   drop(event: CdkDragDrop<string[]>) {
     moveItemInArray(this.fieldArray, event.previousIndex, event.currentIndex);
     this.linkMappingReadConfig = this.fieldArray;
+    this.isRowMoved = true;
   }
 
   dropNav(event: CdkDragDrop<string[]>) {

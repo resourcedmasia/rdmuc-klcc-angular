@@ -20,7 +20,7 @@
       <!--If type numeric-->
       <!-- <input *ngIf="row.slave_detail.Type == 'Numeric'" onkeydown="return false" type="number" formControlName="slave_value" class="form-control" [class.is-invalid]="writeForm.get('slave_value').touched && writeForm.get('slave_value').errors?.required"  min="{{row.slave_detail.Min}}" max="{{row.slave_detail.Max}}" step="{{row.slave_detail.Step}}"><br>
        -->
-      <input *ngIf="row.slave_detail.Type == 'Numeric'" type="number" formControlName="slave_value" class="form-control" [class.is-invalid]="writeForm.get('slave_value').touched && writeForm.get('slave_value').errors?.required"  min="{{row.slave_detail.Min}}" max="{{row.slave_detail.Max}}" step="{{row.slave_detail.Step}}"><br>
+      <input *ngIf="row.slave_detail.Type == 'Numeric'" type="number" (input)="onInputChange($event)" formControlName="slave_value" class="form-control" [class.is-invalid]="writeForm.get('slave_value').touched && writeForm.get('slave_value').errors?.required"  min="{{row.slave_detail.Min}}" max="{{row.slave_detail.Max}}" step="{{row.slave_detail.Step}}"><br>
       <input *ngIf="row.slave_detail.Type == 'Numeric'" formControlName="slave_value" (input)="onInputChange($event)" style="width: 100%;" type="range" class="form-range" min="{{row.slave_detail.Min}}" max="{{row.slave_detail.Max}}" step="{{row.slave_detail.Step}}" id="typeRange">
       
       <small class="invalid-feedback">

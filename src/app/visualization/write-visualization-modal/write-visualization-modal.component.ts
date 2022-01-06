@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, Output, EventEmitter  } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter, ChangeDetectorRef  } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { RestService } from '../../rest.service';
 import { AuthService } from '../../auth.service';
@@ -33,6 +33,7 @@ export class WriteVisualizationModalComponent implements OnInit {
               private restService: RestService,
               private router: Router,
               private authService: AuthService, 
+              private _cdRef: ChangeDetectorRef
              ) { }
 
   ngOnInit() {
@@ -49,7 +50,7 @@ export class WriteVisualizationModalComponent implements OnInit {
         this.dropDownArray = this.row.slave_detail.Strings.String;
       }
     }
-
+ console.log(this.row)
   }
 
   closeModal() {
@@ -73,10 +74,31 @@ export class WriteVisualizationModalComponent implements OnInit {
 
   onInputChange(event) {
     let value = event.target.value;
-    this.row.slave_value = value;
-    this.writeForm.patchValue({
-      slave_value: value,
-     });
+    
+    if(this.row.slave_detail.Type == 'Numeric') {
+      value = parseFloat(value);
+      if(value > parseFloat(this.row.slave_detail.Max)) {
+        value = parseFloat(this.row.slave_detail.Max);
+      }
+      else if(value < parseFloat(this.row.slave_detail.Min)) {
+        value = parseFloat(this.row.slave_detail.Min);
+      }
+      this._cdRef.detectChanges();
+      this.row.slave_value = value.toFixed(1);
+      this.writeForm.patchValue({
+        slave_value: value,
+       });
+    }
+    else {
+      let value = event.target.value;
+      this.row.slave_value = value;
+      this.writeForm.patchValue({
+        slave_value: value,
+       });
+    }
+
+    
+    
   }
 
 }

@@ -49,7 +49,7 @@
               <br>
               <p style="color: white" > Loading... </p>
             </ngx-spinner>
-            <tr cdkDrag cdkDragLockAxis="y" (mouseover)="highlightRow(field)" (mouseout)="unhighlightRow()" *ngFor="let field of fieldArray; let i = index; let j = index">
+            <tr cdkDrag cdkDragLockAxis="y" (mouseover)="highlightRow(field,j)" (mouseout)="unhighlightRow()" *ngFor="let field of fieldArray; let i = index; let j = index">
               <td cdkDragHandle><label>{{i + 1}}</label></td>
               <td>
                 <ng-select appendTo="body" [disabled]="i!==readOnly" [clearable]="false" [items]="readSlaveType" bindLabel="type" [(ngModel)]="field.slave"
@@ -67,7 +67,7 @@
                 />
               </td>
               <td >
-                <button title="Delete" [hidden]="hideAddRow" type="button" class="btn btn-danger" value="Delete" [id]="field.slave_cell_id" (click)="deleteFieldValue($event)"><i class="ion ion-md-trash"></i></button>
+                <button title="Delete" [hidden]="hideAddRow" type="button" class="btn btn-danger" value="Delete" [id]="field.slave_cell_id" (click)="deleteFieldValue($event, j)"><i class="ion ion-md-trash"></i></button>
                 <button [hidden]="i!==readOnly" type="button" class="btn btn-primary" [id]="field.slave_cell_id" (click)="doneEdit(i,field,'done', j)">Done</button>
               </td>   
               <td>
@@ -79,8 +79,7 @@
                   {{field.slave}} {{field.slave_name}}
                 </div>
             </tr>
-      
-              
+           
             <tr [hidden]="hideAddRow">
               <td><label></label></td>
               <td>
@@ -109,6 +108,7 @@
     </ngb-tab> 
     <!-- END FIRST TAB --> 
        
+    <!-- START SECOND TAB -->
     <ngb-tab id="tab2">  
       <ng-template ngbTabTitle style="padding: 0.45rem 1.25rem !important;">
         <h5 class="mb-4 mt-3">
@@ -131,7 +131,7 @@
                 <br>
                 <p style="color: white" > Loading... </p>
               </ngx-spinner>
-              <tr cdkDrag cdkDragLockAxis="y" (mouseover)="highlightRow(nav)" (mouseout)="unhighlightRow()" *ngFor="let nav of navigationLink; let i = index; let j = index;">
+              <tr cdkDrag cdkDragLockAxis="y" (mouseover)="highlightRow(nav,j)" (mouseout)="unhighlightRow()" *ngFor="let nav of navigationLink; let i = index; let j = index;">
                 <td cdkDragHandle><label>{{i + 1}}</label></td>
                 <td>
                   <ng-select [disabled]="i!==readOnly" placeholder="Select Graph" appendTo="body" [clearable]="false" [items]="selectedMxGraph" bindLabel="mxgraph_name" [(ngModel)]="nav.mxgraph_name"> 
@@ -154,7 +154,6 @@
                 </div>
               </tr>
         
-                
               <tr [hidden]="hideAddRow">
                 <td><label></label></td>
                 <td>
@@ -174,7 +173,7 @@
         </div>
       </ng-template>  
     </ngb-tab>  
-
+  <!-- END SECOND TAB -->
   </ngb-tabset>  
 </div>
 </div>

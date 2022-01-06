@@ -28,8 +28,8 @@
     </sidenav-menu>
 
     <sidenav-menu icon="ion ion-md-today" text="Visualization" [active]="isMenuActive('/visualization')" [open]="isMenuOpen('/visualization')" *ngIf=this.appService.config.moduleVisualization>
-      <sidenav-router-link icon="ion ion-md-today" route="/visualization" [active]="isActive('/visualization')">Dashboard</sidenav-router-link>
-      <sidenav-router-link icon="ion ion-md-today" route="/visualization-user" [active]="isActive('/visualization-user')">Dashboard User</sidenav-router-link>
+      <sidenav-router-link icon="ion ion-md-today" route="/visualization" [active]="isActive('/visualization')" *ngIf=this.appService.config.moduleVisualizationAdmin>Dashboard</sidenav-router-link>
+      <sidenav-router-link icon="ion ion-md-today" route="/visualization-user" [active]="isActive('/visualization-user')" *ngIf=this.appService.config.moduleVisualizationUser>Dashboard User</sidenav-router-link>
     </sidenav-menu>
 
     <sidenav-menu icon="ion ion-md-paper" text="EOD" [active]="isMenuActive('/eod')" [open]="isMenuOpen('/eod')" *ngIf=this.appService.config.moduleEOD>

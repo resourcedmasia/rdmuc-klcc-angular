@@ -6,3 +6,28 @@
     font-weight: 600;
     font-size: medium;
 }
+
+.period {
+    padding-top: 2rem;
+    .time-pick {
+      justify-content: center;
+      align-self: center;
+      .dash {
+        padding-right: 2rem;
+        padding-left: 2rem;
+        align-self: center;
+      }
+    }
+  }
+
+  .modal-footer {
+      justify-content: center;
+  }
+
+  .weeklyTable {
+    justify-content: center;
+  }
+
+//   .check-table {
+
+//   }

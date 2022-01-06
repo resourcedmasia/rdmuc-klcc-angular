@@ -385,7 +385,7 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
     });
     
     //Get GPTimerChannel
-    await this.getGPTimerChannels();
+    // await this.getGPTimerChannels();
 
     // Clear the existing graph
     this.graph.getModel().clear();
@@ -434,7 +434,8 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
 
         this.graph.addCells(cells);
 
-        this.addCellOverlay(cells);
+        // GPTimer Overlay
+        // this.addCellOverlay(cells);
 
         // Disable mxGraph editing
         this.graph.setEnabled(false);
@@ -622,7 +623,7 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
                   let rowArray = {slave_value: getAllSlaveArray[linkMap[i].slave].Items.Item[j].Value, slave_detail: getAllSlaveArray[linkMap[i].slave].Items.Item[j].Detail, ...row};
                   console.log("rowArray",rowArray)
                   // Open Modal if slave_type is a Parameter
-                  const modalRef = modalService.open(WriteVisualizationModalComponent);
+                  const modalRef = modalService.open(WriteVisualizationModalComponent, {centered:true});
                   modalRef.componentInstance.row = rowArray;
                   modalRef.result.then((result) => {
                     if (result !== 'fail') {
