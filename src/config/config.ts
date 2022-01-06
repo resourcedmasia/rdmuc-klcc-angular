@@ -31,6 +31,10 @@ export class Config {
         return code;
     }
 
+    subscriptionInterval = 8000;
+
+
+
 
 
 }

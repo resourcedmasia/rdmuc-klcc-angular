@@ -749,7 +749,7 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
     const names = this.linkMappingReadConfig.map(o => o.slave);
     const filtered = this.linkMappingReadConfig.filter(({slave}, index) => !names.includes(slave, index + 1))
     // Set time out for 5 seconds
-    this.subscription = timer(0, 8000).pipe().subscribe( async () => {
+    this.subscription = timer(0, this.config.subscriptionInterval).pipe().subscribe( async () => {
       for(let i = 0; i < filtered.length; i++) {
         if (this.getAllSlaveArray[filtered[i].slave] === "" || !this.getAllSlaveArray[filtered[i].slave]) {
           // Skip if empty
