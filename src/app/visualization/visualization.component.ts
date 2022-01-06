@@ -1314,6 +1314,8 @@ export class VisualizationComponent implements OnInit, OnDestroy {
     if(j !== undefined && j !== null){
       this.fieldArray[j].slave_type = this.readConfig['Class'];
     }
+
+    // this.linkToast();
     
     if(isAdd == true) {
       console.log(isAdd)
@@ -1990,6 +1992,17 @@ export class VisualizationComponent implements OnInit, OnDestroy {
     });
     this.unsavedStatus = true;
   }
+
+  // linkToast() {
+  //   this.toastr.info("Click on a cell to link the setpoint.","", {
+       
+  //     tapToDismiss: false,
+  //     disableTimeOut: true,
+  //     positionClass: 'toast-top-right'
+  //   });
+    
+  // }
+
 
 }
 
