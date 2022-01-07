@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter, ChangeDetectorRef } from '@angular/core';
 import { NgbActiveModal, NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
 import { RestService } from '../../rest.service';
 import { AuthService } from '../../auth.service';
@@ -55,7 +55,8 @@ export class SetGptimerModalComponent implements OnInit {
       private router: Router,
       private calendar: NgbCalendar,
       private parserFormatter: NgbDateParserFormatter,
-      private modalService: NgbModal
+      private modalService: NgbModal,
+      private _cdRef: ChangeDetectorRef
     ) { 
       
     }
@@ -498,19 +499,36 @@ export class SetGptimerModalComponent implements OnInit {
   addSchedule() {
     const modalRef = this.modalService.open(AddScheduleModalComponent, {backdrop: 'static', size:'lg'});
     let row = this.model
-    let gpEvents = this.GPEvent
+    let GPEvent = this.GPEvent
     modalRef.componentInstance.row = row;
-    modalRef.componentInstance.gpEvents = gpEvents;
+    modalRef.componentInstance.GPEvent = GPEvent;
     modalRef.result.then((result) => {
       console.log(result)
+      this.doEvent(result);
     }).catch(err => {
-            console.log(err)
-            })
+        console.log(err)
+      })
   }
 
   closeModal() {
     this.GPEvent = this.GPEventTemp;
     this.activeModal.close("dismiss");
+  }
+
+  doEvent(event) {
+    let gpEvent = {
+      Day: event.Day,
+      DayMask: event.DayMask,
+      Month: event.Month,
+      OffTime1: event.OffTime1,
+      OffTime2: event.OffTime2,
+      OnTime1: event.OnTime1,
+      OnTime2: event.OnTime2,
+      Type: event.Type,
+      Year: event.Year
+    }
+    this.GPEvent.push(gpEvent);
+    this._cdRef.detectChanges();
   }
 
 }

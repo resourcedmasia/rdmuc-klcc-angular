@@ -702,7 +702,7 @@ export class VisualizationComponent implements OnInit, OnDestroy {
     });
     
     //Get GPTimerChannel
-    // await this.getGPTimerChannels();
+    await this.getGPTimerChannels();
 
     // Clear the existing graph
     this.graph.getModel().clear();
@@ -753,7 +753,7 @@ export class VisualizationComponent implements OnInit, OnDestroy {
         this.graph.addCells(cells);
 
         // GPTimer Overlay
-        // this.addCellOverlay(cells);
+        this.addCellOverlay(cells);
 
         // Disable mxGraph editing
         this.graph.setEnabled(false);
@@ -1817,7 +1817,7 @@ export class VisualizationComponent implements OnInit, OnDestroy {
     // this.sub(this.cells);
     console.log("this.fieldArray[index]",this.fieldArray[index])
     console.log("this.linkMappingReadConfig",this.linkMappingReadConfig)
-    this.router.navigate([this.router.url])
+    // this.router.navigate([this.router.url])
    
   }
 
@@ -1875,7 +1875,7 @@ export class VisualizationComponent implements OnInit, OnDestroy {
       this.tempNavCellId = "";
       this.removeClickListener();
       this._cdRef.detectChanges();
-      this.router.navigate([this.router.url])
+      // this.router.navigate([this.router.url])
   }
 
   /* Function: Expands colspan of card */

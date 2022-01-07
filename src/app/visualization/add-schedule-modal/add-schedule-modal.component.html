@@ -88,7 +88,7 @@
   <div class="modal-footer">
     <button type="button" class="btn btn-primary" (click)="back()">< Back</button>
     <button type="button" class="btn btn-default" (click)="closeModal()">Cancel</button>
-    <button type="button" class="btn btn-primary" (click)="closeModal()">Finish ></button>
+    <button type="button" class="btn btn-primary" (click)="finishDaily()">Finish ></button>
   </div>
 </div>
 
@@ -103,12 +103,13 @@
     <div style="padding-bottom: 1rem;"><p>Select the days on which this weekly schedule should have an effect</p></div>
     <div style="padding-bottom: 1rem;"><p>The schedule will trigger on the selected days once per week, unless the day also has a yearly or 'once' schedule affecting it</p></div>
     <div style="padding-bottom: 1rem;"><p>If a weekly schedule already exists for any selected day, the current values will be overwritten with the new settings</p></div>
-    <form [formGroup]="weeklyForm">
+    
     <div class="weeklyTable">
+    <form [formGroup]="weeklyForm">
     <div class="row">
-      <div>
-      <div class="form-group row">
-        <div class="col-sm-10">
+      <div class="col-sm-6">
+      <div style= "justify-content: right;" class="form-group row">
+        <div class="col-sm-6">
           <div class="form-check">
             <input class="form-check-input" value="Monday" type="checkbox" (change)="readCheck($event)" formControlName="Days">
             <label class="form-check-label radio-label">
@@ -119,9 +120,9 @@
       </div>
       </div>
 
-      <div>
+      <div class="col-sm-6">
       <div class="form-group row">
-        <div class="col-sm-10">
+        <div class="col-sm-6">
           <div class="form-check">
             <input class="form-check-input" value="Tuesday" type="checkbox" (change)="readCheck($event)" formControlName="Days">
             <label class="form-check-label radio-label">
@@ -134,9 +135,9 @@
     </div>
     
     <div class="row">
-      <div>
-      <div class="form-group row">
-        <div class="col-sm-10">
+      <div class="col-sm-6">
+      <div style= "justify-content: right;" class="form-group row">
+        <div class="col-sm-6">
           <div class="form-check">
             <input class="form-check-input" value="Wednesday" type="checkbox" (change)="readCheck($event)" formControlName="Days">
             <label class="form-check-label radio-label">
@@ -147,9 +148,9 @@
       </div>
       </div>
       
-      <div>
+      <div class="col-sm-6">
       <div class="form-group row">
-        <div class="col-sm-10">
+        <div class="col-sm-6">
           <div class="form-check">
             <input class="form-check-input" value="Thursday" type="checkbox" (change)="readCheck($event)" formControlName="Days">
             <label class="form-check-label radio-label">
@@ -162,9 +163,9 @@
     </div>
      
     <div class="row">
-      <div>
-      <div class="form-group row">
-        <div class="col-sm-10">
+      <div class="col-sm-6">
+      <div style= "justify-content: right;" class="form-group row">
+        <div class="col-sm-6">
           <div class="form-check">
             <input class="form-check-input" value="Friday" type="checkbox" (change)="readCheck($event)" formControlName="Days">
             <label class="form-check-label radio-label">
@@ -175,9 +176,9 @@
       </div>
       </div>
       
-      <div>
+      <div class="col-sm-6">
       <div class="form-group row">
-        <div class="col-sm-10">
+        <div class="col-sm-6">
           <div class="form-check">
             <input class="form-check-input" value="Saturday" type="checkbox" (change)="readCheck($event)" formControlName="Days">
             <label class="form-check-label radio-label">
@@ -189,10 +190,11 @@
       </div>
     </div>
     
-    <div>
+    
     <div class="row">
-      <div class="form-group row">
-        <div class="col-sm-10">
+      <div class="col-sm-6">
+      <div style= "justify-content: right;" class="form-group row">
+        <div class="col-sm-6">
           <div class="form-check">
             <input class="form-check-input" value="Sunday" type="checkbox" (change)="readCheck($event)" formControlName="Days">
             <label class="form-check-label radio-label">
@@ -203,12 +205,115 @@
       </div>
     </div>
     </div>
-    </div>
     </form>
   </div>
+  </div>
   <div class="modal-footer">
-    <button type="button" class="btn btn-primary" (click)="backWeekly()">< Back</button>
+    <button type="button" class="btn btn-primary" (click)="back()">< Back</button>
     <button type="button" class="btn btn-default" (click)="closeModal()">Cancel</button>
     <button type="button" class="btn btn-primary" *ngIf="nextWeeklyButton" (click)="nextWeekly()">Next ></button>
+  </div>
+</div>
+
+<!--------------------------------------------------- Yearly -------------------------------------------------->
+<div *ngIf="showYearly">
+  <div class="modal-header">
+    <h5 class="modal-title">
+        GP Timer Add/Edit Schedule Wizard<br>
+    </h5>
+  </div>
+  <div class="modal-body">
+    <div style="padding-bottom: 1rem;"><p>Select the days on which this yearly schedule should have an effect</p></div>
+    <div style="padding-bottom: 1rem;"><p>The schedule will trigger on the selected days once per year, unless the day also has a 'Once' schedule affecting it</p></div>
+    <div style="padding-bottom: 1rem;"><p>If a yearly schedule already exists for any selected day, the current values will be overwritten with the new settings</p></div>
+    
+    <div class="q-datepicker row">
+      <ngb-datepicker #dp [(ngModel)]="model" (navigate)="date = $event.next; onChange($event)" [dayTemplate]="customDay"></ngb-datepicker>
+    </div>
+  </div>
+  
+  <ng-template #customDay let-date="date" let-currentMonth="currentMonth" let-selected="selected" let-disabled="disabled" let-focused="focused">
+    <span class="custom-day" 
+          [class.removeAll]="isRemoveAll"
+          [class.select]="isSelected(date)" 
+          [class.hidden]="date.month !== currentMonth" 
+          [class.text-muted]="disabled"
+          [class.event-daily]="eventDaily(date)"
+          [class.event-weekly]="eventWeekly(date)"
+          [class.event-once]="eventOnce(date)"
+          [class.event-yearly]="eventYearly(date)"
+          (click)="selectOne(date)"
+          >
+      {{ date.day }}
+    </span>
+  </ng-template>
+
+  <div class="modal-footer">
+    <button type="button" class="btn btn-primary" (click)="back()">< Back</button>
+    <button type="button" class="btn btn-default" (click)="closeModal()">Cancel</button>
+    <button type="button" class="btn btn-primary" *ngIf="nextYearlyButton" (click)="nextYearly()">Next ></button>
+  </div>
+</div>
+
+<!--------------------------------------------------- Once -------------------------------------------------->
+<div *ngIf="showOnce">
+  <div class="modal-header">
+    <h5 class="modal-title">
+        GP Timer Add/Edit Schedule Wizard<br>
+    </h5>
+  </div>
+  <div class="modal-body">
+    <div style="padding-bottom: 1rem;"><p>Select the days on which this 'Once' schedule should have an effect</p></div>
+    <div style="padding-bottom: 1rem;"><p>The schedule will trigger on the selected days and then be forced to expire. Please use another rule type if frequency is desired</p></div>
+    <div style="padding-bottom: 1rem;"><p>If a 'Once' schedule already exists for any selected day, the current values will be overwritten with the new settings</p></div>
+    
+    <div class="q-datepicker row">
+      <ngb-datepicker #dp [(ngModel)]="model" (navigate)="date = $event.next; onChange($event)" [dayTemplate]="customDay"></ngb-datepicker>
+    </div>
+  </div>
+  
+  <ng-template #customDay let-date="date" let-currentMonth="currentMonth" let-selected="selected" let-disabled="disabled" let-focused="focused">
+    <span class="custom-day" 
+          [class.removeAll]="isRemoveAll"
+          [class.select]="isSelected(date)" 
+          [class.hidden]="date.month !== currentMonth" 
+          [class.text-muted]="disabled"
+          [class.event-daily]="eventDaily(date)"
+          [class.event-weekly]="eventWeekly(date)"
+          [class.event-once]="eventOnce(date)"
+          [class.event-yearly]="eventYearly(date)"
+          (click)="selectOne(date)"
+          >
+      {{ date.day }}
+    </span>
+  </ng-template>
+
+  <div class="modal-footer">
+    <button type="button" class="btn btn-primary" (click)="back()">< Back</button>
+    <button type="button" class="btn btn-default" (click)="closeModal()">Cancel</button>
+    <button type="button" class="btn btn-primary" *ngIf="nextOnceButton" (click)="nextOnce()">Next ></button>
+  </div>
+</div>
+
+<!--------------------------------------------------- Weekly Period -------------------------------------------------->
+<div *ngIf="showWeeklyPeriod">
+  <div class="modal-header">
+    <h5 class="modal-title">
+        GP Timer Add/Edit Schedule Wizard<br>
+    </h5>
+  </div>
+  <div class="modal-body">
+    <div style="padding-bottom: 1rem;"><p>Enter the desired time settings for this weekly schedule</p></div>
+    <div class="period">
+      <h6 style="color: red;">Period 1 </h6> <div class="row time-pick" ><ngb-timepicker  [spinners]="true" [(ngModel)]="OnTime1" [minuteStep]="5"></ngb-timepicker> <h2 class="dash"> - </h2> <ngb-timepicker [spinners]="true" [(ngModel)]="OffTime1" [minuteStep]="5"></ngb-timepicker></div>
+    </div>
+    <div class="period">
+      <h6 style="color: red;">Period 2 </h6> <div class="row time-pick" ><ngb-timepicker  [spinners]="true" [(ngModel)]="OnTime2" [minuteStep]="5"></ngb-timepicker> <h2 class="dash"> - </h2> <ngb-timepicker [spinners]="true" [(ngModel)]="OffTime2" [minuteStep]="5"></ngb-timepicker></div>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-primary" (click)="back()">< Back</button>
+    <button type="button" class="btn btn-default" (click)="closeModal()">Cancel</button>
+    <button type="button" class="btn btn-primary" (click)="finishWeekly()">Finish ></button>
   </div>
 </div>
