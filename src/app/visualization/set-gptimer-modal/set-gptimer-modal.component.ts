@@ -126,9 +126,6 @@ export class SetGptimerModalComponent implements OnInit {
 
     this.selectToday();
     
-    
-    console.log(this.GPEvent);
-    console.log("TEMP",this.GPEventTemp);
   }
 
   ngOnDestroy() {
@@ -162,12 +159,12 @@ export class SetGptimerModalComponent implements OnInit {
     let dWeek = d.getDay();
 
     for(let i = 0; i < this.GPEvent.length; i++) {
-      if (this.GPEvent[i].Type == "Year" && this.GPEvent[i].Day === date.day && this.GPEvent[i].Month === date.month){
-        console.log("Year")
+      if(this.GPEvent[i].Type == "Once" && this.GPEvent[i].Day === date.day && this.GPEvent[i].Month === date.month && this.GPEvent[i].Year === date.year) {
+        console.log("Once")
         return this.GPEvent.splice(i,1);
       }
-      else if(this.GPEvent[i].Type == "Once" && this.GPEvent[i].Day === date.day && this.GPEvent[i].Month === date.month && this.GPEvent[i].Year === date.year) {
-        console.log("Once")
+      else if (this.GPEvent[i].Type == "Year" && this.GPEvent[i].Day === date.day && this.GPEvent[i].Month === date.month){
+        console.log("Year")
         return this.GPEvent.splice(i,1);
       }
       else if (this.GPEvent[i].Type == "Week" && this.GPEvent[i].DayMask !== 0){
@@ -393,8 +390,8 @@ export class SetGptimerModalComponent implements OnInit {
   
 
     for(let i = 0; i < this.GPEvent.length; i++) {
-      if (this.GPEvent[i].Type == "Year" && this.GPEvent[i].Day === date.day && this.GPEvent[i].Month === date.month){
-        console.log("Year")
+      if(this.GPEvent[i].Type == "Once" && this.GPEvent[i].Day === date.day && this.GPEvent[i].Month === date.month && this.GPEvent[i].Year === date.year) {
+        console.log("Once")
         this.OnTime1 = this.GPEvent[i].OnTime1;
         this.OnTime2 = this.GPEvent[i].OnTime2;
         this.OffTime1 = this.GPEvent[i].OffTime1;
@@ -402,8 +399,8 @@ export class SetGptimerModalComponent implements OnInit {
         this.GPEventModal = this.GPEvent[i];
         return this.calculateHours(this.OnTime1,this.OnTime2,this.OffTime1,this.OffTime2)
       }
-      else if(this.GPEvent[i].Type == "Once" && this.GPEvent[i].Day === date.day && this.GPEvent[i].Month === date.month && this.GPEvent[i].Year === date.year) {
-        console.log("Once")
+      else if (this.GPEvent[i].Type == "Year" && this.GPEvent[i].Day === date.day && this.GPEvent[i].Month === date.month){
+        console.log("Year")
         this.OnTime1 = this.GPEvent[i].OnTime1;
         this.OnTime2 = this.GPEvent[i].OnTime2;
         this.OffTime1 = this.GPEvent[i].OffTime1;
@@ -516,19 +513,24 @@ export class SetGptimerModalComponent implements OnInit {
   }
 
   doEvent(event) {
-    let gpEvent = {
-      Day: event.Day,
-      DayMask: event.DayMask,
-      Month: event.Month,
-      OffTime1: event.OffTime1,
-      OffTime2: event.OffTime2,
-      OnTime1: event.OnTime1,
-      OnTime2: event.OnTime2,
-      Type: event.Type,
-      Year: event.Year
+    for(let i = 0; i < event.length; i++){
+
+      var gpEvent = {
+        Day: event[i].Day,
+        DayMask: event[i].DayMask,
+        Month: event[i].Month,
+        OffTime1: event[i].OffTime1,
+        OffTime2: event[i].OffTime2,
+        OnTime1: event[i].OnTime1,
+        OnTime2: event[i].OnTime2,
+        Type: event[i].Type,
+        Year: event[i].Year
+      }
+
+      this.GPEvent.push(gpEvent);
+      this._cdRef.detectChanges();
+
     }
-    this.GPEvent.push(gpEvent);
-    this._cdRef.detectChanges();
   }
 
 }

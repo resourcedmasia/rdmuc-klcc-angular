@@ -303,7 +303,7 @@
     </h5>
   </div>
   <div class="modal-body">
-    <div style="padding-bottom: 1rem;"><p>Enter the desired time settings for this weekly schedule</p></div>
+    <div style="padding-bottom: 1rem;"><p>Enter the desired time settings for this Weekly schedule</p></div>
     <div class="period">
       <h6 style="color: red;">Period 1 </h6> <div class="row time-pick" ><ngb-timepicker  [spinners]="true" [(ngModel)]="OnTime1" [minuteStep]="5"></ngb-timepicker> <h2 class="dash"> - </h2> <ngb-timepicker [spinners]="true" [(ngModel)]="OffTime1" [minuteStep]="5"></ngb-timepicker></div>
     </div>
@@ -315,5 +315,51 @@
     <button type="button" class="btn btn-primary" (click)="back()">< Back</button>
     <button type="button" class="btn btn-default" (click)="closeModal()">Cancel</button>
     <button type="button" class="btn btn-primary" (click)="finishWeekly()">Finish ></button>
+  </div>
+</div>
+
+<!--------------------------------------------------- Yearly Period -------------------------------------------------->
+<div *ngIf="showYearlyPeriod">
+  <div class="modal-header">
+    <h5 class="modal-title">
+        GP Timer Add/Edit Schedule Wizard<br>
+    </h5>
+  </div>
+  <div class="modal-body">
+    <div style="padding-bottom: 1rem;"><p>Enter the desired time settings for this Yearly schedule</p></div>
+    <div class="period">
+      <h6 style="color: red;">Period 1 </h6> <div class="row time-pick" ><ngb-timepicker  [spinners]="true" [(ngModel)]="OnTime1" [minuteStep]="5"></ngb-timepicker> <h2 class="dash"> - </h2> <ngb-timepicker [spinners]="true" [(ngModel)]="OffTime1" [minuteStep]="5"></ngb-timepicker></div>
+    </div>
+    <div class="period">
+      <h6 style="color: red;">Period 2 </h6> <div class="row time-pick" ><ngb-timepicker  [spinners]="true" [(ngModel)]="OnTime2" [minuteStep]="5"></ngb-timepicker> <h2 class="dash"> - </h2> <ngb-timepicker [spinners]="true" [(ngModel)]="OffTime2" [minuteStep]="5"></ngb-timepicker></div>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-primary" (click)="back()">< Back</button>
+    <button type="button" class="btn btn-default" (click)="closeModal()">Cancel</button>
+    <button type="button" class="btn btn-primary" (click)="finishYearly()">Finish ></button>
+  </div>
+</div>
+
+<!--------------------------------------------------- Once Period -------------------------------------------------->
+<div *ngIf="showOncePeriod">
+  <div class="modal-header">
+    <h5 class="modal-title">
+        GP Timer Add/Edit Schedule Wizard<br>
+    </h5>
+  </div>
+  <div class="modal-body">
+    <div style="padding-bottom: 1rem;"><p>Enter the desired time settings for this Once schedule</p></div>
+    <div class="period">
+      <h6 style="color: red;">Period 1 </h6> <div class="row time-pick" ><ngb-timepicker  [spinners]="true" [(ngModel)]="OnTime1" [minuteStep]="5"></ngb-timepicker> <h2 class="dash"> - </h2> <ngb-timepicker [spinners]="true" [(ngModel)]="OffTime1" [minuteStep]="5"></ngb-timepicker></div>
+    </div>
+    <div class="period">
+      <h6 style="color: red;">Period 2 </h6> <div class="row time-pick" ><ngb-timepicker  [spinners]="true" [(ngModel)]="OnTime2" [minuteStep]="5"></ngb-timepicker> <h2 class="dash"> - </h2> <ngb-timepicker [spinners]="true" [(ngModel)]="OffTime2" [minuteStep]="5"></ngb-timepicker></div>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-primary" (click)="back()">< Back</button>
+    <button type="button" class="btn btn-default" (click)="closeModal()">Cancel</button>
+    <button type="button" class="btn btn-primary" (click)="finishOnce()">Finish ></button>
   </div>
 </div>

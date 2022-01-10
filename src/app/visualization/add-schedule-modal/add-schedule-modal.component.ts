@@ -41,12 +41,15 @@ export class AddScheduleModalComponent implements OnInit {
   nextYearlyButton: boolean;
   nextOnceButton: boolean;
   showWeeklyPeriod: boolean;
+  showYearlyPeriod: boolean;
+  showOncePeriod: boolean;
   OnTime1: any;
   OnTime2: any;
   OffTime1: any;
   OffTime2: any;
   dates: any;
   data: any;
+  eventsArray: any[];
   
 
 
@@ -76,6 +79,8 @@ export class AddScheduleModalComponent implements OnInit {
     this.showOnce = false;
     this.nextWeeklyButton = false;
     this.showWeeklyPeriod = false;
+    this.showYearlyPeriod = false;
+    this.showOncePeriod = false;
     this.OnTime1 = {hour: 0, minute: 0};
     this.OnTime2 = {hour: 0, minute: 0};
     this.OffTime1 = {hour: 0, minute: 0};
@@ -107,6 +112,7 @@ export class AddScheduleModalComponent implements OnInit {
     else{
       // Skip
     }
+
   }
 
 
@@ -127,6 +133,8 @@ export class AddScheduleModalComponent implements OnInit {
       this.nextYearlyButton = true;
       this.nextOnceButton = true;
     }
+
+    console.log(this.modelList)
   }
 
   readRadio(event) {
@@ -213,6 +221,8 @@ export class AddScheduleModalComponent implements OnInit {
     this.showYearly = false;
     this.showOnce = false;
     this.showWeeklyPeriod = true;
+    this.showYearlyPeriod = false;
+    this.showOncePeriod = false;
     this.OnTime1 = {hour: 0, minute: 0};
     this.OnTime2 = {hour: 0, minute: 0};
     this.OffTime1 = {hour: 0, minute: 0};
@@ -220,7 +230,33 @@ export class AddScheduleModalComponent implements OnInit {
   }
 
   nextYearly() {
+    this.showMain = false;
+    this.showDaily = false;
+    this.showWeekly = false;
+    this.showYearly = false;
+    this.showOnce = false;
+    this.showWeeklyPeriod = false;
+    this.showYearlyPeriod = true;
+    this.showOncePeriod = false;
+    this.OnTime1 = {hour: 0, minute: 0};
+    this.OnTime2 = {hour: 0, minute: 0};
+    this.OffTime1 = {hour: 0, minute: 0};
+    this.OffTime2 = {hour: 0, minute: 0};
+  }
 
+  nextOnce() {
+    this.showMain = false;
+    this.showDaily = false;
+    this.showWeekly = false;
+    this.showYearly = false;
+    this.showOnce = false;
+    this.showWeeklyPeriod = false;
+    this.showYearlyPeriod = false;
+    this.showOncePeriod = true;
+    this.OnTime1 = {hour: 0, minute: 0};
+    this.OnTime2 = {hour: 0, minute: 0};
+    this.OffTime1 = {hour: 0, minute: 0};
+    this.OffTime2 = {hour: 0, minute: 0};
   }
 
   back() {
@@ -440,6 +476,7 @@ export class AddScheduleModalComponent implements OnInit {
   }
 
   finishWeekly() {
+    this.eventsArray = [];
     let dayMask;
     this.calculateRevertHours(this.OnTime1,this.OnTime2,this.OffTime1,this.OffTime2);
     for(let i = 0; i < this.checkForm.value.checkArray.length; i++){
@@ -465,46 +502,29 @@ export class AddScheduleModalComponent implements OnInit {
         dayMask = 64;
       }
 
-      // if(this.data) {
-      //   let data = {
-      //     event: "weekly",
-      //     Day: 0,
-      //     DayMask: dayMask,
-      //     Month: 0,
-      //     OffTime1: this.OffTime1,
-      //     OffTime2: this.OffTime2,
-      //     OnTime1: this.OnTime1,
-      //     OnTime2: this.OnTime2,
-      //     Type: "Week",
-      //     Year: 0
-      //   }
-      //   this.data.push(data)
-      // }
-      // else {
-      //   this.data = {
-      //     event: "weekly",
-      //     Day: 0,
-      //     DayMask: dayMask,
-      //     Month: 0,
-      //     OffTime1: this.OffTime1,
-      //     OffTime2: this.OffTime2,
-      //     OnTime1: this.OnTime1,
-      //     OnTime2: this.OnTime2,
-      //     Type: "Week",
-      //     Year: 0
-      //   }
-      // }
-    }
+        let data = {
+          event: "weekly",
+          Day: 0,
+          DayMask: dayMask,
+          Month: 0,
+          OffTime1: this.OffTime1,
+          OffTime2: this.OffTime2,
+          OnTime1: this.OnTime1,
+          OnTime2: this.OnTime2,
+          Type: "Week",
+          Year: 0
+        }
 
-  console.log(this.data)
-     
-    
-    // this.activeModal.close(this.data);
+        this.eventsArray.push(data)
+   
+      }
+    this.activeModal.close(this.eventsArray);
   }
 
   finishDaily() {
+    this.eventsArray = [];
     this.calculateRevertHours(this.OnTime1,this.OnTime2,this.OffTime1,this.OffTime2);
-    this.data = {
+    let data = {
       event: "daily",
       Day: 0,
       DayMask: 0,
@@ -516,39 +536,50 @@ export class AddScheduleModalComponent implements OnInit {
       Type: "Day",
       Year: 0
     }
-    this.activeModal.close(this.data);
+    this.eventsArray.push(data);
+    this.activeModal.close(this.eventsArray);
   }
 
   finishYearly() {
-    this.data = {
-      event: "yearly",
-      Day: 12,
-      DayMask: 0,
-      Month: 1,
-      OffTime1: 60,
-      OffTime2: 0,
-      OnTime1: 0,
-      OnTime2: 0,
-      Type: "Year",
-      Year: 2022
+    this.eventsArray = [];
+    this.calculateRevertHours(this.OnTime1,this.OnTime2,this.OffTime1,this.OffTime2);
+    for(let i = 0; i < this.modelList.length; i++) {
+      let data = {
+        event: "yearly",
+        Day: this.modelList[i].day,
+        DayMask: 0,
+        Month: this.modelList[i].month,
+        OffTime1: this.OffTime1,
+        OffTime2: this.OffTime2,
+        OnTime1: this.OnTime1,
+        OnTime2: this.OnTime2,
+        Type: "Year",
+        Year: 0
+      }
+      this.eventsArray.push(data);
     }
-    this.activeModal.close(this.data);
+    this.activeModal.close(this.eventsArray);
   }
 
   finishOnce() {
-    this.data = {
-      event: "once",
-      Day: 12,
-      DayMask: 0,
-      Month: 1,
-      OffTime1: 60,
-      OffTime2: 0,
-      OnTime1: 0,
-      OnTime2: 0,
-      Type: "Once",
-      Year: 2022
+    this.eventsArray = [];
+    this.calculateRevertHours(this.OnTime1,this.OnTime2,this.OffTime1,this.OffTime2);
+    for(let i = 0; i < this.modelList.length; i++) {
+      let data = {
+        event: "once",
+        Day: this.modelList[i].day,
+        DayMask: 0,
+        Month: this.modelList[i].month,
+        OffTime1: this.OffTime1,
+        OffTime2: this.OffTime2,
+        OnTime1: this.OnTime1,
+        OnTime2: this.OnTime2,
+        Type: "Once",
+        Year: this.modelList[i].year
+      }
+      this.eventsArray.push(data);
     }
-    this.activeModal.close(this.data);
+    this.activeModal.close(this.eventsArray);
   }
 
   

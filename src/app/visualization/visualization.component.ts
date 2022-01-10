@@ -702,7 +702,7 @@ export class VisualizationComponent implements OnInit, OnDestroy {
     });
     
     //Get GPTimerChannel
-    await this.getGPTimerChannels();
+    // await this.getGPTimerChannels();
 
     // Clear the existing graph
     this.graph.getModel().clear();
@@ -753,7 +753,7 @@ export class VisualizationComponent implements OnInit, OnDestroy {
         this.graph.addCells(cells);
 
         // GPTimer Overlay
-        this.addCellOverlay(cells);
+        // this.addCellOverlay(cells);
 
         // Disable mxGraph editing
         this.graph.setEnabled(false);

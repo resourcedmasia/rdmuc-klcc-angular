@@ -147,14 +147,20 @@ const routes: Routes = [
   {
     path: 'visualization', component: Layout2Component, canActivate: [AuthGuard], runGuardsAndResolvers: 'always', children: [
       { path: '', component: VisualizationComponent },
-    ]
+    ],
+    data: {
+      role: ['superadmin','administrator']
+    }
   },
 
   // Visualization User
   {
     path: 'visualization-user', component: Layout2Component, canActivate: [AuthGuard], runGuardsAndResolvers: 'always', children: [
       { path: '', component: VisualizationUserComponent },
-    ]
+    ],
+    data: {
+      role: ['superadmin','administrator']
+    }
   },
 
   // Data Entry - Facility Report 

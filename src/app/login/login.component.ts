@@ -42,8 +42,17 @@ export class LoginComponent implements OnInit {
           this.resetAlert();
           // Save token to localstorage
           this.authService.setToken(data["data"].token);
-          // Navigate to home page
-          this.router.navigate(['/']);
+
+          //Get Role by Username
+          this.restService.postData("getUserRoleByUsername", data["data"].token, { username: this.loginForm.value.username }).subscribe(data => {
+            // Success
+            if (data["status"] == 200) {
+              // Save role to localstorage
+              this.authService.setRole(data["data"]["rows"][0].role);
+              // Navigate to home page
+              this.router.navigate(['/']);
+            }
+          })
         } else {
           // Display alert
           this.displayAlert("danger", data["data"].msg);
