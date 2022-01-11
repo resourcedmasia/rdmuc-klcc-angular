@@ -913,8 +913,7 @@ export class VisualizationComponent implements OnInit, OnDestroy {
           else {
             var splitCellId = cellId;   
           }
-          thisContext.newNavAttribute.split_cell_id = splitCellId; 
-          console.log("thisContext.isEditNav",thisContext.isEditNav) 
+          thisContext.newNavAttribute.split_cell_id = splitCellId;  
           if(thisContext.isEditNav){
             for (let i = 0; i < tempNavArray.length; i++) {
               if (tempNavArray[i] == tempNavArray[storedNavCellId]) {
@@ -955,7 +954,6 @@ export class VisualizationComponent implements OnInit, OnDestroy {
               mxgraph_id: linkMap[i].mxgraph_id
             }
 
-            console.log("TYPE ****", getAllSlaveArray)
             for (let j = 0; j < getAllSlaveArray[linkMap[i].slave].Items.Item.length; j++) {
                 if (linkMap[i].slave_name == getAllSlaveArray[linkMap[i].slave].Items.Item[j].Name && linkMap[i].slave_type == getAllSlaveArray[linkMap[i].slave].Items.Item[j].Class) {
                   let rowArray = {slave_value: getAllSlaveArray[linkMap[i].slave].Items.Item[j].Value, slave_detail: getAllSlaveArray[linkMap[i].slave].Items.Item[j].Detail, ...row};

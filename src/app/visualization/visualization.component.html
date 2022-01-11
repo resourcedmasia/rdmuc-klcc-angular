@@ -62,7 +62,6 @@
                 </ng-select>
               </td>
               <td>
-               
                 <input [readonly]="true" [(ngModel)]="field.slave_type" class="form-control" type="text" name="{{field.slave_type}}"
                 />
               </td>
@@ -76,7 +75,7 @@
               </td>
               <!-- Preview -->
                 <div *cdkDragPreview matchSize="true" class="container dragdrop-placeholder">
-                  {{field.slave}} {{field.slave_name}}
+                  {{field.slave}} - {{field.slave_name}}
                 </div>
             </tr>
            
