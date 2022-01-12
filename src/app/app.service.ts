@@ -21,8 +21,8 @@ export class AppService {
   get config() {
     let config = {
       // Site parameters
-      siteName: "Facility Data Collection System",
-      dmURL: "http://www.rdmuc.com/", // RDM Data Manager URL
+      siteName: "Wisma Genting",
+      dmURL: "http://wismagenting.sites.rdmsite.com/", // RDM Data Manager URL
   
       // Module config
       moduleWorkOrder: false, // Work Order module
@@ -30,7 +30,7 @@ export class AppService {
       moduleAlarm: false, // Alarm Management module
       moduleAsset: false, // Asset Management module
       moduleEnergy: false, // Energy Management module
-      moduleAccessDM: false, // Access DM module
+      moduleAccessDM: true, // Access DM module
       //
       moduleVisualization: true, // mxGraph / visualization module
       moduleVisualizationAdmin: true, // mxGraph / visualization module / Admin 
