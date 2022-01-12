@@ -33,6 +33,10 @@ export class Config {
 
     subscriptionInterval = 8000;
 
+    cell_colour_OFF = '#DBDBDB';
+
+    cell_colour_ON = '#3dff54';
+
 
 
 

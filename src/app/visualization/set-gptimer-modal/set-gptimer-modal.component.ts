@@ -65,9 +65,6 @@ export class SetGptimerModalComponent implements OnInit {
     await this.init();
   }
 
-  // async ngAfterViewInit() {
-  //   await this.init();
-  // }
 
   async init() {
     this.OnTime1 = {hour: 0, minute: 0};

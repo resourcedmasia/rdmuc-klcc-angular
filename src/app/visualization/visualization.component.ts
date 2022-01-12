@@ -187,7 +187,6 @@ export class VisualizationComponent implements OnInit, OnDestroy {
       this.centerGraph();
     }
   }
-
  
   async ngOnInit() {
 
@@ -244,6 +243,7 @@ export class VisualizationComponent implements OnInit, OnDestroy {
     }
 
     this.graph.addCells(cells);
+    this.changeCellColour(this.cells)
 
     // Disable mxGraph editing
     this.graph.setEnabled(false);
@@ -288,6 +288,7 @@ export class VisualizationComponent implements OnInit, OnDestroy {
     this.graph.fit();
     // Re-render the graph
     this.graph.refresh();
+    this.changeCellColour(this.cells)
 
 
   }
@@ -453,7 +454,6 @@ export class VisualizationComponent implements OnInit, OnDestroy {
    this.graph.refresh();
    this.unhighlightRow();
   }
-
  
   /* Function: Edits row */
   async onSelect(i: number, event, e) {
@@ -526,7 +526,6 @@ export class VisualizationComponent implements OnInit, OnDestroy {
     },10);
    }
   }
-
    
   /* Function: Edits row */
    async onEditNav(i: number, event, e) {
@@ -752,6 +751,8 @@ export class VisualizationComponent implements OnInit, OnDestroy {
 
         this.graph.addCells(cells);
 
+        this.changeCellColour(cells);
+
         // GPTimer Overlay
         // this.addCellOverlay(cells);
 
@@ -767,6 +768,26 @@ export class VisualizationComponent implements OnInit, OnDestroy {
     });
     // Stops loading spinner in Table
     this.spinner.hide();
+  }
+
+  /*Function: Change Fill Colour of Cell when met with specific value. Eg: On, Off */
+  changeCellColour(cells) {
+    // for(let i = 0; i < cells.length; i++) {
+    //   let state =  this.graph.view.getState(cells[i]);
+    //   if (cells[i] == null || cells[i] == "") {
+    //     // Skip Cells
+    //   }
+    //   else if (cells[i].value == "On" || cells[i].value == "ON") {
+    //     state.style[mxConstants.STYLE_FILLCOLOR] = this.config.cell_colour_ON;
+    //     state.shape.apply(state);
+    //     state.shape.redraw();
+    //   }
+    //   else if (cells[i].value == "Off" || cells[i].value == "OFF") {
+    //     state.style[mxConstants.STYLE_FILLCOLOR] = this.config.cell_colour_OFF;
+    //     state.shape.apply(state);
+    //     state.shape.redraw(); 
+    //   }
+    // }
   }
 
   /* Function: Makes the cells on the graph clickable */
@@ -1145,7 +1166,6 @@ export class VisualizationComponent implements OnInit, OnDestroy {
                       else if (cells[k].id == this.linkMappingReadConfig[i].slave_cell_id){
                         // Sets the cell value using the mapped ID
                         cells[k].value = this.getAllSlaveArray[this.linkMappingReadConfig[i].slave].Items.Item[j].Value;
-                      
                       }
                       else {
                         // Skip cell
@@ -1200,6 +1220,7 @@ export class VisualizationComponent implements OnInit, OnDestroy {
          } 
         }
     }
+    this.changeCellColour(cells);
   }
 
   /* Function: Removes the value from a cell after delete */
@@ -1299,7 +1320,6 @@ export class VisualizationComponent implements OnInit, OnDestroy {
 
   }
 
-
   readChanged(event, isAdd, j) {
    
     console.log("j",j)
@@ -1321,7 +1341,6 @@ export class VisualizationComponent implements OnInit, OnDestroy {
       this.addClickListener();
     }
   }
-
   
   readTargetFloorChange(event, isAdd) {
     this.newNavAttribute.target_mxgraph_id = event.Id;
@@ -1381,7 +1400,6 @@ export class VisualizationComponent implements OnInit, OnDestroy {
         }
       })
   }
-
 
   linkInsert() {
     var name = JSON.parse(localStorage.getItem('cell_name'));
@@ -1536,7 +1554,6 @@ export class VisualizationComponent implements OnInit, OnDestroy {
       });
   }
 
-
   getWriteSlaveList() {
     this.loadingIndicator = true;
 
@@ -1564,7 +1581,6 @@ export class VisualizationComponent implements OnInit, OnDestroy {
       });
   }
 
-
   async getReadSlaveList() {
     this.loadingIndicator = true;
 
@@ -1590,7 +1606,6 @@ export class VisualizationComponent implements OnInit, OnDestroy {
       });
   }
 
-
   writeSlaveChange(event) {
 
     localStorage.setItem('writeController', event);
@@ -1607,7 +1622,6 @@ export class VisualizationComponent implements OnInit, OnDestroy {
       }
     });
   }
-
 
   // Populate slave name drop down
   async readSlaveChange(event) {
@@ -1819,7 +1833,6 @@ export class VisualizationComponent implements OnInit, OnDestroy {
    
   }
 
-    
   // Update row details after done edit Nav
   async doneEditNav(i: number, event, state, index) {
 
