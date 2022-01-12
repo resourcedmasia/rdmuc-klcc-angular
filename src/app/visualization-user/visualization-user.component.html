@@ -12,10 +12,11 @@
   <h4 class="card-header">
     <i class="ion ion-md-analytics"></i>&nbsp;&nbsp; Graph Selection
     <i style="font-size: 0.8rem; margin-top: 1rem;" class="float-sm-right font-weight-light text-muted" ></i>
-    <i style="font-size: 0.8rem;" class="font-weight-light text-muted" ><ng-select style="padding-top: 1rem;" appendTo="body" placeholder="Select Graph" [clearable]="false" [items]="selectedMxGraph" bindLabel="mxgraph_name"
-    [(ngModel)]="selectedGraph" (change)="onSelectGraph($event)">
-    </ng-select></i>
   </h4>
+  <div class="pl-4 pr-4"><ng-select style="padding-top: 1rem;" appendTo="body" placeholder="Select Graph" [clearable]="false" [items]="selectedMxGraph" bindLabel="mxgraph_name"
+    [(ngModel)]="selectedGraph" (change)="onSelectGraph($event)">
+    </ng-select>
+  </div>
   <div style="resize:vertical; overflow: auto;"  class="card-body scroll d-flex justify-content-center">
     <div #graphContainer id="graphContainer"></div>
   </div>
