@@ -8,7 +8,7 @@
 <div class="row justify-content-center">
 
 <!-- Graph Selection -->
-<div class="card mb-4 " [ngClass]="{'col-sm-5' : !cardExpand , 'col-sm-7' : cardExpand}">
+<div class="card mb-4 p-0" [ngClass]="{'col-sm-5' : !cardExpand , 'col-sm-7' : cardExpand}">
   <h4 class="card-header">
     <i class="ion ion-md-analytics"></i>&nbsp;&nbsp; Graph Selection
     <i (click)="expand()" style="font-size: 13px; margin-top: 10px;" class="float-sm-right font-weight-light text-muted" [ngClass]="{'ion ion-ios-arrow-forward': !cardExpand , 'ion ion-ios-arrow-back': cardExpand}"></i>
@@ -23,15 +23,15 @@
 
 
 
-<div class="card mb-4 " [ngClass]="{'col-sm-7' : !cardExpand , 'col-sm-5' : cardExpand}">
+<div class="card mb-4 p-3" [ngClass]="{'col-sm-7' : !cardExpand , 'col-sm-5' : cardExpand}">
   <ngb-tabset #tabs [destroyOnHide]="false"  (tabChange)="fetchActiveTab($event)">  
     <!-- START FIRST TAB --> 
     <ngb-tab id="tab1">  
-      <ng-template ngbTabTitle style="padding: 0.45rem 1.25rem !important;">
-        <h5 class=" mb-4 mt-3">
-          <i class="ion ion-ios-eye"></i>&nbsp;&nbsp;<span class="font-weight-light">Data Link</span>
-        </h5>
-      </ng-template> 
+      <ng-template ngbTabTitle>
+        <h4 style="margin-bottom: 0px !important">
+          <i class="ion ion-md-today"></i>&nbsp;&nbsp;<span class="text-muted font-weight-light">Add Graph</span>
+        </h4>
+      </ng-template>
       <ng-template ngbTabContent >  
       <div class="scroll">
         <table class="table table-bordered table-hover ">
@@ -108,12 +108,12 @@
     <!-- END FIRST TAB --> 
        
     <!-- START SECOND TAB -->
-    <ngb-tab id="tab2">  
-      <ng-template ngbTabTitle style="padding: 0.45rem 1.25rem !important;">
-        <h5 class="mb-4 mt-3">
-          <i class="ion ion-ios-link"></i>&nbsp;&nbsp;<span class="font-weight-light">Nav Link</span>
-        </h5>
-      </ng-template>  
+    <ngb-tab id="tab2">   
+      <ng-template ngbTabTitle>
+        <h4 style="margin-bottom: 0px !important">
+          <i class="ion ion-ios-link"></i>&nbsp;&nbsp;<span class="text-muted font-weight-light">Nav Link</span>
+        </h4>
+      </ng-template>
       <ng-template ngbTabContent>  
         <div class="scroll">
           <table class="table table-bordered table-hover ">
@@ -178,7 +178,7 @@
 </div>
 
 <!-- Save Mapping Card -->
-<div [hidden]="hideAddRow" class="card mb-4">
+<div [hidden]="hideAddRow" class="row card mb-4">
   <h4 class="card-header">
     <i class="ion ion-md-link"></i>&nbsp;&nbsp;<span class="text-muted font-weight-light">Save Mapping </span>
     <span > <button type="button" class="btn btn-primary float-sm-right" (click)="linkMapping()">Save</button></span>
@@ -187,7 +187,7 @@
 </div>
 
 <!-- Add/Edit Graph Card -->
-<div class="card mb-4">
+<div class="row card mb-4">
   <ngb-tabset [destroyOnHide]="false">  
     
     <ngb-tab title="Add Graph">  

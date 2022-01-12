@@ -17,6 +17,10 @@
   color: red;
 }
 
+// Remove the bottom border of the table > thead > tr > th element (double border)
+.table thead>tr>th {
+  border-bottom: none;
+}
 
 .ng-select.border-error ::ng-deep .ng-select-container {
     border-color: red !important;
