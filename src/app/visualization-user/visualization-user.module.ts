@@ -1,14 +1,9 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { WriteVisualizationModalComponent } from '../visualization/write-visualization-modal/write-visualization-modal.component';
 import { FormsModule } from '@angular/forms';
-import { VerifyUserModalComponent } from '../visualization/verify-user-modal/verify-user-modal.component';
-import { DeleteGraphModalComponent } from '../visualization/delete-graph-modal/delete-graph-modal.component';
-import { VerifyDeleteGraphModalComponent } from '../visualization/verify-delete-graph-modal/verify-delete-graph-modal.component';
-import { ReadOnlyGptimerModalComponent } from './read-only-gptimer-modal/read-only-gptimer-modal.component';
 
 @NgModule({
-  declarations: [WriteVisualizationModalComponent, VerifyUserModalComponent, DeleteGraphModalComponent, VerifyDeleteGraphModalComponent, ReadOnlyGptimerModalComponent],
+  declarations: [],
   imports: [
     CommonModule,
     FormsModule,
@@ -17,10 +12,6 @@ import { ReadOnlyGptimerModalComponent } from './read-only-gptimer-modal/read-on
   	FormsModule,
   ],
   entryComponents: [
-    WriteVisualizationModalComponent,
-    VerifyUserModalComponent,
-    DeleteGraphModalComponent,
-    VerifyDeleteGraphModalComponent,
-    ReadOnlyGptimerModalComponent]
+  ]
 })
 export class VisualizationUserModule { }

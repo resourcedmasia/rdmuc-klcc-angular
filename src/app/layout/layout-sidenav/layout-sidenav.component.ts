@@ -20,7 +20,7 @@ export class LayoutSidenavComponent implements AfterViewInit {
   @HostBinding('class.flex-grow-0') private hostClassFlex = false;
 
 
-  constructor(private router: Router, private appService: AppService, private layoutService: LayoutService, public modalService: NgbModal, private restService: RestService, private authService: AuthService) {
+  constructor(private router: Router, public appService: AppService, private layoutService: LayoutService, public modalService: NgbModal, private restService: RestService, private authService: AuthService) {
     // Set host classes
     this.hostClassVertical = this.orientation !== 'horizontal';
     this.hostClassHorizontal = !this.hostClassVertical;

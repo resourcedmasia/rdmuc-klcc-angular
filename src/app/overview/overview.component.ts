@@ -16,7 +16,7 @@ export class OverviewComponent implements OnInit {
   currentPage = 1;
   overviewData;
 
-  constructor(private appService: AppService, private restService: RestService, private authService: AuthService) {
+  constructor(public appService: AppService, private restService: RestService, private authService: AuthService) {
     this.appService.pageTitle = 'Home';
   }
 
