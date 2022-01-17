@@ -21,7 +21,7 @@
   
     .event-once {
       background-color: #ff3992 !important;
-      z-index: 999;
+      z-index: 999 !important;
     }
   
     .event-daily {
@@ -30,12 +30,12 @@
   
     .event-weekly {
       background-color: #c451f0;
-      z-index: 990;
+      z-index: 90;
     }
   
     .event-yearly {
-      background-color: #2a5bf5 !important;
-      z-index: 9990;
+      background-color: #2a5bf5 ;
+      z-index: 99;
     }
   
     .bg-primary {

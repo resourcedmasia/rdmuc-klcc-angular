@@ -42,7 +42,7 @@
   }
 
   .event-yearly {
-    background-color: #2a5bf5 !important;
+    background-color: #2a5bf5;
     z-index: 9990;
   }
 
@@ -75,6 +75,16 @@
 
   .weeklyTable {
     justify-content: center;
+  }
+
+
+  ::ng-deep ngb-modal-backdrop {
+    z-index: 999 !important;
+  
+  }
+  ::ng-deep ngb-modal-window{
+    z-index: 999 !important;
+  
   }
 
 //   .check-table {

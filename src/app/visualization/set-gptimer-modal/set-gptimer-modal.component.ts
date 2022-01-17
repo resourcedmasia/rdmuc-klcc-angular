@@ -1,5 +1,5 @@
 import { Component, OnInit, Input, Output, EventEmitter, ChangeDetectorRef } from '@angular/core';
-import { NgbActiveModal, NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
+import { NgbActiveModal, NgbDateStruct, NgbModalOptions } from '@ng-bootstrap/ng-bootstrap';
 import { RestService } from '../../rest.service';
 import { AuthService } from '../../auth.service';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
@@ -491,7 +491,11 @@ export class SetGptimerModalComponent implements OnInit {
   }
 
   addSchedule() {
-    const modalRef = this.modalService.open(AddScheduleModalComponent, {backdrop: 'static', size:'lg'});
+    const modalRef = this.modalService.open(AddScheduleModalComponent, {  
+      backdrop: 'static', 
+      size:'lg', 
+      centered:true
+    });
     let row = this.model
     let GPEvent = this.GPEvent
     modalRef.componentInstance.row = row;
@@ -525,9 +529,21 @@ export class SetGptimerModalComponent implements OnInit {
       }
 
       this.GPEvent.push(gpEvent);
+      
+      // for(let i = 0; i < this.GPEvent.length; i++) {
+      //   if(this.GPEvent[i].Type == "Once") {
+      //     for(let j = 0; j < this.GPEvent.length; j++) {
+      //       if(this.GPEvent[j].Type == "")
+      //     }
+
+      //   }
+      // }
+
+      
       this._cdRef.detectChanges();
 
     }
+
   }
 
 }
