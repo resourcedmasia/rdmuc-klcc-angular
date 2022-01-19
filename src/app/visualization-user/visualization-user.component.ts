@@ -202,14 +202,14 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
     this.getMxGraphFloor();
 
     //this.getUsers();
-    this.getWriteSlaveList();
-    await this.getReadSlaveList();
+    // this.getWriteSlaveList();
+    this.getReadSlaveList();
 
     
     // Prepare initial graph
     this.graph = new mxGraph(this.graphContainer.nativeElement);
     
-    this.graph.view.rendering = false;
+    // this.graph.view.rendering = false;
     this.graph.setTooltips(true);
     
     // Default no graph from config.ts 

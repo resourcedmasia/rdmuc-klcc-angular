@@ -218,14 +218,14 @@ export class VisualizationComponent implements OnInit, OnDestroy {
     this.getMxGraphFloor();
 
     //this.getUsers();
-    this.getWriteSlaveList();
-    await this.getReadSlaveList();
+    // this.getWriteSlaveList();
+    this.getReadSlaveList();
 
     
     // Prepare initial graph
     this.graph = new mxGraph(this.graphContainer.nativeElement);
     
-    this.graph.view.rendering = false;
+    // this.graph.view.rendering = false;
     this.graph.setTooltips(true);
     
     // Default no graph from config.ts 
@@ -253,7 +253,9 @@ export class VisualizationComponent implements OnInit, OnDestroy {
     // Add click event
     this.addClickListener();
     // Center and Re-scale graph
-    this.centerGraph();
+    setTimeout(()=> {
+      this.centerGraph();
+    },0)
     // Disable loading indicator on table
     this.spinner.hide();
    
@@ -288,7 +290,7 @@ export class VisualizationComponent implements OnInit, OnDestroy {
     this.graph.fit();
     // Re-render the graph
     this.graph.refresh();
-    this.changeCellColour(this.cells)
+    // this.changeCellColour(this.cells)
 
 
   }
@@ -751,7 +753,7 @@ export class VisualizationComponent implements OnInit, OnDestroy {
 
         this.graph.addCells(cells);
 
-        this.changeCellColour(cells);
+        // this.changeCellColour(cells);
 
         // GPTimer Overlay
         // this.addCellOverlay(cells);
@@ -762,7 +764,10 @@ export class VisualizationComponent implements OnInit, OnDestroy {
         this.config.asyncLocalStorage.setItem('mxgraph_id', event.Id);
         this.addClickListener();
 
+        
         this.centerGraph();
+        
+        
 
       }
     });
