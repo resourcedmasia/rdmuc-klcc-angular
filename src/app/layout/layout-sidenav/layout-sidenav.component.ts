@@ -5,6 +5,7 @@ import { LayoutService } from '../layout.service';
 import { NgbModal, ModalDismissReasons } from '@ng-bootstrap/ng-bootstrap';
 import { RestService } from '../../rest.service';
 import { AuthService } from '../../auth.service';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-layout-sidenav',
@@ -20,11 +21,14 @@ export class LayoutSidenavComponent implements AfterViewInit {
   @HostBinding('class.flex-grow-0') private hostClassFlex = false;
 
 
+  currentApplicationVersion: any;
+
   constructor(private router: Router, public appService: AppService, private layoutService: LayoutService, public modalService: NgbModal, private restService: RestService, private authService: AuthService) {
     // Set host classes
     this.hostClassVertical = this.orientation !== 'horizontal';
     this.hostClassHorizontal = !this.hostClassVertical;
     this.hostClassFlex = this.hostClassHorizontal;
+    this.currentApplicationVersion = environment.appVersion;
   }
 
   ngAfterViewInit() {

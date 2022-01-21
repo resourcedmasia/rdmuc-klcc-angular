@@ -4,6 +4,7 @@ import { FormGroup, FormControl } from '@angular/forms';
 import { RestService } from '../rest.service';
 import { AuthService } from '../auth.service';
 import { Router } from '@angular/router';
+import { environment } from '../../environments/environment';
 
 @Component({
   selector: 'app-login',
@@ -15,9 +16,11 @@ import { Router } from '@angular/router';
 export class LoginComponent implements OnInit {
   // Alert handler
   alert = {type: null, msg: null};
+  currentApplicationVersion: any;
 
   constructor(private appService: AppService, private restService: RestService, private authService: AuthService, private router: Router) {
     this.appService.pageTitle = 'Login';
+    this.currentApplicationVersion = environment.appVersion;
   }
 
   // Form input (defaults)
