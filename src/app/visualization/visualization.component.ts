@@ -8,8 +8,6 @@ import { Config } from '../../config/config';
 import { NgxSpinnerService } from "ngx-spinner";
 import { LayoutService } from '../layout/layout.service';
 
-
-
 import { NgbModal, NgbTabset } from '@ng-bootstrap/ng-bootstrap';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { MxgraphEditComponent } from '../mxgraph-edit/mxgraph-edit.component';
@@ -227,6 +225,17 @@ export class VisualizationComponent implements OnInit, OnDestroy {
     
     // this.graph.view.rendering = false;
     this.graph.setTooltips(true);
+
+    // Load default stylesheet for mxGraph
+    var loadStylesheet = function (graph, url) {
+      var node = mxUtils.load(url).getDocumentElement();
+  
+      if (node != null) {
+          var dec = new mxCodec(node.ownerDocument);
+          dec.decode(node, graph.getStylesheet());
+      }
+    };
+    loadStylesheet(this.graph, this.config.DEFAULT_MXGRAPH_STYLESHEET);
     
     // Default no graph from config.ts 
     let xml = this.config.XMLnograph;
@@ -243,7 +252,7 @@ export class VisualizationComponent implements OnInit, OnDestroy {
     }
 
     this.graph.addCells(cells);
-    this.changeCellColour(this.cells)
+    // this.changeCellColour(this.cells)
 
     // Disable mxGraph editing
     this.graph.setEnabled(false);
@@ -736,7 +745,6 @@ export class VisualizationComponent implements OnInit, OnDestroy {
         await this.generateCells(cells) 
         // Stops loading indicator  
         this.loadingIndicator = false;    
-
         this.graph.refresh();
 
         // Start 5 seconds interval subscription
@@ -777,22 +785,24 @@ export class VisualizationComponent implements OnInit, OnDestroy {
 
   /*Function: Change Fill Colour of Cell when met with specific value. Eg: On, Off */
   changeCellColour(cells) {
-    // for(let i = 0; i < cells.length; i++) {
-    //   let state =  this.graph.view.getState(cells[i]);
-    //   if (cells[i] == null || cells[i] == "") {
-    //     // Skip Cells
-    //   }
-    //   else if (cells[i].value == "On" || cells[i].value == "ON") {
-    //     state.style[mxConstants.STYLE_FILLCOLOR] = this.config.cell_colour_ON;
-    //     state.shape.apply(state);
-    //     state.shape.redraw();
-    //   }
-    //   else if (cells[i].value == "Off" || cells[i].value == "OFF") {
-    //     state.style[mxConstants.STYLE_FILLCOLOR] = this.config.cell_colour_OFF;
-    //     state.shape.apply(state);
-    //     state.shape.redraw(); 
-    //   }
-    // }
+    for(let i = 0; i < cells.length; i++) {
+      let state =  this.graph.view.getState(cells[i]);
+      if (cells[i] == null || cells[i] == "") {
+        // Skip Cells
+      }
+      else if (cells[i].value == "On" || cells[i].value == "ON") {
+        state.style = mxUtils.clone(state.style);
+        state.style[mxConstants.STYLE_FILLCOLOR] = this.config.cell_colour_ON;
+        state.shape.apply(state);
+        state.shape.redraw();
+      }
+      else if (cells[i].value == "Off" || cells[i].value == "OFF") {
+        state.style = mxUtils.clone(state.style);
+        state.style[mxConstants.STYLE_FILLCOLOR] = this.config.cell_colour_OFF;
+        state.shape.apply(state);
+        state.shape.redraw(); 
+      }
+    }
   }
 
   /* Function: Makes the cells on the graph clickable */
@@ -1225,7 +1235,8 @@ export class VisualizationComponent implements OnInit, OnDestroy {
          } 
         }
     }
-    this.changeCellColour(cells);
+    // this.graph.refresh();
+    // this.changeCellColour(cells);
   }
 
   /* Function: Removes the value from a cell after delete */

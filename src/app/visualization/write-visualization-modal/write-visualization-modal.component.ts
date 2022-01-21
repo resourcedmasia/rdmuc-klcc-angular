@@ -89,6 +89,15 @@ export class WriteVisualizationModalComponent implements OnInit {
         slave_value: value,
        });
     }
+    else if (this.row.slave_detail.Type == 'String') {
+      let value = event.target.value;
+      let stringArr = this.row.slave_detail.Strings.String
+      let result = stringArr.indexOf(value);
+      this.row.slave_value = value;
+      this.writeForm.patchValue({
+        slave_value: result,
+       });
+    }
     else {
       let value = event.target.value;
       this.row.slave_value = value;

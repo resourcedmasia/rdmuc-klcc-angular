@@ -151,6 +151,11 @@ export class SetGptimerModalComponent implements OnInit {
   }
 
   removeSingle() {
+    this.removeSingleEvent();
+    this.clickEvent(this.model);
+  }
+
+  removeSingleEvent() {
     let date = this.model
     const d = new Date(date.year, date.month - 1, date.day);
     let dWeek = d.getDay();
@@ -530,16 +535,13 @@ export class SetGptimerModalComponent implements OnInit {
 
       this.GPEvent.push(gpEvent);
       
-      // for(let i = 0; i < this.GPEvent.length; i++) {
-      //   if(this.GPEvent[i].Type == "Once") {
-      //     for(let j = 0; j < this.GPEvent.length; j++) {
-      //       if(this.GPEvent[j].Type == "")
-      //     }
-
-      //   }
-      // }
-
+      // Sort the order in GPEvent based on priority
+      const order = ['Once','Year','Week','Day'];
+      const map = new Map();
+      order.forEach((x, i) => map.set(x, i));
+      this.GPEvent.sort((x, y) => map.get(x.Type) - map.get(y.Type));
       
+      this.clickEvent(this.model) 
       this._cdRef.detectChanges();
 
     }

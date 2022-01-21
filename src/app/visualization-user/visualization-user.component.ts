@@ -9,7 +9,6 @@ import { NgxSpinnerService } from "ngx-spinner";
 import { LayoutService } from '../layout/layout.service';
 import ResizeObserver from 'resize-observer-polyfill';
 
-
 import { NgbModal, NgbTabset } from '@ng-bootstrap/ng-bootstrap';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { MxgraphEditComponent } from '../mxgraph-edit/mxgraph-edit.component';
@@ -211,6 +210,17 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
     
     // this.graph.view.rendering = false;
     this.graph.setTooltips(true);
+
+    // Load default stylesheet for mxGraph
+    var loadStylesheet = function (graph, url) {
+      var node = mxUtils.load(url).getDocumentElement();
+  
+      if (node != null) {
+          var dec = new mxCodec(node.ownerDocument);
+          dec.decode(node, graph.getStylesheet());
+      }
+    };
+    loadStylesheet(this.graph, this.config.DEFAULT_MXGRAPH_STYLESHEET);
     
     // Default no graph from config.ts 
     let xml = this.config.XMLnograph;
@@ -227,11 +237,6 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
     }
 
     this.graph.addCells(cells);
-
-    // var cell = this.graph.getModel().getCell(id);
-    // this.graph.removeCellOverlays(cells);
-    // var overlay = new mxCellOverlay(new mxImage('../../assets/img/logo.png',20, 20), 'Overlay tooltip',mxConstants.ALIGN_RIGHT,mxConstants.ALIGN_MIDDLE);
-    // this.graph.addCellOverlay(cell, overlay);
 
     // Disable mxGraph editing
     this.graph.setEnabled(false);
@@ -275,7 +280,7 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
     // Re-render the graph
     this.graph.refresh();
 
-
+    this.changeCellColour(this.cells);
   }
 
   ngOnDestroy() {
@@ -433,6 +438,7 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
         }
 
         this.graph.addCells(cells);
+        this.changeCellColour(this.cells)
 
         // GPTimer Overlay
         // this.addCellOverlay(cells);
@@ -493,7 +499,7 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
             return interval;
             }
             myInterval();
-            
+
   }
 
   /* Function: Makes the cells on the graph clickable */
@@ -725,6 +731,28 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
         
   }
 
+  /*Function: Change Fill Colour of Cell when met with specific value. Eg: On, Off */
+  changeCellColour(cells) {
+    for(let i = 0; i < cells.length; i++) {
+      let state =  this.graph.view.getState(cells[i]);
+      if (cells[i] == null || cells[i] == "") {
+        // Skip Cells
+      }
+      else if (this.config.CELL_VALUE_ON.indexOf(cells[i].value) > -1) {
+        state.style = mxUtils.clone(state.style);
+        state.style[mxConstants.STYLE_FILLCOLOR] = this.config.cell_colour_ON;
+        state.shape.apply(state);
+        state.shape.redraw();
+      }
+      else if (this.config.CELL_VALUE_OFF.indexOf(cells[i].value) > -1) {
+        state.style = mxUtils.clone(state.style);
+        state.style[mxConstants.STYLE_FILLCOLOR] = this.config.cell_colour_OFF;
+        state.shape.apply(state);
+        state.shape.redraw(); 
+      }
+    }
+  }
+
   /* Function: Refresh component */
   refreshPage() {
     this.router.navigate([this.router.url]);
@@ -760,8 +788,8 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
                 if (data["status"] == 200 && data["data"]["rows"] !== false) {    
                     // Re-assign the new data values to controller object
                     this.getAllSlaveArray[filtered[i].slave] = data["data"]["rows"];
-                    // Re-add the cells with new value
-                    this.refreshCells(cells);
+                    // // Re-add the cells with new value
+                    // this.refreshCells(cells);
                 }
                 else {
                   console.log("Can't get Slave data.");
@@ -769,6 +797,8 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
               });
           }
         }
+         // Re-add the cells with new value
+         this.refreshCells(cells);
       });
   }
 
@@ -840,7 +870,7 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
                   else if (cells[k].id == this.linkMappingReadConfig[i].slave_cell_id){
                     // Sets the cell value using the mapped ID
                     cells[k].value = this.getAllSlaveArray[this.linkMappingReadConfig[i].slave].Items.Item[j].Value;
-                    this.graph.refresh();
+                    // this.graph.refresh();
                   }
                   else {
                     // Skip cell
@@ -851,6 +881,8 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
          } 
         }
     }
+    this.graph.refresh();
+    this.changeCellColour(cells);
   }
 
   /* Function: Get GPTimerChannels */
@@ -883,6 +915,7 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
       }
     });
   }
+
 
   /* Function: Re-draw graph */
   async refreshGraph() {
