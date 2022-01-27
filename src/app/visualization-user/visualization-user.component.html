@@ -6,7 +6,7 @@
     [(ngModel)]="selectedGraph" (change)="onSelectGraph($event)">
     </ng-select>
   </div>
-  <div style="resize:vertical; overflow: auto;"  class="card-body scroll d-flex justify-content-center">
+  <div #container id="container" style="resize:vertical; overflow: auto;"  class="card-body scroll d-flex justify-content-center">
     <div #graphContainer id="graphContainer"></div>
   </div>
   <p>

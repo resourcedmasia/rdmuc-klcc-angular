@@ -7,6 +7,7 @@ import { FormGroup, FormControl, Validators, FormsModule } from '@angular/forms'
 import { Config } from '../../config/config';
 import { NgxSpinnerService } from "ngx-spinner";
 import { LayoutService } from '../layout/layout.service';
+import ResizeObserver from 'resize-observer-polyfill';
 
 import { NgbModal, NgbTabset } from '@ng-bootstrap/ng-bootstrap';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
@@ -21,6 +22,7 @@ import { DeleteGraphModalComponent } from './delete-graph-modal/delete-graph-mod
 import { VerifyDeleteGraphModalComponent } from './verify-delete-graph-modal/verify-delete-graph-modal.component';
 import { SetGptimerModalComponent } from './set-gptimer-modal/set-gptimer-modal.component';
 import { CdkDragDrop, moveItemInArray } from "@angular/cdk/drag-drop";
+
 
 
 declare var mxUtils: any;
@@ -45,6 +47,7 @@ declare var mxGraphHandler: any;
 export class VisualizationComponent implements OnInit, OnDestroy {
 
   @ViewChild('graphContainer') graphContainer: ElementRef;
+  @ViewChild('container') container: ElementRef;
   @ViewChild('DatatableComponent') table: DatatableComponent;
   @ViewChild('tabs')
   private tabs: NgbTabset;
@@ -56,6 +59,7 @@ export class VisualizationComponent implements OnInit, OnDestroy {
   selectedGraph;
   selectedMxGraph = [];
   graph;
+  rO;
   mxgraphData = [];
 
   // Selected mxGraph cell ID (ngModel binding)
@@ -219,6 +223,9 @@ export class VisualizationComponent implements OnInit, OnDestroy {
     // this.getWriteSlaveList();
     this.getReadSlaveList();
 
+    // Listens to element resize event
+    this.elementObserver();
+
     
     // Prepare initial graph
     this.graph = new mxGraph(this.graphContainer.nativeElement);
@@ -269,11 +276,24 @@ export class VisualizationComponent implements OnInit, OnDestroy {
     this.spinner.hide();
    
   }
+  
 
   ngAfterViewInit() {
     this.tabs.select("tab1");
     this.activeTab = "tab2";
     this._cdRef.detectChanges();
+  }
+
+  elementObserver() {
+    this.rO = new ResizeObserver(async entries => {
+      for (let entry of entries) {
+        const cr = entry.contentRect;
+        this.centerGraph();
+      }
+    });
+
+    // Element for which to observe height and width 
+    this.rO.observe(this.container.nativeElement);
   }
 
   centerGraph() {
@@ -300,6 +320,7 @@ export class VisualizationComponent implements OnInit, OnDestroy {
     // Re-render the graph
     this.graph.refresh();
     // this.changeCellColour(this.cells)
+    this.animateState(this.cells)
 
 
   }
@@ -309,6 +330,7 @@ export class VisualizationComponent implements OnInit, OnDestroy {
       this.subscription.unsubscribe();
     }
     this.toastr.clear();
+    this.rO.unobserve(this.container.nativeElement)
   }
 
   addFieldValue() {
@@ -755,11 +777,9 @@ export class VisualizationComponent implements OnInit, OnDestroy {
         } else {
           this.sub(cells);
         }
-
-        console.log(this.fieldArray);
         
-
         this.graph.addCells(cells);
+        this.animateState(cells);
 
         // this.changeCellColour(cells);
 
@@ -781,6 +801,51 @@ export class VisualizationComponent implements OnInit, OnDestroy {
     });
     // Stops loading spinner in Table
     this.spinner.hide();
+  }
+
+  animateState(cells) {
+    for(let i = 0; i < cells.length; i++) {
+      let state =  this.graph.view.getState(cells[i]);
+      if(cells[i] == null || cells[i] == "") {
+        // Skip Cells
+      }
+      else if(state == null || state == "") {
+        // Skip Cells
+      }
+      else if(cells[i] !== null && state.style.shape == "image") {
+
+        for(let j = 0; j < this.fieldArray.length; j++) {
+          if(this.fieldArray[j].slave_cell_id == cells[i].id) {
+            let slave = this.fieldArray[j].slave; 
+            let slave_name = this.fieldArray[j].slave_name;
+            let slave_type = this.fieldArray[j].slave_type;
+            
+            for (let k = 0; k < this.getAllSlaveArray[slave].Items.Item.length; k++) {
+              if(this.getAllSlaveArray[slave].Items.Item[k].Name == slave_name) {
+                let value = this.getAllSlaveArray[slave].Items.Item[k].Value;
+                  if (this.config.CELL_VALUE_ON.indexOf(value) > -1) {
+                    state.style = mxUtils.clone(state.style);
+                    state.style[mxConstants.STYLE_FILL_OPACITY] = 100;
+                    state.shape.apply(state);
+                    state.shape.redraw();
+                  }
+                  else if (this.config.CELL_VALUE_OFF.indexOf(value) > -1) {
+                    state.style = mxUtils.clone(state.style);
+                    state.style[mxConstants.STYLE_FILL_OPACITY] = 0;
+                    state.shape.apply(state);
+                    state.shape.redraw(); 
+                  }
+              }
+            }
+          }
+        }
+
+       
+      }
+      else {
+        // Skip
+      }
+    }
   }
 
   /*Function: Change Fill Colour of Cell when met with specific value. Eg: On, Off */
@@ -876,8 +941,10 @@ export class VisualizationComponent implements OnInit, OnDestroy {
           mouseDown: function(sender, me){},
           dragEnter: function(evt, state, parameter, cell, slave, slave_name)
           {
+            
+            let cellStyle = evt.target.nodeName;
             thisContext.isHoverTooltip = true;
-            if(parameter == "Parameter") {
+            if(parameter == "Parameter" && cellStyle !== "image") {
               thisContext.currentState = this.currentState
               this.currentState.setCursor('pointer');
               if(slave && slave_name){
@@ -886,6 +953,14 @@ export class VisualizationComponent implements OnInit, OnDestroy {
                   return slave + " - " + slave_name;
                 }  
               }
+            }
+            else if (parameter == "Link" && cellStyle == "image") {
+              thisContext.currentState = this.currentState
+              this.currentState.setCursor('pointer');
+            }
+            else if (cellStyle == "image") {
+              thisContext.currentState = this.currentState
+              this.currentState.setCursor('mouse');
             }
             else if(parameter == "Non-Parameter"){
               if(slave && slave_name){
@@ -924,9 +999,16 @@ export class VisualizationComponent implements OnInit, OnDestroy {
           try {
             // Get cell from model by cell ID string (https://jgraph.github.io/mxgraph/docs/js-api/files/model/mxGraphModel-js.html#mxGraphModel.getCell)
             let cell = model.getCell(evt.getProperty("cell").id);
+            let cellStyle = cell.style;
             // Set value in cell when clicked
             if (valued) {
-              model.setValue(cell, valued);
+              if(cellStyle.includes("image=data:image/gif")) {
+                // Skip
+              }
+              else {
+                model.setValue(cell, valued);
+              }
+              
               for (let i = 0; i < tempFieldArray.length; i++) {
                 if (tempFieldArray[i].slave_cell_id == storedCellId) {
                   tempFieldArray[i].slave_cell_id = cellId;
@@ -976,12 +1058,17 @@ export class VisualizationComponent implements OnInit, OnDestroy {
     }
 
     this.graph.addListener(mxEvent.IS_TOUCH, function (sender, evt) {
+      
       if (evt.properties.cell) {
 
-        let cellId = evt.properties.cell.id
+        let cellStyle = evt.properties.cell.style;
+        let cellId = evt.properties.cell.id;
        
+        // if(cellStyle.includes("image=data:image/gif")) {
+
+        // }
         for (let i = 0; i < linkMap.length; i++) {
-          if (linkMap[i].slave_cell_id == cellId && linkMap[i].slave_type == "Parameter") {
+          if (linkMap[i].slave_cell_id == cellId && linkMap[i].slave_type == "Parameter" && !cellStyle.includes("image=data:image/gif")) {
             let row = {
               slave_name: linkMap[i].slave_name,
               slave_type: linkMap[i].slave_type,
@@ -1179,8 +1266,14 @@ export class VisualizationComponent implements OnInit, OnDestroy {
                         // Skip cell if null
                       }
                       else if (cells[k].id == this.linkMappingReadConfig[i].slave_cell_id){
-                        // Sets the cell value using the mapped ID
-                        cells[k].value = this.getAllSlaveArray[this.linkMappingReadConfig[i].slave].Items.Item[j].Value;
+                        let cellStyle = cells[k].style;
+                        if(cellStyle.includes("image=data:image/gif")) {
+                          // Skip
+                        }
+                        else {
+                          // Sets the cell value using the mapped ID
+                          cells[k].value = this.getAllSlaveArray[this.linkMappingReadConfig[i].slave].Items.Item[j].Value;
+                        }    
                       }
                       else {
                         // Skip cell
@@ -1216,15 +1309,20 @@ export class VisualizationComponent implements OnInit, OnDestroy {
                   }
                   else if (cells[k].id == this.linkMappingReadConfig[i].slave_cell_id){
                     // Sets the cell value using the mapped ID
-                    cells[k].value = this.getAllSlaveArray[this.linkMappingReadConfig[i].slave].Items.Item[j].Value;
-                    this.graph.refresh();
-                    if (this.isMouseHover == true) {
-                      this.highlightRow(this.tempHoverField,event);
+                    let cellStyle = cells[k].style;
+                    if(cellStyle.includes("image=data:image/gif")) {
+                      // Skip
                     }
                     else {
-                      this.unhighlightRow();
+                      cells[k].value = this.getAllSlaveArray[this.linkMappingReadConfig[i].slave].Items.Item[j].Value;
+                      this.graph.refresh();
+                      if (this.isMouseHover == true) {
+                        this.highlightRow(this.tempHoverField,event);
+                      }
+                      else {
+                        this.unhighlightRow();
+                      }
                     }
-
                   }
                   else {
                     // Skip cell
@@ -1235,6 +1333,7 @@ export class VisualizationComponent implements OnInit, OnDestroy {
          } 
         }
     }
+    this.animateState(cells);
     // this.graph.refresh();
     // this.changeCellColour(cells);
   }

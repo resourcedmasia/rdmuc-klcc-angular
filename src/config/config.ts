@@ -33,7 +33,7 @@ export class Config {
         return code;
     }
 
-    subscriptionInterval = 8000;
+    subscriptionInterval = 5000;
 
     CELL_VALUE_ON = ['On','ON'];
 
