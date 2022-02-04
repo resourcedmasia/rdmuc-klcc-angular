@@ -2,7 +2,6 @@
     padding: 1.5rem;
     position: center;
     max-height: 100%;
-    // max-height: 70vh;
     max-width: 100%;
 }
 
@@ -58,6 +57,27 @@
     pointer-events: none !important; /* Click trough. The !important rule avoid some blinking on the 2nd hovering. (Test it!) */
 }
 
+.full-screen {
+  font-size: large; 
+  text-align: right; 
+  margin-right: 1.3rem; 
+  margin-top: -1.8rem; 
+  padding-bottom: 0.5rem; 
+  display: inline-block; 
+  position: relative;
+}
+
 ::-webkit-resizer {
   display: none;
+}
+
+::ng-deep ngb-modal-backdrop {
+  z-index: 99998 !important;
+  
+}
+::ng-deep ngb-modal-window{
+  z-index: 99999 !important;
+
+
+
 }

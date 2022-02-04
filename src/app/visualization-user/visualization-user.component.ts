@@ -9,13 +9,13 @@ import { NgxSpinnerService } from "ngx-spinner";
 import { LayoutService } from '../layout/layout.service';
 import ResizeObserver from 'resize-observer-polyfill';
 
-import { NgbModal, NgbTabset } from '@ng-bootstrap/ng-bootstrap';
+import { NgbModal, NgbModalOptions, NgbTabset } from '@ng-bootstrap/ng-bootstrap';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { MxgraphEditComponent } from '../mxgraph-edit/mxgraph-edit.component';
 import { DatatableComponent } from '@swimlane/ngx-datatable';
 import { Observable, Subscription, timer, fromEvent } from 'rxjs';
 import { deserialize } from 'chartist';
-import { ToastrService } from 'ngx-toastr';
+import { ToastrService, ToastContainerDirective } from 'ngx-toastr';
 import { WriteVisualizationModalComponent } from '../visualization/write-visualization-modal/write-visualization-modal.component';
 import { ReadOnlyGptimerModalComponent } from '../visualization-user/read-only-gptimer-modal/read-only-gptimer-modal.component';
 import { VerifyUserModalComponent } from '../visualization/verify-user-modal/verify-user-modal.component';
@@ -39,7 +39,7 @@ declare var mxPoint: any;
   selector: 'app-visualization-user',
   templateUrl: './visualization-user.component.html',
   styleUrls: ['./visualization-user.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  // changeDetection: ChangeDetectionStrategy.OnPush
 })
 
 export class VisualizationUserComponent implements OnInit, OnDestroy {
@@ -47,6 +47,8 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
   @ViewChild('graphContainer') graphContainer: ElementRef;
   @ViewChild('container') container: ElementRef;
   @ViewChild('DatatableComponent') table: DatatableComponent;
+  @ViewChild('fullScreen') divRef: ElementRef;
+  @ViewChild(ToastContainerDirective) toastContainer: ToastContainerDirective;
 
   private tabs: NgbTabset;
 
@@ -112,6 +114,7 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
   cardExpand: boolean;
   unsavedStatus: boolean;
   isHoverTooltip: boolean;
+  isFullScreen: boolean;
   currentState: any;
 
 
@@ -184,6 +187,7 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
   async ngOnInit() {
 
     // Collapse the sidebar
+    this.toastr.overlayContainer = this.toastContainer;
     this.layoutService.setCollapsed(true, true);
     let CircularJSON = require('circular-json');
     this.readOnly = -1;
@@ -195,7 +199,9 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
     this.toastr.clear();
     this.isMouseHover = false;
     this.isHoverTooltip = false;
-    
+    this.isFullScreen = false;
+
+    this.fullScreenEvent();
 
     // Retrieve stored mxGraphs from database and populate dropdown selection
     this.getMxGraphList();
@@ -263,7 +269,6 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
     this.ro = new ResizeObserver(async entries => {
       for (let entry of entries) {
         const cr = entry.contentRect;
-        console.log(`Element size: ${cr.width}px x ${cr.height}px`);
         this.centerGraph();
         setTimeout(()=> {
           this.changeCellColour(this.cells);
@@ -664,7 +669,13 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
                   let rowArray = {slave_value: getAllSlaveArray[linkMap[i].slave].Items.Item[j].Value, slave_detail: getAllSlaveArray[linkMap[i].slave].Items.Item[j].Detail, ...row};
                   console.log("rowArray",rowArray)
                   // Open Modal if slave_type is a Parameter
-                  const modalRef = modalService.open(WriteVisualizationModalComponent, {centered:true});
+                  const options: NgbModalOptions = {
+                    backdropClass: '.app-session-modal-backdrop',
+                    windowClass: '.app-session-modal-window',
+                    centered: true,
+                    container: '#fullScreen'
+                  };
+                  const modalRef = modalService.open(WriteVisualizationModalComponent, options);
                   modalRef.componentInstance.row = rowArray;
                   modalRef.result.then((result) => {
                     if (result !== 'fail') {
@@ -673,7 +684,8 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
                           tapToDismiss: true,
                           disableTimeOut: false,
                           timeOut: 2000,
-                          positionClass: 'toast-bottom-right'
+                          positionClass: 'toast-bottom-right',
+                          
                         });
                     }
                     else {
@@ -823,8 +835,6 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
                 if (data["status"] == 200 && data["data"]["rows"] !== false) {    
                     // Re-assign the new data values to controller object
                     this.getAllSlaveArray[filtered[i].slave] = data["data"]["rows"];
-                    // // Re-add the cells with new value
-                    // this.refreshCells(cells);
                 }
                 else {
                   console.log("Can't get Slave data.");
@@ -890,7 +900,6 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
         
     // this.changeCellColour(cells);
     // this.animateState(cells);
-    console.log(cells)
   }
 
   /* Function: Change the value of the cells after getting value from function "sub" */
@@ -1226,6 +1235,64 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
       positionClass: 'toast-bottom-full-width'
     });
     this.unsavedStatus = true;
+  }
+
+  openFullscreen() {
+    // Use this.divRef.nativeElement to request fullscreen
+    const elem = this.divRef.nativeElement;
+  
+    if (elem.requestFullscreen) {
+      elem.requestFullscreen();
+    } else if (elem.msRequestFullscreen) {
+      elem.msRequestFullscreen();
+    } else if (elem.mozRequestFullScreen) {
+      elem.mozRequestFullScreen();
+    } else if (elem.webkitRequestFullscreen) {
+      elem.webkitRequestFullscreen();
+    }
+    
+    setTimeout(()=>{
+      this.centerGraph();
+    },100)
+    this._cdRef.detectChanges();
+    
+  }
+
+  fullScreenEvent() {
+    var thisC = this;
+    // this.isFullScreen = true;
+    document.addEventListener("fullscreenchange", function() {
+      if(thisC.isFullScreen == true) {
+        thisC.isFullScreen = false;
+      }
+      else {
+        thisC.isFullScreen = true;
+      }   
+    });
+    document.addEventListener("mozfullscreenchange", function() {
+      if(thisC.isFullScreen == true) {
+        thisC.isFullScreen = false;
+      }
+      else {
+        thisC.isFullScreen = true;
+      }
+    });
+    document.addEventListener("webkitfullscreenchange", function() {
+      if(thisC.isFullScreen == true) {
+        thisC.isFullScreen = false;
+      }
+      else {
+        thisC.isFullScreen = true;
+      }
+    });
+    document.addEventListener("msfullscreenchange", function() {
+      if(thisC.isFullScreen == true) {
+        thisC.isFullScreen = false;
+      }
+      else {
+        thisC.isFullScreen = true;
+      }
+    });
   }
 
 }

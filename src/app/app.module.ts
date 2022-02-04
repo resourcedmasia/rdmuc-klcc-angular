@@ -69,7 +69,7 @@ import { VerifyDeleteGraphModalComponent } from './visualization/verify-delete-g
 import { ReadOnlyGptimerModalComponent } from './visualization-user/read-only-gptimer-modal/read-only-gptimer-modal.component';
 import { SetGptimerModalComponent } from './visualization/set-gptimer-modal/set-gptimer-modal.component';
 import { AddScheduleModalComponent } from './visualization/add-schedule-modal/add-schedule-modal.component';
-import { ToastrModule } from 'ngx-toastr';
+import { ToastrModule, ToastContainerModule } from 'ngx-toastr';
 import { DragDropModule } from '@angular/cdk/drag-drop';
 
 
@@ -147,7 +147,8 @@ import { Config } from '../config/config';
     DragDropModule,
     ToastrModule.forRoot({
       preventDuplicates: true,
-    })
+    }),
+    ToastContainerModule,
   ],
   providers: [
     Title,

@@ -1,4 +1,4 @@
-import { HostListener,Component, OnDestroy, OnInit, ElementRef, ViewChild, ChangeDetectorRef } from '@angular/core';
+import { HostListener,Component, OnDestroy, OnInit, ElementRef, ViewChild, ChangeDetectorRef, NgZone } from '@angular/core';
 import {Router, NavigationEnd,ActivatedRoute} from '@angular/router';
 import { AppService } from '../app.service';
 import { RestService } from '../rest.service';
@@ -153,6 +153,7 @@ export class VisualizationComponent implements OnInit, OnDestroy {
   });
   tempHoverField: any;
   tempNavCellId: any;
+  
  
 
   constructor(
@@ -166,7 +167,8 @@ export class VisualizationComponent implements OnInit, OnDestroy {
               private activatedRoute: ActivatedRoute,
               private spinner: NgxSpinnerService,
               private layoutService: LayoutService,
-              private _cdRef: ChangeDetectorRef
+              private _cdRef: ChangeDetectorRef,
+              private ngZone: NgZone
               ) {
     
     this.appService.pageTitle = 'Visualization Dashboard';
@@ -290,7 +292,7 @@ export class VisualizationComponent implements OnInit, OnDestroy {
         const cr = entry.contentRect;
         this.centerGraph();
       }
-    });
+  });
 
     // Element for which to observe height and width 
     this.rO.observe(this.container.nativeElement);
@@ -1214,27 +1216,29 @@ export class VisualizationComponent implements OnInit, OnDestroy {
     const names = this.linkMappingReadConfig.map(o => o.slave);
     const filtered = this.linkMappingReadConfig.filter(({slave}, index) => !names.includes(slave, index + 1))
     // Set time out for 5 seconds
-    this.subscription = timer(0, this.config.subscriptionInterval).pipe().subscribe( async () => {
+    this.subscription = timer(0, this.config.subscriptionInterval).pipe().subscribe( () => {
       for(let i = 0; i < filtered.length; i++) {
         if (this.getAllSlaveArray[filtered[i].slave] === "" || !this.getAllSlaveArray[filtered[i].slave]) {
           // Skip if empty
         }
         else {
-          this.restService.postData("getSlave", this.authService.getToken(), { type: filtered[i].slave }).toPromise().then(async data => {
-                // Success
-                if (data["status"] == 200 && data["data"]["rows"] !== false) {    
-                    // Re-assign the new data values to controller object
-                    this.getAllSlaveArray[filtered[i].slave] = data["data"]["rows"];
-                    // Re-add the cells with new value
-                    this.refreshCells(cells);
-                }
-                else {
-                  console.log("Can't get Slave data.");
-                }
-              });
+          
+              this.restService.postData("getSlave", this.authService.getToken(), { type: filtered[i].slave }).toPromise().then(data => {
+                  // Success
+                  if (data["status"] == 200 && data["data"]["rows"] !== false) {    
+                      // Re-assign the new data values to controller object
+                      this.getAllSlaveArray[filtered[i].slave] = data["data"]["rows"];
+                  }
+                  else {
+                    console.log("Can't get Slave data.");
+                  }
+                });
           }
         }
+         // Re-add the cells with new value
+        this.refreshCells(cells);
       });
+
   }
 
   /* Function: Adding the value to the linked cells on the graph */
@@ -1296,6 +1300,7 @@ export class VisualizationComponent implements OnInit, OnDestroy {
       if (this.linkMappingReadConfig.length === 0) {
         console.log("Attribute is empty");
       } else {
+        
           if(this.isHoverTooltip == true && this.currentState) {
             this.currentState.setCursor('pointer');
           }
@@ -1303,31 +1308,31 @@ export class VisualizationComponent implements OnInit, OnDestroy {
               // Iterate cells to find the matched controller name
               for (let j = 0; j < this.getAllSlaveArray[this.linkMappingReadConfig[i].slave].Items.Item.length; j++){
                 if (this.getAllSlaveArray[this.linkMappingReadConfig[i].slave].Items.Item[j].Name == this.linkMappingReadConfig[i].slave_name) {
-                for (let k = 0; k < (cells.length); k++) {
-                  if (cells[k] == null) {
-                    // Skip cell if null
-                  }
-                  else if (cells[k].id == this.linkMappingReadConfig[i].slave_cell_id){
-                    // Sets the cell value using the mapped ID
-                    let cellStyle = cells[k].style;
-                    if(cellStyle.includes("image=data:image/gif")) {
-                      // Skip
+                  for (let k = 0; k < (cells.length); k++) {
+                    if (cells[k] == null) {
+                      // Skip cell if null
                     }
-                    else {
-                      cells[k].value = this.getAllSlaveArray[this.linkMappingReadConfig[i].slave].Items.Item[j].Value;
-                      this.graph.refresh();
-                      if (this.isMouseHover == true) {
-                        this.highlightRow(this.tempHoverField,event);
+                    else if (cells[k].id == this.linkMappingReadConfig[i].slave_cell_id){
+                      // Sets the cell value using the mapped ID
+                      let cellStyle = cells[k].style;
+                      if(cellStyle.includes("image=data:image/gif")) {
+                        // Skip
                       }
                       else {
-                        this.unhighlightRow();
+                        cells[k].value = this.getAllSlaveArray[this.linkMappingReadConfig[i].slave].Items.Item[j].Value;
+                        this.graph.refresh();
+                        if (this.isMouseHover == true) {
+                          this.highlightRow(this.tempHoverField,event);
+                        }
+                        else {
+                          this.unhighlightRow();
+                        }
                       }
                     }
+                    else {
+                      // Skip cell
+                    }
                   }
-                  else {
-                    // Skip cell
-                  }
-                }
                 }    
               }
          } 

@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { shareReplay } from 'rxjs/operators';
+import { share, shareReplay } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'
@@ -10,7 +10,7 @@ export class RestService {
   constructor(private httpClient: HttpClient) { }
 
   // API Endpoint
-  private baseUrl = 'http://10.1.128.184:8080/api/api.php';
+  private baseUrl = 'http://10.1.128.75:8080/api/api.php';
   // private baseUrl = 'http://wismagenting.uc.rdmsite.com/api/api.php';
   
 
@@ -23,7 +23,7 @@ export class RestService {
         method: method,
         token: token,
         data: data
-      });
+      }).pipe(share())
   }
 
   getConfig() {
