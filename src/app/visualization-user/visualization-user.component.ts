@@ -281,6 +281,7 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
 
     // Element for which to observe height and width 
     this.ro.observe(this.container.nativeElement);
+    this.ro.observe(this.divRef.nativeElement);
   }
 
   centerGraph() {
@@ -1333,7 +1334,7 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
     } else if (elem.webkitRequestFullscreen) {
       await elem.webkitRequestFullscreen();
     }
-      this.centerGraph();
+    setTimeout(()=>{ this.centerGraph(); }, 10);
   }
 
   fullScreenEvent() {
@@ -1345,6 +1346,7 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
       }
       else {
         thisC.isFullScreen = true;
+        setTimeout(()=>{ thisC.centerGraph(); }, 10);
       }   
     });
     document.addEventListener("mozfullscreenchange", function() {
@@ -1353,6 +1355,7 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
       }
       else {
         thisC.isFullScreen = true;
+        setTimeout(()=>{ thisC.centerGraph(); }, 10);
       }
     });
     document.addEventListener("webkitfullscreenchange", function() {
@@ -1361,6 +1364,7 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
       }
       else {
         thisC.isFullScreen = true;
+        setTimeout(()=>{ thisC.centerGraph(); }, 10);
       }
     });
     document.addEventListener("msfullscreenchange", function() {
@@ -1369,6 +1373,7 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
       }
       else {
         thisC.isFullScreen = true;
+        setTimeout(()=>{ thisC.centerGraph(); }, 10);
       }
     });
   }
