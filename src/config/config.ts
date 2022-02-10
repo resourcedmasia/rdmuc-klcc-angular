@@ -33,15 +33,37 @@ export class Config {
         return code;
     }
 
-    subscriptionInterval = 10000;
+    subscriptionInterval = 10 * 1000;
 
+    /* MxGraph Cell */
     CELL_VALUE_ON = ['On','ON'];
 
     CELL_VALUE_OFF = ['Off','OFF'];
 
-    cell_colour_OFF = '#DBDBDB';
+    cell_colour_OFF = '#DBDBDB'; // Grey
 
-    cell_colour_ON = '#3dff54';
+    cell_colour_ON = '#3dff54'; // Green
+
+    /* MxGraph Flow Animation */
+    FLOW_TYPE = ['flow_1','flow_2'];
+
+    FLOW_COLOUR = ['Blue','Red', 'Grey']
+
+    FLOW_BLUE = "Blue";
+
+    FLOW_RED = "Red";
+
+    FLOW_GREY = "Grey";
+
+    FLOW_1 = 'flow_1'; // Forward Flow
+
+    FLOW_2 = 'flow_2'; // Backward Flow
+
+    FLOW_COLOUR_BLUE = 'lightBlue';
+
+    FLOW_COLOUR_RED = 'red';
+
+    FLOW_COLOUR_GREY = 'lightGray';
 
 
 

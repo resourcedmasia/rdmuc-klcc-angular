@@ -81,6 +81,7 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
   readSlaveType = [];
   linkMappingReadConfig = [];
   navigationLink = [];
+  flowLink = [];
   navigationArray = [];
   slaveArray = [];
   getAllSlaveArray = [];
@@ -416,6 +417,31 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
       }
      }
     });
+
+        // Retrieve Flow Link by Graph ID
+        await this.restService.postData("getFlowLink", this.authService.getToken(), {
+          mxgraph_id: event.Id
+        }).toPromise().then(data => {
+          if (data["status"] == 200) {
+        
+              let flowLink = data["data"].rows;
+              
+              // Push flowLink into array
+              for (let i = 0; i < flowLink.length; i++) {
+                this.flowLink=[...this.flowLink,flowLink[i]];
+                if((this.flowLink[i].cell_id).includes("-")){
+                  var tempCellId = this.flowLink[i].cell_id;
+                  tempCellId = tempCellId.split("-");
+                  tempCellId = tempCellId[1];
+                  this.flowLink[i].split_cell_id = tempCellId;
+                }
+                else {
+                  var tempCellId = this.flowLink[i].cell_id;
+                  this.flowLink[i].split_cell_id = tempCellId;
+                }
+              }
+          }
+        });
     
     //Get GPTimerChannel
     // await this.getGPTimerChannels();
@@ -509,22 +535,78 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
                 let value = this.getAllSlaveArray[slave].Items.Item[k].Value;
                   if (this.config.CELL_VALUE_ON.indexOf(value) > -1) {
                     state.style = mxUtils.clone(state.style);
-                    state.style[mxConstants.STYLE_FILL_OPACITY] = 100;
-                    state.shape.apply(state);
-                    state.shape.redraw();
+                    state.shape.node.removeAttribute('visibility');
+                    state.shape.node.setAttribute('class','clockwiseSpin');
                   }
                   else if (this.config.CELL_VALUE_OFF.indexOf(value) > -1) {
                     state.style = mxUtils.clone(state.style);
-                    state.style[mxConstants.STYLE_FILL_OPACITY] = 0;
-                    state.shape.apply(state);
-                    state.shape.redraw(); 
+                    state.shape.node.removeAttribute('clockwiseSpin');         
                   }
               }
             }
           }
         }
-
-       
+      }
+      else if(cells[i] !== null && state.style.shape == "connector") {
+        for(let j = 0; j < this.flowLink.length; j++) {
+          if( this.flowLink[j].cell_id == cells[i].id ){
+            if(this.flowLink[j].flow_type == this.config.FLOW_1) {
+              if(this.flowLink[j].flow_colour == this.config.FLOW_RED) {
+                state.shape.node.getElementsByTagName('path')[0].removeAttribute('visibility');
+                state.shape.node.getElementsByTagName('path')[0].setAttribute('stroke-width', '6');
+                state.shape.node.getElementsByTagName('path')[0].setAttribute('stroke', this.config.FLOW_COLOUR_RED);
+                state.shape.node.getElementsByTagName('path')[1].setAttribute('class', this.config.FLOW_1);
+                state.shape.node.getElementsByTagName('path')[2].setAttribute('stroke', this.config.FLOW_COLOUR_RED);
+                state.shape.node.getElementsByTagName('path')[2].setAttribute('fill', this.config.FLOW_COLOUR_RED);
+              }
+              else if(this.flowLink[j].flow_colour == this.config.FLOW_BLUE) {
+                state.shape.node.getElementsByTagName('path')[0].removeAttribute('visibility');
+                state.shape.node.getElementsByTagName('path')[0].setAttribute('stroke-width', '6');
+                state.shape.node.getElementsByTagName('path')[0].setAttribute('stroke', this.config.FLOW_COLOUR_BLUE);
+                state.shape.node.getElementsByTagName('path')[1].setAttribute('class', this.config.FLOW_1);
+                state.shape.node.getElementsByTagName('path')[2].setAttribute('stroke', this.config.FLOW_COLOUR_BLUE);
+                state.shape.node.getElementsByTagName('path')[2].setAttribute('fill', this.config.FLOW_COLOUR_BLUE);
+              }
+              else if(this.flowLink[j].flow_colour == this.config.FLOW_GREY) {
+                state.shape.node.getElementsByTagName('path')[0].removeAttribute('visibility');
+                state.shape.node.getElementsByTagName('path')[0].setAttribute('stroke-width', '6');
+                state.shape.node.getElementsByTagName('path')[0].setAttribute('stroke', this.config.FLOW_COLOUR_GREY);
+                state.shape.node.getElementsByTagName('path')[1].setAttribute('class', this.config.FLOW_1);
+                state.shape.node.getElementsByTagName('path')[2].setAttribute('stroke', this.config.FLOW_COLOUR_GREY);
+                state.shape.node.getElementsByTagName('path')[2].setAttribute('fill', this.config.FLOW_COLOUR_GREY);
+              }
+            }
+            else if(this.flowLink[j].flow_type == this.config.FLOW_2) {
+              if(this.flowLink[j].flow_colour == this.config.FLOW_RED) {
+                state.shape.node.getElementsByTagName('path')[0].removeAttribute('visibility');
+                state.shape.node.getElementsByTagName('path')[0].setAttribute('stroke-width', '6');
+                state.shape.node.getElementsByTagName('path')[0].setAttribute('stroke', this.config.FLOW_COLOUR_RED);
+                state.shape.node.getElementsByTagName('path')[1].setAttribute('class', this.config.FLOW_2);
+                state.shape.node.getElementsByTagName('path')[2].setAttribute('stroke', this.config.FLOW_COLOUR_RED);
+                state.shape.node.getElementsByTagName('path')[2].setAttribute('fill', this.config.FLOW_COLOUR_RED);
+              }
+              else if(this.flowLink[j].flow_colour == this.config.FLOW_BLUE) {
+                state.shape.node.getElementsByTagName('path')[0].removeAttribute('visibility');
+                state.shape.node.getElementsByTagName('path')[0].setAttribute('stroke-width', '6');
+                state.shape.node.getElementsByTagName('path')[0].setAttribute('stroke', this.config.FLOW_COLOUR_BLUE);
+                state.shape.node.getElementsByTagName('path')[1].setAttribute('class', this.config.FLOW_2);
+                state.shape.node.getElementsByTagName('path')[2].setAttribute('stroke', this.config.FLOW_COLOUR_BLUE);
+                state.shape.node.getElementsByTagName('path')[2].setAttribute('fill', this.config.FLOW_COLOUR_BLUE);
+              }
+              else if(this.flowLink[j].flow_colour == this.config.FLOW_GREY) {
+                state.shape.node.getElementsByTagName('path')[0].removeAttribute('visibility');
+                state.shape.node.getElementsByTagName('path')[0].setAttribute('stroke-width', '6');
+                state.shape.node.getElementsByTagName('path')[0].setAttribute('stroke', this.config.FLOW_COLOUR_GREY);
+                state.shape.node.getElementsByTagName('path')[1].setAttribute('class', this.config.FLOW_2);
+                state.shape.node.getElementsByTagName('path')[2].setAttribute('stroke', this.config.FLOW_COLOUR_GREY);
+                state.shape.node.getElementsByTagName('path')[2].setAttribute('fill', this.config.FLOW_COLOUR_GREY);
+              }
+            }
+          }
+          else {
+            //Skip
+          }
+        }
       }
       else {
         // Skip
@@ -655,7 +737,7 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
         let cellStyle = evt.properties.cell.style;
        
         for (let i = 0; i < linkMap.length; i++) {
-          if (linkMap[i].slave_cell_id == cellId && linkMap[i].slave_type == "Parameter" && !cellStyle.includes("image=data:image/gif")) {
+          if (linkMap[i].slave_cell_id == cellId && linkMap[i].slave_type == "Parameter" && !cellStyle.includes("image=data:image")) {
             let row = {
               slave_name: linkMap[i].slave_name,
               slave_type: linkMap[i].slave_type,
@@ -844,6 +926,7 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
         }
          // Re-add the cells with new value
          this.refreshCells(cells);
+
       });
   }
 
@@ -877,7 +960,7 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
                       }
                       else if (cells[k].id == this.linkMappingReadConfig[i].slave_cell_id){
                         let cellStyle = cells[k].style;
-                        if(cellStyle.includes("image=data:image/gif")) {
+                        if(cellStyle.includes("image=data:image/gif") || cellStyle.includes("image=data:image")) {
                           // Skip
                         }
                         else{
@@ -922,7 +1005,7 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
                     }
                     else if (cells[k].id == this.linkMappingReadConfig[i].slave_cell_id){
                       let cellStyle = cells[k].style;
-                      if(cellStyle.includes("image=data:image/gif")) {
+                      if(cellStyle.includes("image=data:image/gif") || cellStyle.includes("image=data:image")) {
                         // Skip
                       }
                       else {
@@ -1237,25 +1320,20 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
     this.unsavedStatus = true;
   }
 
-  openFullscreen() {
+  async openFullscreen() {
     // Use this.divRef.nativeElement to request fullscreen
     const elem = this.divRef.nativeElement;
   
     if (elem.requestFullscreen) {
-      elem.requestFullscreen();
+      await elem.requestFullscreen();
     } else if (elem.msRequestFullscreen) {
-      elem.msRequestFullscreen();
+      await elem.msRequestFullscreen();
     } else if (elem.mozRequestFullScreen) {
-      elem.mozRequestFullScreen();
+      await elem.mozRequestFullScreen();
     } else if (elem.webkitRequestFullscreen) {
-      elem.webkitRequestFullscreen();
+      await elem.webkitRequestFullscreen();
     }
-    
-    setTimeout(()=>{
       this.centerGraph();
-    },100)
-    this._cdRef.detectChanges();
-    
   }
 
   fullScreenEvent() {

@@ -1,4 +1,4 @@
-import { HostListener,Component, OnDestroy, OnInit, ElementRef, ViewChild, ChangeDetectorRef, NgZone } from '@angular/core';
+import { HostListener,Component, OnDestroy, OnInit, ElementRef, ViewChild, ChangeDetectorRef, ChangeDetectionStrategy, NgZone } from '@angular/core';
 import {Router, NavigationEnd,ActivatedRoute} from '@angular/router';
 import { AppService } from '../app.service';
 import { RestService } from '../rest.service';
@@ -22,6 +22,7 @@ import { DeleteGraphModalComponent } from './delete-graph-modal/delete-graph-mod
 import { VerifyDeleteGraphModalComponent } from './verify-delete-graph-modal/verify-delete-graph-modal.component';
 import { SetGptimerModalComponent } from './set-gptimer-modal/set-gptimer-modal.component';
 import { CdkDragDrop, moveItemInArray } from "@angular/cdk/drag-drop";
+import { share } from 'rxjs/operators';
 
 
 
@@ -41,7 +42,8 @@ declare var mxGraphHandler: any;
 @Component({
   selector: 'app-visualization',
   templateUrl: './visualization.component.html',
-  styleUrls: ['./visualization.component.scss']
+  styleUrls: ['./visualization.component.scss'],
+  // changeDetection: ChangeDetectionStrategy.OnPush
 })
 
 export class VisualizationComponent implements OnInit, OnDestroy {
@@ -84,6 +86,7 @@ export class VisualizationComponent implements OnInit, OnDestroy {
   readSlaveType = [];
   linkMappingReadConfig = [];
   navigationLink = [];
+  flowLink = [];
   navigationArray = [];
   slaveArray = [];
   getAllSlaveArray = [];
@@ -91,6 +94,7 @@ export class VisualizationComponent implements OnInit, OnDestroy {
   mxGraphFloors = [];
   tempLinkMap = {};
   tempNavLinkMap = {};
+  tempFlowLinkMap = {};
 
   readTableData = [];
   writeTableData = [];
@@ -118,10 +122,12 @@ export class VisualizationComponent implements OnInit, OnDestroy {
   unsavedStatus: boolean;
   isAddError: boolean;
   isAddNavError: boolean;
+  isAddFlowError: boolean;
   activeTab: any;
   selectedTab: any;
   isHoverTooltip: boolean;
   isEditNav: boolean;
+  isEditFlow: boolean;
   isRowMoved: boolean;
 
   readConfigClass: any;
@@ -153,6 +159,7 @@ export class VisualizationComponent implements OnInit, OnDestroy {
   });
   tempHoverField: any;
   tempNavCellId: any;
+  tempFlowCellId: any;
   
  
 
@@ -182,6 +189,7 @@ export class VisualizationComponent implements OnInit, OnDestroy {
   private fieldArray: Array<any> = [];
   private newAttribute: any = {};
   private newNavAttribute: any = {};
+  private newFlowAttribute: any = {};
   field: any;
   
   // Re-size graph when detect window size change
@@ -210,9 +218,11 @@ export class VisualizationComponent implements OnInit, OnDestroy {
     this.isMouseHover = false;
     this.isAddError = false;
     this.isAddNavError = false;
+    this.isAddFlowError = false;
     this.isHoverTooltip = false;
     this.currentState = "";
     this.isEditNav = false;
+    this.isEditFlow = false;
     this.rowIndex = -1;
     this.isRowMoved = false;
     
@@ -282,7 +292,7 @@ export class VisualizationComponent implements OnInit, OnDestroy {
 
   ngAfterViewInit() {
     this.tabs.select("tab1");
-    this.activeTab = "tab2";
+    this.activeTab = "tab1";
     this._cdRef.detectChanges();
   }
 
@@ -439,6 +449,63 @@ export class VisualizationComponent implements OnInit, OnDestroy {
     
   }
 
+  addFlowFieldValue() {
+    console.log(this.newFlowAttribute)
+    console.log("flow_type",this.newFlowAttribute.flow_type)
+    console.log("flow_colour",this.newFlowAttribute.flow_colour)
+    // If attribute is empty, no new rows will be added
+    if (Object.keys(this.newFlowAttribute).length === 0){
+      console.log("Attribute is empty");
+    } else {
+        var attributeArray;;
+        if(Object.keys(this.newFlowAttribute).length > 1) {
+          if((this.newFlowAttribute.cell_id).includes("-")){
+            var tempCellId = this.newFlowAttribute.cell_id;
+            tempCellId = tempCellId.split("-");
+            tempCellId = tempCellId[1];
+          }
+          else {
+            tempCellId = this.newFlowAttribute.cell_id;
+          }
+          
+          attributeArray = {
+            mxgraph_id: this.mxgraphData["Id"],
+            cell_id: this.newFlowAttribute.cell_id,
+            split_cell_id: tempCellId,
+            flow_type: this.newFlowAttribute.flow_type,
+            flow_colour: this.newFlowAttribute.flow_colour,
+          }
+          console.log(attributeArray)
+        }
+        else {
+          attributeArray = {
+            mxgraph_id: this.mxgraphData["Id"],
+            cell_id: "",
+            split_cell_id: "",
+            flow_type: "",
+            flow_colour: ""
+          }
+        }  
+
+        this.newFlowAttribute = {};
+        // Make sure the fields are not empty when adding new row
+        if (attributeArray.mxgraph_id && attributeArray.cell_id && attributeArray.flow_type && attributeArray.flow_colour) {
+          this.flowLink.push(attributeArray)
+          this.graphClickable = false;
+          this.removeClickListener();
+          // Show toastr for unsaved changes.
+          this.unsavedToast();
+          this.isAddFlowError = false;
+          this.animateState(this.cells);
+        }
+        else {
+          this.isAddFlowError = true;
+        }
+        this.isEditFlow = false;
+    }
+    
+  }
+
   deleteFieldValue(event, index) {
     console.log("INDEX", index)
     let cell_id;
@@ -471,6 +538,7 @@ export class VisualizationComponent implements OnInit, OnDestroy {
 
         this.unsavedToast();  
         this.graph.refresh();
+        this.animateState(this.cells);
         this.unhighlightRow();
      
       },10)
@@ -487,6 +555,20 @@ export class VisualizationComponent implements OnInit, OnDestroy {
       }
     }
    this.graph.refresh();
+   this.animateState(this.cells);
+   this.unhighlightRow();
+  }
+
+  deleteFlowFieldValue(event) {
+    for(let i = 0; i < this.flowLink.length; ++i){
+      if (this.flowLink[i].cell_id === event.target.id) {
+        // Splice array in flow link
+        this.flowLink.splice(i,1);
+        this.unsavedToast();
+      }
+    }
+   this.graph.refresh();
+   this.animateState(this.cells);
    this.unhighlightRow();
   }
  
@@ -562,8 +644,8 @@ export class VisualizationComponent implements OnInit, OnDestroy {
    }
   }
    
-  /* Function: Edits row */
-   async onEditNav(i: number, event, e) {
+  /* Function: Edits Nav Link row */
+  async onEditNav(i: number, event, e) {
     let tableIndex = e.target.id
     if(tableIndex === undefined || tableIndex === null || tableIndex === ""){
       tableIndex = this.rowIndex;
@@ -613,6 +695,58 @@ export class VisualizationComponent implements OnInit, OnDestroy {
    }
   }
 
+  /* Function: Edits Flow Link row */
+  async onEditFlow(i: number, event, e) {
+    let tableIndex = e.target.id
+    if(tableIndex === undefined || tableIndex === null || tableIndex === ""){
+      tableIndex = this.rowIndex;
+    }
+
+    if(tableIndex !== null || tableIndex !== undefined || tableIndex !== "") {
+    this._cdRef.detectChanges();
+    setTimeout(()=>{
+      this.tempFlowCellId = "";
+      this.isEditFlow = true;
+      this.removeClickListener();
+      this.graphClickable = true;
+      // this.addClickListener();
+      
+      if((event.cell_id).includes("-")){
+        var tempCellId = (event.cell_id).split("-");
+        tempCellId = tempCellId[1];
+      }
+      else {
+        var tempCellId = event.cell_id;
+      }
+
+      this.tempFlowLinkMap = {
+        Id: event.Id,
+        mxgraph_id: event.mxgraph_id,
+        cell_id: event.cell_id,
+        split_cell_id: tempCellId,
+        flow_type: event.flow_type,
+        flow_colour: event.flow_colour
+      }
+
+        for(let i = 0; i < this.flowLink.length; i++){
+          if(i==tableIndex){
+            this.tempFlowCellId = tableIndex;
+              // Clear the fields when on edit
+              this.flowLink[i].flow_type = "";
+              this.flowLink[i].flow_colour = "";
+              this._cdRef.detectChanges();
+          }
+        }
+    
+        this.readOnly = i
+        this.hideAddRow = true;
+        this._cdRef.detectChanges();
+        this.addClickListener();
+      
+    }, 10);
+    }
+  }
+
   /*  Function: Retrieve stored mxGraph data from MySQL database (id, mxgraph_name, mxgraph_code), populate 'this.selected' dropdown list */
   getMxGraphList() {
     this.restService.postData("getMxGraphList", this.authService.getToken())
@@ -650,15 +784,17 @@ export class VisualizationComponent implements OnInit, OnDestroy {
     this.unsavedStatus = false;
     this.isAddError = false;
     this.isAddNavError = false;
+    this.isAddFlowError = false;
     this.isHoverTooltip = false;
     this.isEditNav = false;
+    this.isEditFlow = false;
     this.isRowMoved = false;
     this.currentState = "";
     this.rowIndex = -1;
     this.gpTimerChannelsDetail = [];
     this.gpTimerChannels = [];
     this.toastr.clear();
-    this.activeTab = "tab2";
+    this.activeTab = "tab1";
     this.tabs.select("tab1");
     this.unhighlightRow();
     this._cdRef.detectChanges();
@@ -666,11 +802,13 @@ export class VisualizationComponent implements OnInit, OnDestroy {
     localStorage.removeItem('cell_value');
     this.newAttribute = {};
     this.newNavAttribute = {};
+    this.newFlowAttribute = {};
     // Clear fieldArray
     this.fieldArray = [];
     // Clear linkMappingReadConfig Array
     this.linkMappingReadConfig = [];
     this.navigationLink = [];
+    this.flowLink = [];
 
     // Remove click events
     this.removeClickListener();
@@ -733,6 +871,31 @@ export class VisualizationComponent implements OnInit, OnDestroy {
               }); 
       }
      }
+    });
+
+    // Retrieve Flow Link by Graph ID
+    await this.restService.postData("getFlowLink", this.authService.getToken(), {
+      mxgraph_id: event.Id
+    }).toPromise().then(data => {
+      if (data["status"] == 200) {
+    
+          let flowLink = data["data"].rows;
+          
+          // Push flowLink into array
+          for (let i = 0; i < flowLink.length; i++) {
+            this.flowLink=[...this.flowLink,flowLink[i]];
+            if((this.flowLink[i].cell_id).includes("-")){
+              var tempCellId = this.flowLink[i].cell_id;
+              tempCellId = tempCellId.split("-");
+              tempCellId = tempCellId[1];
+              this.flowLink[i].split_cell_id = tempCellId;
+            }
+            else {
+              var tempCellId = this.flowLink[i].cell_id;
+              this.flowLink[i].split_cell_id = tempCellId;
+            }
+          }
+      }
     });
     
     //Get GPTimerChannel
@@ -827,22 +990,78 @@ export class VisualizationComponent implements OnInit, OnDestroy {
                 let value = this.getAllSlaveArray[slave].Items.Item[k].Value;
                   if (this.config.CELL_VALUE_ON.indexOf(value) > -1) {
                     state.style = mxUtils.clone(state.style);
-                    state.style[mxConstants.STYLE_FILL_OPACITY] = 100;
-                    state.shape.apply(state);
-                    state.shape.redraw();
+                    state.shape.node.removeAttribute('visibility');
+                    state.shape.node.setAttribute('class','clockwiseSpin');
                   }
                   else if (this.config.CELL_VALUE_OFF.indexOf(value) > -1) {
                     state.style = mxUtils.clone(state.style);
-                    state.style[mxConstants.STYLE_FILL_OPACITY] = 0;
-                    state.shape.apply(state);
-                    state.shape.redraw(); 
+                    state.shape.node.removeAttribute('clockwiseSpin');         
                   }
               }
             }
           }
         }
-
-       
+      }
+      else if(cells[i] !== null && state.style.shape == "connector") {
+        for(let j = 0; j < this.flowLink.length; j++) {
+          if( this.flowLink[j].cell_id == cells[i].id ){
+            if(this.flowLink[j].flow_type == this.config.FLOW_1) {
+              if(this.flowLink[j].flow_colour == this.config.FLOW_RED) {
+                state.shape.node.getElementsByTagName('path')[0].removeAttribute('visibility');
+                state.shape.node.getElementsByTagName('path')[0].setAttribute('stroke-width', '6');
+                state.shape.node.getElementsByTagName('path')[0].setAttribute('stroke', this.config.FLOW_COLOUR_RED);
+                state.shape.node.getElementsByTagName('path')[1].setAttribute('class', this.config.FLOW_1);
+                state.shape.node.getElementsByTagName('path')[2].setAttribute('stroke', this.config.FLOW_COLOUR_RED);
+                state.shape.node.getElementsByTagName('path')[2].setAttribute('fill', this.config.FLOW_COLOUR_RED);
+              }
+              else if(this.flowLink[j].flow_colour == this.config.FLOW_BLUE) {
+                state.shape.node.getElementsByTagName('path')[0].removeAttribute('visibility');
+                state.shape.node.getElementsByTagName('path')[0].setAttribute('stroke-width', '6');
+                state.shape.node.getElementsByTagName('path')[0].setAttribute('stroke', this.config.FLOW_COLOUR_BLUE);
+                state.shape.node.getElementsByTagName('path')[1].setAttribute('class', this.config.FLOW_1);
+                state.shape.node.getElementsByTagName('path')[2].setAttribute('stroke', this.config.FLOW_COLOUR_BLUE);
+                state.shape.node.getElementsByTagName('path')[2].setAttribute('fill', this.config.FLOW_COLOUR_BLUE);
+              }
+              else if(this.flowLink[j].flow_colour == this.config.FLOW_GREY) {
+                state.shape.node.getElementsByTagName('path')[0].removeAttribute('visibility');
+                state.shape.node.getElementsByTagName('path')[0].setAttribute('stroke-width', '6');
+                state.shape.node.getElementsByTagName('path')[0].setAttribute('stroke', this.config.FLOW_COLOUR_GREY);
+                state.shape.node.getElementsByTagName('path')[1].setAttribute('class', this.config.FLOW_1);
+                state.shape.node.getElementsByTagName('path')[2].setAttribute('stroke', this.config.FLOW_COLOUR_GREY);
+                state.shape.node.getElementsByTagName('path')[2].setAttribute('fill', this.config.FLOW_COLOUR_GREY);
+              }
+            }
+            else if(this.flowLink[j].flow_type == this.config.FLOW_2) {
+              if(this.flowLink[j].flow_colour == this.config.FLOW_RED) {
+                state.shape.node.getElementsByTagName('path')[0].removeAttribute('visibility');
+                state.shape.node.getElementsByTagName('path')[0].setAttribute('stroke-width', '6');
+                state.shape.node.getElementsByTagName('path')[0].setAttribute('stroke', this.config.FLOW_COLOUR_RED);
+                state.shape.node.getElementsByTagName('path')[1].setAttribute('class', this.config.FLOW_2);
+                state.shape.node.getElementsByTagName('path')[2].setAttribute('stroke', this.config.FLOW_COLOUR_RED);
+                state.shape.node.getElementsByTagName('path')[2].setAttribute('fill', this.config.FLOW_COLOUR_RED);
+              }
+              else if(this.flowLink[j].flow_colour == this.config.FLOW_BLUE) {
+                state.shape.node.getElementsByTagName('path')[0].removeAttribute('visibility');
+                state.shape.node.getElementsByTagName('path')[0].setAttribute('stroke-width', '6');
+                state.shape.node.getElementsByTagName('path')[0].setAttribute('stroke', this.config.FLOW_COLOUR_BLUE);
+                state.shape.node.getElementsByTagName('path')[1].setAttribute('class', this.config.FLOW_2);
+                state.shape.node.getElementsByTagName('path')[2].setAttribute('stroke', this.config.FLOW_COLOUR_BLUE);
+                state.shape.node.getElementsByTagName('path')[2].setAttribute('fill', this.config.FLOW_COLOUR_BLUE);
+              }
+              else if(this.flowLink[j].flow_colour == this.config.FLOW_GREY) {
+                state.shape.node.getElementsByTagName('path')[0].removeAttribute('visibility');
+                state.shape.node.getElementsByTagName('path')[0].setAttribute('stroke-width', '6');
+                state.shape.node.getElementsByTagName('path')[0].setAttribute('stroke', this.config.FLOW_COLOUR_GREY);
+                state.shape.node.getElementsByTagName('path')[1].setAttribute('class', this.config.FLOW_2);
+                state.shape.node.getElementsByTagName('path')[2].setAttribute('stroke', this.config.FLOW_COLOUR_GREY);
+                state.shape.node.getElementsByTagName('path')[2].setAttribute('fill', this.config.FLOW_COLOUR_GREY);
+              }
+            }
+          }
+          else {
+            //Skip
+          }
+        }
       }
       else {
         // Skip
@@ -880,8 +1099,10 @@ export class VisualizationComponent implements OnInit, OnDestroy {
     let linkMap = this.linkMappingReadConfig;
     let tempFieldArray = this.fieldArray;
     let tempNavArray = this.navigationLink;
+    let tempFlowArray = this.flowLink;
     let storedCellId = this.storedCellId;
     let storedNavCellId = this.tempNavCellId;
+    let storedFlowCellId = this.tempFlowCellId;
          
     
     this.graph.addMouseListener(
@@ -928,6 +1149,11 @@ export class VisualizationComponent implements OnInit, OnDestroy {
                         this.dragEnter(me.getEvent(), this.currentState, "Link", tmp, null, null);
                       }
                     }
+                    for(let i = 0; i < tempFlowArray.length; i++) {
+                      if (tempFlowArray[i].cell_id == tmp.cell.id) {
+                        this.dragEnter(me.getEvent(), this.currentState, "Flow", tmp, null, null);
+                      }
+                    }
                     for (let i = 0; i < linkMap.length; i++) {
                       if (linkMap[i].slave_cell_id == tmp.cell.id && linkMap[i].slave_type == "Parameter") {
                         this.dragEnter(me.getEvent(), this.currentState, "Parameter", tmp, linkMap[i].slave, linkMap[i].slave_name);
@@ -960,6 +1186,10 @@ export class VisualizationComponent implements OnInit, OnDestroy {
               thisContext.currentState = this.currentState
               this.currentState.setCursor('pointer');
             }
+            else if (parameter == "Flow") {
+              thisContext.currentState = this.currentState
+              this.currentState.setCursor('mouse');
+            }
             else if (cellStyle == "image") {
               thisContext.currentState = this.currentState
               this.currentState.setCursor('mouse');
@@ -989,9 +1219,8 @@ export class VisualizationComponent implements OnInit, OnDestroy {
     if (this.graphClickable) {
     this.graph.addListener(mxEvent.IS_TOUCH, function (sender, evt) {
       let valued = null
-  
       if (evt.properties.cell) {
-        if(thisContext.activeTab == "tab2") {
+        if(thisContext.activeTab == "tab1") {
           // Get event 'cell' property, 'id' subproperty (cell ID)
           let cellId = evt.getProperty("cell").id;    
           valued = localStorage.getItem('cell_value');
@@ -1004,7 +1233,7 @@ export class VisualizationComponent implements OnInit, OnDestroy {
             let cellStyle = cell.style;
             // Set value in cell when clicked
             if (valued) {
-              if(cellStyle.includes("image=data:image/gif")) {
+              if(cellStyle.includes("image=data:image/gif") || cellStyle.includes("image=data:image")) {
                 // Skip
               }
               else {
@@ -1023,7 +1252,7 @@ export class VisualizationComponent implements OnInit, OnDestroy {
             model.endUpdate();
           }
         }
-        else {
+        else if(thisContext.activeTab == "tab2"){
           let cellId = evt.getProperty("cell").id;
           thisContext.newNavAttribute.cell_id = cellId;
           if(cellId.includes("-")){
@@ -1043,6 +1272,29 @@ export class VisualizationComponent implements OnInit, OnDestroy {
               }  
           }
           
+        }
+        else {
+          if(evt.getProperty("cell").isEdge() == true){
+            let cellId = evt.getProperty("cell").id;
+            thisContext.newFlowAttribute.cell_id = cellId;
+            console.log(thisContext.newFlowAttribute)
+            if(cellId.includes("-")){
+              var splitCellId = cellId.split("-");
+              splitCellId = splitCellId[1];
+            }
+            else {
+              var splitCellId = cellId;   
+            }
+            thisContext.newFlowAttribute.split_cell_id = splitCellId;  
+            if(thisContext.isEditFlow){
+              for (let i = 0; i < tempFlowArray.length; i++) {
+                if (tempFlowArray[i] == tempFlowArray[storedFlowCellId]) {
+                    tempFlowArray[i].cell_id = cellId;
+                    tempFlowArray[i].split_cell_id = splitCellId;
+                }
+              }  
+            }
+          }
         }
      }
     });
@@ -1070,7 +1322,7 @@ export class VisualizationComponent implements OnInit, OnDestroy {
 
         // }
         for (let i = 0; i < linkMap.length; i++) {
-          if (linkMap[i].slave_cell_id == cellId && linkMap[i].slave_type == "Parameter" && !cellStyle.includes("image=data:image/gif")) {
+          if (linkMap[i].slave_cell_id == cellId && linkMap[i].slave_type == "Parameter" && !cellStyle.includes("image=data:image")) {
             let row = {
               slave_name: linkMap[i].slave_name,
               slave_type: linkMap[i].slave_type,
@@ -1094,6 +1346,7 @@ export class VisualizationComponent implements OnInit, OnDestroy {
                           timeOut: 2000,
                           positionClass: 'toast-bottom-right'
                         });
+                       
                     }
                     else {
                       refreshPage;
@@ -1220,24 +1473,24 @@ export class VisualizationComponent implements OnInit, OnDestroy {
       for(let i = 0; i < filtered.length; i++) {
         if (this.getAllSlaveArray[filtered[i].slave] === "" || !this.getAllSlaveArray[filtered[i].slave]) {
           // Skip if empty
+          continue;
         }
         else {
-          
-              this.restService.postData("getSlave", this.authService.getToken(), { type: filtered[i].slave }).toPromise().then(data => {
-                  // Success
-                  if (data["status"] == 200 && data["data"]["rows"] !== false) {    
-                      // Re-assign the new data values to controller object
-                      this.getAllSlaveArray[filtered[i].slave] = data["data"]["rows"];
-                  }
-                  else {
-                    console.log("Can't get Slave data.");
-                  }
-                });
-          }
+          this.restService.postData("getSlave", this.authService.getToken(), { type: filtered[i].slave }).subscribe(data => {
+              // Success
+              if (data["status"] == 200 && data["data"]["rows"] !== false) {    
+                // Re-assign the new data values to controller object
+                this.getAllSlaveArray[filtered[i].slave] = data["data"]["rows"];
+              }
+              else {
+                console.log("Can't get Slave data.");
+              }
+          });
         }
-         // Re-add the cells with new value
+      }
+        // Re-add the cells with new value
         this.refreshCells(cells);
-      });
+    });
 
   }
 
@@ -1271,7 +1524,7 @@ export class VisualizationComponent implements OnInit, OnDestroy {
                       }
                       else if (cells[k].id == this.linkMappingReadConfig[i].slave_cell_id){
                         let cellStyle = cells[k].style;
-                        if(cellStyle.includes("image=data:image/gif")) {
+                        if(cellStyle.includes("image=data:image/gif") || cellStyle.includes("image=data:image")) {
                           // Skip
                         }
                         else {
@@ -1315,7 +1568,7 @@ export class VisualizationComponent implements OnInit, OnDestroy {
                     else if (cells[k].id == this.linkMappingReadConfig[i].slave_cell_id){
                       // Sets the cell value using the mapped ID
                       let cellStyle = cells[k].style;
-                      if(cellStyle.includes("image=data:image/gif")) {
+                      if(cellStyle.includes("image=data:image/gif") || cellStyle.includes("image=data:image")) {
                         // Skip
                       }
                       else {
@@ -1472,6 +1725,22 @@ export class VisualizationComponent implements OnInit, OnDestroy {
     }
   }
 
+  readTargetFlowChange(event, isAdd) {
+    this.newFlowAttribute.flow_type = event;
+    this.isAddFlowError = false;
+  
+    if(isAdd == true) {
+      this.graphClickable = true;
+      this.addClickListener();
+      console.log("added click")
+    }
+  }
+
+  readTargetFlowColourChange(event) {
+    this.newFlowAttribute.flow_colour = event;
+    this.isAddFlowError = false;
+  }
+
   writeChanged(event) {
 
     // this.writeConfig = event;
@@ -1545,6 +1814,7 @@ export class VisualizationComponent implements OnInit, OnDestroy {
 
   /* Function: Saves the array of linked cells into DB */
   async linkMapping() {
+    this.subscription.unsubscribe();
     var mxgraph_id = this.mxgraphData["Id"];
     // Destroy all the rows in DB where graph id = mxgraph_id for Navigation Link
     await this.restService.postData("deleteNavLink", this.authService.getToken(), {
@@ -1563,45 +1833,72 @@ export class VisualizationComponent implements OnInit, OnDestroy {
             })
               .toPromise().then(async data => {
                 if (data["status"] == 200) {
-                  this.graph.refresh();
+                  console.log("Success")
                 }
               });  
           }
-           // Destroy all the rows in DB where graph id = mxgraph_id for ReadLinkMapping
-          await this.restService.postData("deleteReadDetails", this.authService.getToken(), {
-            mxgraph_id: mxgraph_id
-          })
-            .toPromise().then(async data => {
-              // Successful
-              if (data["status"] == 200) {
-                for (let i = 0; i < this.linkMappingReadConfig.length; i++) {
-                  let slave = this.linkMappingReadConfig[i].slave;
-                  let slave_name = this.linkMappingReadConfig[i].slave_name;
-                  let slave_type = this.linkMappingReadConfig[i].slave_type;
-                  let slave_cell_id = this.linkMappingReadConfig[i].slave_cell_id;
-                  // Add all the new rows in the DB
-                  await this.restService.postData("settingReadDetails", this.authService.getToken(), {
-                    mxgraph_id: mxgraph_id, slave: slave, slave_name: slave_name, slave_type: slave_type, slave_cell_id: slave_cell_id
-                  })
-                    .toPromise().then(data => {
-                      if (data["status"] == 200) {
-                        this.graph.refresh();
-                      }
-                    })
-                }
-                let graphData = {
-                  Id: this.mxgraphData["Id"],
-                  mxgraph_name: this.mxgraphData["mxgraph_name"],
-                  mxgraph_code: this.mxgraphData["mxgraph_code"]
-                }
-                this.onSelectGraph(graphData);
-                this.router.navigate([this.router.url]);
-                this.toastr.clear();
-                this.successToast("Changes has been successfuly saved.")
-              }
-            })
         }
       });
+
+      // Destroy all the rows in DB where graph id = mxgraph_id for ReadLinkMapping
+      await this.restService.postData("deleteReadDetails", this.authService.getToken(), {
+        mxgraph_id: mxgraph_id
+      })
+        .toPromise().then(async data => {
+          // Successful
+          if (data["status"] == 200) {
+            for (let i = 0; i < this.linkMappingReadConfig.length; i++) {
+              let slave = this.linkMappingReadConfig[i].slave;
+              let slave_name = this.linkMappingReadConfig[i].slave_name;
+              let slave_type = this.linkMappingReadConfig[i].slave_type;
+              let slave_cell_id = this.linkMappingReadConfig[i].slave_cell_id;
+              // Add all the new rows in the DB
+              await this.restService.postData("settingReadDetails", this.authService.getToken(), {
+                mxgraph_id: mxgraph_id, slave: slave, slave_name: slave_name, slave_type: slave_type, slave_cell_id: slave_cell_id
+              })
+                .toPromise().then(data => {
+                  if (data["status"] == 200) {
+                    console.log("Success")
+                  }
+                })
+            }
+          }
+        });
+
+        // Destroy all the rows in DB where graph id = mxgraph_id for Flow Link
+        await this.restService.postData("deleteFlowLink", this.authService.getToken(), {
+          mxgraph_id: mxgraph_id
+        })
+          .toPromise().then(async data => {
+            // Successful
+            if (data["status"] == 200) {
+              for (let i = 0; i < this.flowLink.length; i++) {
+                let mxgraph_id = this.flowLink[i].mxgraph_id;
+                let cell_id = this.flowLink[i].cell_id;
+                let flow_type = this.flowLink[i].flow_type;
+                let flow_colour = this.flowLink[i].flow_colour;
+                // Add all the new rows in the DB
+                await this.restService.postData("addFlowLink", this.authService.getToken(), {
+                  mxgraph_id: mxgraph_id, cell_id: cell_id, flow_type: flow_type, flow_colour: flow_colour
+                })
+                  .toPromise().then(async data => {
+                    if (data["status"] == 200) {
+                      console.log("Success")
+                    }
+                  });  
+              }
+            }
+          });
+
+            let graphData = {
+              Id: this.mxgraphData["Id"],
+              mxgraph_name: this.mxgraphData["mxgraph_name"],
+              mxgraph_code: this.mxgraphData["mxgraph_code"]
+            }
+            this.onSelectGraph(graphData);
+            this.router.navigate([this.router.url]);
+            this.toastr.clear();
+            this.successToast("Changes has been successfuly saved.")
   }
 
   // Function to revert changes in read config
@@ -1803,7 +2100,7 @@ export class VisualizationComponent implements OnInit, OnDestroy {
     var graph = this.graph;
 
     // Highlights Nav Link Cells
-    if (this.activeTab=="tab1") {
+    if (this.activeTab=="tab2") {
       for (let i = 0; i < this.cells.length; i++) {
         if (!this.cells[i]) {
           // Skip
@@ -1815,7 +2112,7 @@ export class VisualizationComponent implements OnInit, OnDestroy {
       }
     }
     // Highlights Data Link Cells
-    else{
+    else if(this.activeTab=="tab1"){
       for (let i = 0; i < this.cells.length; i++) {
         if (!this.cells[i]) {
           // Skip
@@ -1825,6 +2122,18 @@ export class VisualizationComponent implements OnInit, OnDestroy {
           this.dragEnter(graph.view.getState(this.cells[i]));
         }
       }
+    }
+    // Highlights Flow Link Cells
+    else {
+        for (let i = 0; i < this.cells.length; i++) {
+          if (!this.cells[i]) {
+            // Skip
+          }
+          else if (field.cell_id == this.cells[i].id) {
+            this.tempState = this.cells[i];
+            this.dragEnter(graph.view.getState(this.cells[i]));
+          }
+        }
     }
   }
 
@@ -2009,6 +2318,62 @@ export class VisualizationComponent implements OnInit, OnDestroy {
       // this.router.navigate([this.router.url])
   }
 
+  // Update row details after done edit Flow
+  async doneEditFlow(i: number, event, state, index) {
+
+    console.log(index)
+    if(index === undefined || index === null || index === "") {
+      index = this.rowIndex;
+    }
+      
+      if((event.cell_id).includes("-")){
+        var tempCellId = event.cell_id;
+        tempCellId = tempCellId.split("-");
+        tempCellId = tempCellId[1];
+      }
+      else {
+        var tempCellId = event.cell_id
+      }
+      let attributeArray = {
+        mxgraph_id: event.mxgraph_id,
+        cell_id: event.cell_id,
+        split_cell_id: tempCellId,
+        flow_type: event.flow_type,
+        flow_colour: event.flow_colour,
+      }
+      console.log("attributeArray",attributeArray)
+  
+      // If click on done editing
+      if (state=="done"){
+        if(attributeArray.mxgraph_id && attributeArray.cell_id && attributeArray.flow_type && attributeArray.flow_colour){
+          this.flowLink[index] = attributeArray;
+          // this.navigationArray[index] = this.navigationLink[index];
+          this.unsavedToast();
+        }
+        else {
+          // If any of the field is empty, revert to original value
+          this.flowLink[index] = this.tempFlowLinkMap;
+        }
+      }
+      // If click cancel edit, it should revert to original value
+      else {
+        this.flowLink[index] = this.tempFlowLinkMap;
+      }
+      
+      this.unhighlightRow();
+      this.readOnly = -1;
+      this.newFlowAttribute.cell_id = "";
+      this.newFlowAttribute.split_cell_id = "";
+      this.newFlowAttribute.flow_type = "";
+      this.newFlowAttribute.flow_colour = "";
+      this.hideAddRow = false;
+      this.graphClickable = false;
+      this.isEditFlow = false;
+      this.tempFlowCellId = "";
+      this.removeClickListener();
+      this._cdRef.detectChanges();
+  }
+
   /* Function: Expands colspan of card */
   expand() {
 
@@ -2075,8 +2440,13 @@ export class VisualizationComponent implements OnInit, OnDestroy {
   }
 
   fetchActiveTab(event) {
-    console.log(event)
-    this.activeTab = event.activeId;
+    this.removeClickListener();
+    this.graphClickable = false;
+    this.addClickListener();
+    this.activeTab = event.nextId;
+    this.newFlowAttribute = {};
+    this.newNavAttribute = {};
+    this.newAttribute = {};
   }
 
   /* Function: Revert back to original graph name when canceled edit */
@@ -2095,6 +2465,10 @@ export class VisualizationComponent implements OnInit, OnDestroy {
 
   dropNav(event: CdkDragDrop<string[]>) {
     moveItemInArray(this.navigationLink, event.previousIndex, event.currentIndex);
+  }
+
+  dropFlow(event: CdkDragDrop<string[]>) {
+    moveItemInArray(this.flowLink, event.previousIndex, event.currentIndex);
   }
 
   successToast(msg) {
@@ -2123,16 +2497,6 @@ export class VisualizationComponent implements OnInit, OnDestroy {
     });
     this.unsavedStatus = true;
   }
-
-  // linkToast() {
-  //   this.toastr.info("Click on a cell to link the setpoint.","", {
-       
-  //     tapToDismiss: false,
-  //     disableTimeOut: true,
-  //     positionClass: 'toast-top-right'
-  //   });
-    
-  // }
 
 
 }

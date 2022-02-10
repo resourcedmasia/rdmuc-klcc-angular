@@ -166,6 +166,81 @@
       </ng-template>  
     </ngb-tab>  
   <!-- END SECOND TAB -->
+      <!-- START THIRD TAB -->
+      <ngb-tab id="tab3">   
+        <ng-template ngbTabTitle>
+          <h4 style="margin-bottom: 0px !important">
+            <i class="ion ion-ios-trending-up"></i>&nbsp;&nbsp;<span class="text-muted font-weight-light">Flow Link</span>
+          </h4>
+        </ng-template>
+        <ng-template ngbTabContent>  
+          <div class="scroll">
+            <table class="table table-bordered table-hover ">
+              <thead>
+                <tr>
+                  <th >Index</th>
+                  <th style="min-width: 100px;">Flow Type</th>
+                  <th style="min-width: 100px;">Flow Colour</th>
+                  <th style="min-width: 170px;">Cell Id</th>
+                  <th colspan="2">Action</th>
+                </tr>
+              </thead>
+              <tbody cdkDropList (cdkDropListDropped)="dropFlow($event)">
+                <ngx-spinner [fullScreen]="false" type = "ball-beat" size="small" bdColor="rgba(39,39,45,0.8)">
+                  <br>
+                  <p style="color: white" > Loading... </p>
+                </ngx-spinner>
+                <tr cdkDrag cdkDragLockAxis="y" *ngFor="let flowNav of flowLink; let i = index; let j = index;">
+                  <td cdkDragHandle><label>{{i + 1}}</label></td>
+                  <td>
+                    <ng-select [disabled]="i!==readOnly" placeholder="Select Flow Type" appendTo="body" [clearable]="false" [items]="config.FLOW_TYPE" bindLabel="flow_type" [(ngModel)]="flowNav.flow_type"> 
+                    </ng-select>
+                  </td>
+                  <td>
+                    <ng-select [disabled]="i!==readOnly" placeholder="Select Flow Colour" appendTo="body" [clearable]="false" [items]="config.FLOW_COLOUR" bindLabel="flow_colour" [(ngModel)]="flowNav.flow_colour"> 
+                    </ng-select>
+                  </td>
+                  <td>
+                    <input [readonly]="true" class="form-control" type="text" [(ngModel)]="flowNav.split_cell_id"/>
+                  </td>
+                  <td >
+                    <button title="Delete" [hidden]="hideAddRow" type="button" class="btn btn-danger" [id]="flowNav.cell_id" value="Delete" (click)="deleteFlowFieldValue($event)"><i class="ion ion-md-trash"></i></button>
+                    <button [hidden]="i!==readOnly" type="button" class="btn btn-primary" (click)="doneEditFlow(i,flowNav,'done', j)">Done</button>
+                  </td>   
+                  <td>
+                    <button [hidden]="i!==readOnly" type="button" class="btn btn-default" (click)="doneEditFlow(i,flowNav,'cancel', j)">Cancel</button>
+                    <button title="Edit" [hidden]="hideAddRow" class="btn btn-info" [id]="j" value="Edit" (click)="onEditFlow(i,flowNav, $event)" ><i class="ion ion-md-clipboard"></i></button>
+                  </td>
+                  <!-- Preview -->
+                  <div *cdkDragPreview matchSize="true" class="container dragdrop-placeholder">
+                    {{flowNav.flow_type}} - {{flowNav.flow_colour}}
+                  </div>
+                </tr>
+          
+                <tr [hidden]="hideAddRow">
+                  <td><label></label></td>
+                  <td>
+                    <ng-select [(ngModel)]="newFlowAttribute.flow_type" [ngClass]="{'border-error': isAddFlowError}" appendTo="body" [clearable]="false" [items]="config.FLOW_TYPE" bindLabel="flow_type" (change)="readTargetFlowChange($event, true)" >
+                    </ng-select>
+                  </td>
+                  <td>
+                    <ng-select [(ngModel)]="newFlowAttribute.flow_colour" [ngClass]="{'border-error': isAddFlowError}" appendTo="body" [clearable]="false" [items]="config.FLOW_COLOUR" bindLabel="flow_colour" (change)="readTargetFlowColourChange($event)">
+                    </ng-select>
+                  </td>
+                  <td>
+                    <input [readonly]="true" class="form-control" [(ngModel)]="newFlowAttribute.split_cell_id" name="{{newFlowAttribute.split_cell_id}}" type="text"/>
+                  </td>
+                  <td colspan="2">
+                    <button type="button" class="btn btn-primary" (click)="addFlowFieldValue()">+ Add</button>
+                  </td>
+                  
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </ng-template>  
+      </ngb-tab>
+      <!-- END THIRD TAB -->  
   </ngb-tabset>  
 </div>
 </div>

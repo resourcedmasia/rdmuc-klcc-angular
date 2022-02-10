@@ -23,7 +23,7 @@ export class RestService {
         method: method,
         token: token,
         data: data
-      }).pipe(share())
+      }).pipe(share());
   }
 
   getConfig() {
