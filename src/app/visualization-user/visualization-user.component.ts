@@ -445,7 +445,7 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
         });
     
     //Get GPTimerChannel
-    // await this.getGPTimerChannels();
+    await this.getGPTimerChannels();
 
     // Clear the existing graph
     this.graph.getModel().clear();
@@ -496,7 +496,7 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
         this.changeCellColour(this.cells)
 
         // GPTimer Overlay
-        // this.addCellOverlay(cells);
+        this.addCellOverlay(cells);
 
         // Disable mxGraph editing
         this.graph.setEnabled(false);
@@ -810,6 +810,7 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
 
   /*Function to add GP Timer Overlay on Cells */
   addCellOverlay(cells){
+    console.log(this.linkMappingReadConfig)
     var modalService = this.modalService;
     var thisContext = this;
     for(let i = 0; i < this.linkMappingReadConfig.length; i++ ) {
@@ -817,7 +818,7 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
         if(cells[j]=="" || cells[j]==null){
           //Skip
         }
-        else if(cells[j].id == this.linkMappingReadConfig[i].slave_cell_id) {
+        else if(cells[j].id == this.linkMappingReadConfig[i].slave_cell_id && this.linkMappingReadConfig[i].gpt == "true") {
           let id = this.linkMappingReadConfig[i].slave_cell_id;
           var cell = this.graph.getModel().getCell(id);
           for(let k = 0; k < this.gpTimerChannelsDetail.length; k++) {
@@ -830,9 +831,17 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
                   thisContext.isHoverTooltip = false;
                   thisContext.graph.getTooltipForCell = function(tmp){return "";}  
                   let row = thisContext.gpTimerChannelsDetail[k];
-                  const modalRef = modalService.open(ReadOnlyGptimerModalComponent);
+                  const options: NgbModalOptions = {
+                    backdropClass: '.app-session-modal-backdrop',
+                    windowClass: '.app-session-modal-window',
+                    centered: true,
+                    container: '#fullScreen'
+                  };
+                  const modalRef = modalService.open(ReadOnlyGptimerModalComponent,options);
                   modalRef.componentInstance.row = row;
-                  modalRef.result.then((result) => {})
+                  modalRef.result.then((result) => {}).catch(err => {
+                    console.log(err)
+                  })
                 });
                 this.graph.addCellOverlay(cell, overlay);
               }
@@ -844,9 +853,17 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
                   thisContext.isHoverTooltip = false;
                   thisContext.graph.getTooltipForCell = function(tmp){return "";} 
                   let row = thisContext.gpTimerChannelsDetail[k];
-                  const modalRef = modalService.open(ReadOnlyGptimerModalComponent);
+                  const options: NgbModalOptions = {
+                    backdropClass: '.app-session-modal-backdrop',
+                    windowClass: '.app-session-modal-window',
+                    centered: true,
+                    container: '#fullScreen'
+                  };
+                  const modalRef = modalService.open(ReadOnlyGptimerModalComponent,options);
                   modalRef.componentInstance.row = row;
-                  modalRef.result.then((result) => {})
+                  modalRef.result.then((result) => {}).catch(err => {
+                    console.log(err)
+                  })
                 });
                 this.graph.addCellOverlay(cell, overlay);
               }
@@ -1334,7 +1351,7 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
     } else if (elem.webkitRequestFullscreen) {
       await elem.webkitRequestFullscreen();
     }
-    setTimeout(()=>{ this.centerGraph(); }, 10);
+    setTimeout(()=>{ this.centerGraph(); }, 70);
   }
 
   fullScreenEvent() {
@@ -1346,7 +1363,6 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
       }
       else {
         thisC.isFullScreen = true;
-        setTimeout(()=>{ thisC.centerGraph(); }, 10);
       }   
     });
     document.addEventListener("mozfullscreenchange", function() {
@@ -1355,7 +1371,6 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
       }
       else {
         thisC.isFullScreen = true;
-        setTimeout(()=>{ thisC.centerGraph(); }, 10);
       }
     });
     document.addEventListener("webkitfullscreenchange", function() {
@@ -1364,7 +1379,6 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
       }
       else {
         thisC.isFullScreen = true;
-        setTimeout(()=>{ thisC.centerGraph(); }, 10);
       }
     });
     document.addEventListener("msfullscreenchange", function() {
@@ -1373,9 +1387,9 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
       }
       else {
         thisC.isFullScreen = true;
-        setTimeout(()=>{ thisC.centerGraph(); }, 10);
       }
     });
+    setTimeout(()=>{ thisC.centerGraph(); }, 70);
   }
 
 }

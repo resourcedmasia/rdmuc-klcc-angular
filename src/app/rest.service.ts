@@ -10,8 +10,8 @@ export class RestService {
   constructor(private httpClient: HttpClient) { }
 
   // API Endpoint
-  // private baseUrl = 'http://10.1.128.75:8080/api/api.php';
-  private baseUrl = 'http://wismagenting.uc.rdmsite.com/api/api.php';
+  private baseUrl = 'http://10.1.128.171:8080/api/api.php';
+  // private baseUrl = 'http://wismagenting.uc.rdmsite.com/api/api.php';
   
 
   

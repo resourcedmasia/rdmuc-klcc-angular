@@ -66,12 +66,12 @@ export class SetGptimerModalComponent implements OnInit {
   }
 
 
+
   async init() {
     this.OnTime1 = {hour: 0, minute: 0};
     this.OnTime2 = {hour: 0, minute: 0};
     this.OffTime1 = {hour: 0, minute: 0};
     this.OffTime2 = {hour: 0, minute: 0};
-    console.log(this.row)
     this.GPEvent = [];
     this.GPEventTemp = [];
     this.isRemoveSingle = false;
@@ -79,7 +79,7 @@ export class SetGptimerModalComponent implements OnInit {
     var status;
     var runOn;
 
-    this.rowTemp = this.row;
+    this.rowTemp = Object.assign({},this.row);
 
     if(this.row.Status == false){
       status = "Off";
@@ -514,7 +514,8 @@ export class SetGptimerModalComponent implements OnInit {
   }
 
   closeModal() {
-    this.GPEvent = this.GPEventTemp;
+    // this.row = this.rowTemp;
+    // console.log("row",this.row)
     this.activeModal.close("dismiss");
   }
 
@@ -545,7 +546,34 @@ export class SetGptimerModalComponent implements OnInit {
       this._cdRef.detectChanges();
 
     }
-
   }
+
+  async setChannel() {
+    await this.restService.postData("setGPTimerChannel", this.authService.getToken(), { 
+      Index: this.row.Details.Index,
+      Type: this.row.Details.Type,
+      Name: this.row.Details.Name,
+      OutputType: this.row.Details.OutputType,
+      OutputMask: this.row.Details.OutputMask,
+      OutputIndex: this.row.Details.OutputIndex,
+      InputType: this.row.Details.InputType,
+      InputController: this.row.Details.InputController,
+      InputIndex: this.row.Details.InputIndex,
+      MasterChannel: this.row.Details.MasterChannel,
+      Invert: this.row.Details.Invert,
+      Overridable: this.row.Details.Overridable,
+      GPEvent: this.GPEvent
+    })
+      .toPromise().then(data => {
+      // Successful 
+      if (data["status"] == 200 && data["data"]["rows"] !== false) {
+        this.activeModal.close("success")
+        this.router.navigate([this.router.url]);
+      }
+      else {
+        this.activeModal.close("fail")
+      }
+    });
+}
 
 }
