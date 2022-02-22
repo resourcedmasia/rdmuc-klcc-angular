@@ -1051,28 +1051,8 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
     await this.restService.postData("getAllGPTimerChannel", this.authService.getToken())
     .toPromise().then(async data => {
       if (data["status"] == 200) {
-    
-          let gptimerChannel = data["data"].rows.GPChannel;
-          this.gpTimerChannels = gptimerChannel;
-          for(let i = 0; i < this.gpTimerChannels.length; i++) {
-              this.restService.postData("getGPTimerChannel", this.authService.getToken(), {
-                index: this.gpTimerChannels[i].Index
-              }).toPromise().then(async data => {
-                let result = data["data"].rows;
-                if(result.Index == this.gpTimerChannels[i].Index) {
-                  if(result.OutputMask == "" || result.OutputMask == null){
-                    // Skip
-                  }
-                  else {
-                    this.gpTimerChannels[i].Details = result;
-                    this.gpTimerChannelsDetail.push(this.gpTimerChannels[i]);
-                  }
-                }
-                else {
-                  // Skip
-                }
-              })
-            }
+        this.gpTimerChannels = data["data"].rows;
+        this.gpTimerChannelsDetail = this.gpTimerChannels.filter(item => item.Details.OutputMask !== "" && item.Details.OutputMask !== null )
       }
     });
   }
