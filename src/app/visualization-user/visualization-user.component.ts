@@ -9,6 +9,7 @@ import { NgxSpinnerService } from "ngx-spinner";
 import { LayoutService } from '../layout/layout.service';
 import ResizeObserver from 'resize-observer-polyfill';
 
+
 import { NgbModal, NgbModalOptions, NgbTabset } from '@ng-bootstrap/ng-bootstrap';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { MxgraphEditComponent } from '../mxgraph-edit/mxgraph-edit.component';
@@ -60,6 +61,7 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
   selectedMxGraph = [];
   graph;
   ro;
+  roFullScreen;
   mxgraphData = [];
 
   // Selected mxGraph cell ID (ngModel binding)
@@ -162,7 +164,7 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
               private spinner: NgxSpinnerService,
               private layoutService: LayoutService,
               private _cdRef: ChangeDetectorRef,
-              private zone: NgZone
+              private zone: NgZone,
               ) {
     
     this.appService.pageTitle = 'Visualization Dashboard';
@@ -318,6 +320,7 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
     }
     this.toastr.clear();
     this.ro.unobserve(this.container.nativeElement)
+    this.ro.unobserve(this.divRef.nativeElement);
   }
 
 
@@ -1323,15 +1326,23 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
     const elem = this.divRef.nativeElement;
   
     if (elem.requestFullscreen) {
-      await elem.requestFullscreen();
+      await elem.requestFullscreen().then(()=>{
+        setTimeout(()=>{ this.centerGraph(); }, 0);
+      });
     } else if (elem.msRequestFullscreen) {
-      await elem.msRequestFullscreen();
+      await elem.msRequestFullscreen().then(()=>{
+        setTimeout(()=>{ this.centerGraph(); }, 0);
+      });
     } else if (elem.mozRequestFullScreen) {
-      await elem.mozRequestFullScreen();
+      await elem.mozRequestFullScreen().then(()=>{
+        setTimeout(()=>{ this.centerGraph(); }, 0);
+      });
     } else if (elem.webkitRequestFullscreen) {
-      await elem.webkitRequestFullscreen();
+      await elem.webkitRequestFullscreen().then(()=>{
+        setTimeout(()=>{ this.centerGraph(); }, 0);
+      });
     }
-    setTimeout(()=>{ this.centerGraph(); }, 70);
+    setTimeout(()=>{ this.centerGraph(); }, 100);
   }
 
   fullScreenEvent() {
@@ -1343,6 +1354,7 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
       }
       else {
         thisC.isFullScreen = true;
+        setTimeout(()=>{ thisC.centerGraph(); }, 100);
       }   
     });
     document.addEventListener("mozfullscreenchange", function() {
@@ -1351,6 +1363,7 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
       }
       else {
         thisC.isFullScreen = true;
+        setTimeout(()=>{ thisC.centerGraph(); }, 100);
       }
     });
     document.addEventListener("webkitfullscreenchange", function() {
@@ -1359,6 +1372,7 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
       }
       else {
         thisC.isFullScreen = true;
+        setTimeout(()=>{ thisC.centerGraph(); }, 100);
       }
     });
     document.addEventListener("msfullscreenchange", function() {
@@ -1367,9 +1381,10 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
       }
       else {
         thisC.isFullScreen = true;
+        setTimeout(()=>{ thisC.centerGraph(); }, 100);
       }
     });
-    setTimeout(()=>{ thisC.centerGraph(); }, 70);
+    
   }
 
 }
