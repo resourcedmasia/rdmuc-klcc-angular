@@ -2023,7 +2023,18 @@ export class VisualizationComponent implements OnInit, OnDestroy {
       else if (this.mxGraphForm.get('mxgraph_code').errors.required == true) {
         this.mxGraphForm.get('mxgraph_code').errors.required = false;
       }
+
+      //Check if graph name has been inserted
+      if (!this.mxGraphForm.value.mxgraph_value) {
+        // Uses file name as mxgraph name
+        this.mxGraphForm.patchValue({
+          // Slice .txt from file name
+          mxgraph_value: this.config.mxFileNameFilter(file[0].name),
+        });
+      }
+     
       this.isUploadedFile = true;
+
     }
   }
 
