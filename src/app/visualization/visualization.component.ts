@@ -2002,7 +2002,7 @@ export class VisualizationComponent implements OnInit, OnDestroy {
   fileChangeEvent(event){
     const file: FileList = event.target.files;
     this.fileUploadEvent = event.target.value;
-    if (file[0].type !== "text/plain") {
+    if (!file[0] || file[0].type !== "text/plain") {
       event.target.value = null;
       this._cdRef.detectChanges();
       this.isErrorFileType = true;
@@ -2023,6 +2023,9 @@ export class VisualizationComponent implements OnInit, OnDestroy {
       else if (this.mxGraphForm.get('mxgraph_code').errors.required == true) {
         this.mxGraphForm.get('mxgraph_code').errors.required = false;
       }
+      else {
+        // Skip
+      }
 
       //Check if graph name has been inserted
       if (!this.mxGraphForm.value.mxgraph_value) {
@@ -2032,9 +2035,7 @@ export class VisualizationComponent implements OnInit, OnDestroy {
           mxgraph_value: this.config.mxFileNameFilter(file[0].name),
         });
       }
-     
       this.isUploadedFile = true;
-
     }
   }
 
