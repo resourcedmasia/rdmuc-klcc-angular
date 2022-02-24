@@ -1873,28 +1873,32 @@ export class VisualizationComponent implements OnInit, OnDestroy {
         .toPromise().then(async data => {
           // Successful
           if (data["status"] == 200) {
-            for (let i = 0; i < this.linkMappingReadConfig.length; i++) {
-              
-              let slave = this.linkMappingReadConfig[i].slave;
-              let slave_name = this.linkMappingReadConfig[i].slave_name;
-              let slave_type = this.linkMappingReadConfig[i].slave_type;
-              let slave_cell_id = this.linkMappingReadConfig[i].slave_cell_id;
-              if(this.linkMappingReadConfig[i].gpt=="" || this.linkMappingReadConfig[i].gpt==null || this.linkMappingReadConfig[i].gpt=="false") {
-                var gpt = "false";
-              }
-              else {
-                gpt = "true";
-              }
-              // Add all the new rows in the DB
-              await this.restService.postData("settingReadDetails", this.authService.getToken(), {
-                mxgraph_id: mxgraph_id, slave: slave, slave_name: slave_name, slave_type: slave_type, slave_cell_id: slave_cell_id, gpt: gpt
-              })
-                .toPromise().then(data => {
-                  if (data["status"] == 200) {
-                    console.log("Success")
-                  }
-                })
+            let newReadConfig = [];
+            for (let i = 0; i < this.linkMappingReadConfig.length; i++) {                
+            let newObj = {};
+            if (this.linkMappingReadConfig[i].gpt==""
+            || this.linkMappingReadConfig[i].gpt==null
+            || this.linkMappingReadConfig[i].gpt=="false"
+            || this.linkMappingReadConfig[i].gpt == undefined)
+            {
+              this.linkMappingReadConfig[i].gpt = 'false';
+            } else {
+              this.linkMappingReadConfig[i].gpt = 'true';
             }
+            newObj['mxgraph_id'] = this.linkMappingReadConfig[i].mxgraph_id;
+            newObj['slave'] = this.linkMappingReadConfig[i].slave;
+            newObj['slave_name'] = this.linkMappingReadConfig[i].slave_name;
+            newObj['slave_type'] = this.linkMappingReadConfig[i].slave_type;
+            newObj['slave_cell_id'] = this.linkMappingReadConfig[i].slave_cell_id;
+            newObj['gpt'] = this.linkMappingReadConfig[i].gpt; 
+            newReadConfig.push(newObj);
+            }
+            await this.restService.postData("settingReadDetails", this.authService.getToken(), newReadConfig)
+            .toPromise().then( data => {
+              if (data['status'] == 200 ) {
+                console.log("Success")
+              }
+            })
           }
         });
 
