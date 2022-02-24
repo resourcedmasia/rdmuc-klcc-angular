@@ -130,6 +130,8 @@ export class VisualizationComponent implements OnInit, OnDestroy {
   isEditNav: boolean;
   isEditFlow: boolean;
   isRowMoved: boolean;
+  isErrorFileType: boolean;
+  isUploadedFile: boolean;
 
   readConfigClass: any;
   readCellID;
@@ -141,13 +143,16 @@ export class VisualizationComponent implements OnInit, OnDestroy {
   tempFieldArray: any;
   isMouseHover: any;
   currentState: any;
+  ng_mxgraph_code: any;
+  fileUploadEvent: any;
   
 
 
   // Add / Edit Graph Configuration Form
   mxGraphForm = new FormGroup({
     mxgraph_value: new FormControl('', Validators.required),
-    mxgraph_code: new FormControl('', Validators.required)
+    mxgraph_code: new FormControl('', Validators.required),
+    mxgraph_code_file: new FormControl('')
   });
 
   editGraphForm = new FormGroup({
@@ -227,6 +232,9 @@ export class VisualizationComponent implements OnInit, OnDestroy {
     this.rowIndex = -1;
     this.isRowMoved = false;
     this.isEdit = false;
+    this.isErrorFileType = false;
+    this.ng_mxgraph_code = "";
+    this.isUploadedFile = false;
     
 
     // Retrieve stored mxGraphs from database and populate dropdown selection
@@ -794,6 +802,8 @@ export class VisualizationComponent implements OnInit, OnDestroy {
     this.isEditNav = false;
     this.isEditFlow = false;
     this.isRowMoved = false;
+    this.isErrorFileType = false;
+    this.isUploadedFile = false;
     this.currentState = "";
     this.rowIndex = -1;
     this.gpTimerChannelsDetail = [];
@@ -1951,16 +1961,25 @@ export class VisualizationComponent implements OnInit, OnDestroy {
     Inserts mxGraph name & code into backend database
   */
   async mxGraphInsert() {
-    if(this.mxGraphForm.value.mxgraph_value && this.mxGraphForm.value.mxgraph_code){
-      // Truncate <mxGraphModel> tags
-      let code = await this.config.mxGraphFilter(this.mxGraphForm.value.mxgraph_code);
+    if(this.mxGraphForm.value.mxgraph_value && this.mxGraphForm.value.mxgraph_code_file || this.mxGraphForm.value.mxgraph_code){
+      var code;
+      if(this.isUploadedFile) {
+         // Truncate <mxGraphModel> tags
+        code = await this.config.mxGraphFilter(this.mxGraphForm.value.mxgraph_code_file);
+      }
+      else {
+         // Truncate <mxGraphModel> tags
+        code = await this.config.mxGraphFilter(this.mxGraphForm.value.mxgraph_code);
+      }
+
       this.restService.postData("mxGraphUpdate", this.authService.getToken(), { mxgraph_name: this.mxGraphForm.value.mxgraph_value, mxgraph_code: code })
         .subscribe(data => {
           // Success
           if (data["status"] == 200) {
             // Reset Add / Edit form data
             this.mxGraphForm.reset();
-
+            // Clear file in input type File
+            (<HTMLInputElement>document.getElementById('mxGraphCode_id')).value = "";
             // Refresh mxGraph selection list
             this.restService.postData("getMxGraphList", this.authService.getToken())
               .subscribe(data => {
@@ -1976,6 +1995,44 @@ export class VisualizationComponent implements OnInit, OnDestroy {
               });
           }
       });
+    }
+
+  }
+
+  fileChangeEvent(event){
+    const file: FileList = event.target.files;
+    this.fileUploadEvent = event.target.value;
+    if (file[0].type !== "text/plain") {
+      event.target.value = null;
+      this._cdRef.detectChanges();
+      this.isErrorFileType = true;
+      this.isUploadedFile = false;
+    }
+    else {
+      var reader = new FileReader();
+      reader.onload = () => {
+          this.mxGraphForm.value.mxgraph_code_file = reader.result;
+      };
+      reader.readAsText(file[0]);
+      this.isErrorFileType = false;
+      this.mxGraphForm.value.mxgraph_code = "";
+      // Clears the mxGraphCode input error if a file had been uploaded
+      if (this.mxGraphForm.get('mxgraph_code').errors == null){
+        // Skip
+      }
+      else if (this.mxGraphForm.get('mxgraph_code').errors.required == true) {
+        this.mxGraphForm.get('mxgraph_code').errors.required = false;
+      }
+      this.isUploadedFile = true;
+    }
+  }
+
+  
+  isMxCodeChange(event) {
+    let value = event.target.value;
+    if(value.length > 0) {
+      // Clears the file input error if a mxGraphCode input is not empty
+      this.isErrorFileType = false;
     }
   }
 
@@ -2534,6 +2591,7 @@ export class VisualizationComponent implements OnInit, OnDestroy {
     });
     this.unsavedStatus = true;
   }
+
 
 
 }
