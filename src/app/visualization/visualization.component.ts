@@ -1513,9 +1513,10 @@ export class VisualizationComponent implements OnInit, OnDestroy {
         typeObj['type'] = filtered[i].slave;
         typeArray.push(typeObj);
       }      
-      this.restService.postData("getSlave", this.authService.getToken(), typeArray).subscribe(data => {        
+      this.restService.postData("getSlave", this.authService.getToken(), typeArray).subscribe(data => {  
+        if (data["data"]["rows"] !== null) {
         // Success
-        if (data["status"] == 200 && data["data"]["rows"] !== false) { 
+        if (data["status"] == 200 && data["data"]["rows"] !== false && data["data"]["rows"] !== null) { 
           let $responseArray = [];
           $responseArray = data["data"]["rows"];
           for (const data of $responseArray) {
@@ -1525,6 +1526,7 @@ export class VisualizationComponent implements OnInit, OnDestroy {
         else {
           console.log("Can't get Slave data.");
         }
+      }
     });    
         // Re-add the cells with new value
         this.refreshCells(cells);
@@ -1571,18 +1573,24 @@ export class VisualizationComponent implements OnInit, OnDestroy {
               }
           }
         }
-        await this.restService.postData("getSlave", this.authService.getToken(), typeArray).toPromise().then(data => {
+        await this.restService.postData("getSlave", this.authService.getToken(), typeArray).toPromise().then(data => {          
           // Success
-          if (data["status"] == 200 && data["data"]["rows"] !== false) {    
-             let $responseArray = [];
-             $responseArray = data["data"]["rows"];
-             for (const data of $responseArray) {
+        if (data["data"]["rows"] !== null) {
+          if (data["status"] == 200 && data["data"]["rows"] !== false && data["data"]["rows"] !== null) {    
+            let $responseArray = [];
+            $responseArray = data["data"]["rows"];
+            console.log($responseArray.length);
+            
+           if ($responseArray.length > 0) {
+             for (const data of $responseArray) {                
               this.getAllSlaveArray[data.type] = data.data;              
             }
-          }
-          else {
-            console.log("Can't get data for Slave")
-          }
+           }
+         }
+         else {
+           console.log("Can't get data for Slave")
+         }
+        }
         });
   }
 
