@@ -519,7 +519,7 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
   animateState(cells) {
     for(let i = 0; i < cells.length; i++) {
       let state =  this.graph.view.getState(cells[i]);
-      if(cells[i] == null || cells[i] == "") {
+      if(cells[i] == null || cells[i] == "" || !state) {
         // Skip Cells
       }
       else if(state == null || state == "") {
