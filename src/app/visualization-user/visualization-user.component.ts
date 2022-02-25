@@ -182,7 +182,7 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
   @HostListener('window:resize', ['$event'])
   onResize(event) {
     if (event) {
-      this.centerGraph();
+      this.centerGraph()
     }
   }
 
@@ -272,12 +272,12 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
     this.ro = new ResizeObserver(async entries => {
       for (let entry of entries) {
         const cr = entry.contentRect;
-        this.centerGraph();
         setTimeout(()=> {
           this.changeCellColour(this.cells);
           this.animateState(this.cells);
+          this.centerGraph();
           this._cdRef.detectChanges();
-        },60);
+        },0);
       }
     });
 
@@ -1327,7 +1327,7 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
   
     if (elem.requestFullscreen) {
       await elem.requestFullscreen().then(()=>{
-        setTimeout(()=>{ this.centerGraph(); }, 0);
+        setTimeout(()=>{ this.centerGraph(); }, 100);
       });
     } else if (elem.msRequestFullscreen) {
       await elem.msRequestFullscreen().then(()=>{
@@ -1342,7 +1342,7 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
         setTimeout(()=>{ this.centerGraph(); }, 0);
       });
     }
-    setTimeout(()=>{ this.centerGraph(); }, 100);
+    setTimeout(()=>{ this.centerGraph(); }, 0);
   }
 
   fullScreenEvent() {
@@ -1384,7 +1384,8 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
         setTimeout(()=>{ thisC.centerGraph(); }, 100);
       }
     });
-    
+    setTimeout(()=>{ thisC.centerGraph(); }, 100);
+    thisC._cdRef.detectChanges();
   }
 
 }
