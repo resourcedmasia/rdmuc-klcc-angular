@@ -619,22 +619,7 @@ export class VisualizationComponent implements OnInit, OnDestroy {
           
             // Call API if the selected slave is not in getAllSlaveArray to get the slave value
             if (this.getAllSlaveArray[event.slave] === "" || this.getAllSlaveArray[event.slave] == false) {
-              await this.restService.postData("getSlave", this.authService.getToken(), { type: event.slave }).toPromise().then(async data => {
-                // Success
-                if (data["status"] == 200 && data["data"]["rows"] !== false) {    
-                  this.getAllSlaveArray[event.slave] = data["data"]["rows"];
-                  console.log("getAllSlaveArray:", this.getAllSlaveArray);
-                  for (let i = 0; i < this.getAllSlaveArray[event.slave].Items.Item.length; i++) {
-                    if (this.getAllSlaveArray[event.slave].Items.Item[i].Name == event.slave_name) {
-                      let cell_value = this.getAllSlaveArray[event.slave].Items.Item[i].Value
-                      await this.config.asyncLocalStorage.setItem('cell_value', cell_value)
-                    }
-                  }
-                }
-                else {
-                  console.log("Can't get data for Slave")
-                }
-              });
+
             } 
       
             this.readOnly = i
@@ -644,6 +629,32 @@ export class VisualizationComponent implements OnInit, OnDestroy {
             this.addClickListener();
           }
       }
+      
+      let typeArray = [];
+      let typeObj = {};
+      typeObj['type'] = this.fieldArray[i].slave;
+      typeArray.push(typeObj);
+
+      await this.restService.postData("getSlave", this.authService.getToken(), typeArray).toPromise().then(async data => {
+        // Success
+        if (data["status"] == 200 && data["data"]["rows"] !== false) {
+          
+          let $responseArray = [];
+          $responseArray = data["data"]["rows"];
+          for (const data of $responseArray) {
+            this.getAllSlaveArray[data.type] = data.data;
+            for (let i = 0; i < this.getAllSlaveArray[event.slave].Items.Item.length; i++) {
+              if (this.getAllSlaveArray[event.slave].Items.Item[i].Name == event.slave_name) {
+                let cell_value = this.getAllSlaveArray[event.slave].Items.Item[i].Value
+                await this.config.asyncLocalStorage.setItem('cell_value', cell_value)
+              }
+            }
+          }
+        }
+        else {
+          console.log("Can't get data for Slave")
+        }
+      });
 
     },10);
    }
@@ -832,7 +843,7 @@ export class VisualizationComponent implements OnInit, OnDestroy {
     }).toPromise().then(data => {
       if (data["status"] == 200) {
     
-          let linkMapping = data["data"].rows;
+          let linkMapping = data["data"].rows;          
           
           // Push Link Mapping to populate Read Configuration fields
           for (let i = 0; i < linkMapping.length; i++) {
@@ -1495,25 +1506,26 @@ export class VisualizationComponent implements OnInit, OnDestroy {
     const names = this.linkMappingReadConfig.map(o => o.slave);
     const filtered = this.linkMappingReadConfig.filter(({slave}, index) => !names.includes(slave, index + 1))
     // Set time out for 5 seconds
-    this.subscription = timer(0, this.config.subscriptionInterval).pipe().subscribe( () => {
+    this.subscription = timer(0, this.config.subscriptionInterval).pipe().subscribe( () => {      
+      let typeArray = [];
       for(let i = 0; i < filtered.length; i++) {
-        if (this.getAllSlaveArray[filtered[i].slave] === "" || !this.getAllSlaveArray[filtered[i].slave]) {
-          // Skip if empty
-          continue;
+        let typeObj = {};
+        typeObj['type'] = filtered[i].slave;
+        typeArray.push(typeObj);
+      }      
+      this.restService.postData("getSlave", this.authService.getToken(), typeArray).subscribe(data => {        
+        // Success
+        if (data["status"] == 200 && data["data"]["rows"] !== false) { 
+          let $responseArray = [];
+          $responseArray = data["data"]["rows"];
+          for (const data of $responseArray) {
+            this.getAllSlaveArray[data.type] = data.data;
+          }
         }
         else {
-          this.restService.postData("getSlave", this.authService.getToken(), { type: filtered[i].slave }).subscribe(data => {
-              // Success
-              if (data["status"] == 200 && data["data"]["rows"] !== false) {    
-                // Re-assign the new data values to controller object
-                this.getAllSlaveArray[filtered[i].slave] = data["data"]["rows"];
-              }
-              else {
-                console.log("Can't get Slave data.");
-              }
-          });
+          console.log("Can't get Slave data.");
         }
-      }
+    });    
         // Re-add the cells with new value
         this.refreshCells(cells);
     });
@@ -1523,23 +1535,15 @@ export class VisualizationComponent implements OnInit, OnDestroy {
   /* Function: Adding the value to the linked cells on the graph */
   async generateCells(cells) {
         // Populate number of rows in Read Config
+        let typeArray = [];
         for (let i = 0; i < this.linkMappingReadConfig.length; i++) {
           if (this.linkMappingReadConfig.length === 0) {
-            console.log("Attribute is empty");
           } else {
             this.fieldArray.push(this.linkMappingReadConfig[i]);
               // Check if controller object is empty
-              if (this.getAllSlaveArray[this.linkMappingReadConfig[i].slave] === "" || this.getAllSlaveArray[this.linkMappingReadConfig[i].slave] == false) {
-                await this.restService.postData("getSlave", this.authService.getToken(), { type: this.linkMappingReadConfig[i].slave }).toPromise().then(data => {
-                  // Success
-                  if (data["status"] == 200 && data["data"]["rows"] !== false) {    
-                     this.getAllSlaveArray[this.linkMappingReadConfig[i].slave] = data["data"]["rows"];
-                  }
-                  else {
-                    console.log("Can't get data for Slave")
-                  }
-                });
-              } 
+                let typeObj = {};
+                typeObj['type'] = this.linkMappingReadConfig[i].slave;
+                typeArray.push(typeObj);
               // Iterate cells to find the matched controller name
               if (this.getAllSlaveArray[this.linkMappingReadConfig[i].slave]) {
                   for (let j = 0; j < (this.getAllSlaveArray[this.linkMappingReadConfig[i].slave].Items.Item).length; j++){
@@ -1564,12 +1568,22 @@ export class VisualizationComponent implements OnInit, OnDestroy {
                     }
                     }    
                   }   
-              } else {
-                console.log("Can't get data")
               }
-             
           }
         }
+        await this.restService.postData("getSlave", this.authService.getToken(), typeArray).toPromise().then(data => {
+          // Success
+          if (data["status"] == 200 && data["data"]["rows"] !== false) {    
+             let $responseArray = [];
+             $responseArray = data["data"]["rows"];
+             for (const data of $responseArray) {
+              this.getAllSlaveArray[data.type] = data.data;              
+            }
+          }
+          else {
+            console.log("Can't get data for Slave")
+          }
+        });
   }
 
   /* Function: Change the value of the cells after getting value from function "sub" */
@@ -1674,21 +1688,14 @@ export class VisualizationComponent implements OnInit, OnDestroy {
         }
 
         // await this.refreshCells(cells)
+        let typeArray = [];
         for (let i = 0; i < this.linkMappingReadConfig.length; i++) {
+          let typeObj = {};
+          typeObj['type'] = this.linkMappingReadConfig[i].slave;
+          typeArray.push(typeObj);
           if (this.linkMappingReadConfig.length === 0) {
             console.log("Attribute is empty");
-          } else {
-              // Check if controller object is empty
-              if (this.getAllSlaveArray[this.linkMappingReadConfig[i].slave] === "") {
-                await this.restService.postData("getSlave", this.authService.getToken(), { type: this.linkMappingReadConfig[i].slave }).toPromise().then(data => {
-                  // Success
-                  if (data["status"] == 200) {    
-                     this.getAllSlaveArray[this.linkMappingReadConfig[i].slave] = data["data"]["rows"];
-                     console.log("GetAllSlaveArray",this.getAllSlaveArray);
-                  }
-                });
-              } 
-    
+          } else {    
               // Iterate cells to find the matched controller name
               for (let j = 0; j < this.getAllSlaveArray[this.linkMappingReadConfig[i].slave].Items.Item.length; j++){
                 if (this.getAllSlaveArray[this.linkMappingReadConfig[i].slave].Items.Item[j].Name == this.linkMappingReadConfig[i].slave_name) {
@@ -1710,6 +1717,16 @@ export class VisualizationComponent implements OnInit, OnDestroy {
                  
             }
         }
+        await this.restService.postData("getSlave", this.authService.getToken(), typeArray).toPromise().then(data => {
+        // Success
+        if (data["status"] == 200) {
+          let $responseArray = [];
+          $responseArray = data["data"]["rows"];
+          for (const data of $responseArray) {
+            this.getAllSlaveArray[data.type] = data.data;
+          }
+        }
+      });
 
         this.graph.addCells(cells);
 
@@ -2064,13 +2081,17 @@ export class VisualizationComponent implements OnInit, OnDestroy {
 
     localStorage.setItem('writeController', event);
 
-    this.restService.postData("getSlave", this.authService.getToken(), { type: event }).subscribe(data => {
+    let typeArray = [];
+    let typeObj = {};
+    typeObj['type'] = event;
+    typeArray.push(typeObj);
+
+    this.restService.postData("getSlave", this.authService.getToken(), typeArray).subscribe(data => {
       // Success
       if (data["status"] == 200) {
-
         this.writeName = true;
         this.writeCode = true;
-        this.writeTableData = data["data"]["rows"];
+        this.writeTableData = data["data"]["rows"][0].data;
         this.writeTableData = this.writeTableData['Items'];
         this.loadingIndicator = false;
       }
@@ -2084,13 +2105,18 @@ export class VisualizationComponent implements OnInit, OnDestroy {
     this.isAddError = false;
     await this.config.asyncLocalStorage.setItem('controller', event);
 
-    this.restService.postData("getSlave", this.authService.getToken(), { type: event }).subscribe(data => {
+    let typeArray = [];
+    let typeObj = {};
+    typeObj['type'] = event;
+    typeArray.push(typeObj);
+    
+
+    this.restService.postData("getSlave", this.authService.getToken(), typeArray).subscribe(data => {
       // Success
       if (data["status"] == 200) {
-
         this.readName = true;
         this.readCode = true;
-        this.readTableData = data["data"]["rows"];
+        this.readTableData = data["data"]["rows"][0].data;
         this.readTableData = this.readTableData['Items'];
         this.loadingIndicator = false;
       }
