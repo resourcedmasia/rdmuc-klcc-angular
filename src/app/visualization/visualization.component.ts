@@ -1867,100 +1867,84 @@ export class VisualizationComponent implements OnInit, OnDestroy {
   async linkMapping() {
     this.subscription.unsubscribe();
     var mxgraph_id = this.mxgraphData["Id"];
-    // Destroy all the rows in DB where graph id = mxgraph_id for Navigation Link
-    await this.restService.postData("deleteNavLink", this.authService.getToken(), {
+    // Delete all by id
+    await this.restService.postData("deleteTablesById", this.authService.getToken(), {
       mxgraph_id: mxgraph_id
     })
-      .toPromise().then(async data => {
-        // Successful
-        if (data["status"] == 200) {
-          for (let i = 0; i < this.navigationLink.length; i++) {
-            let mxgraph_id = this.navigationLink[i].mxgraph_id;
-            let cell_id = this.navigationLink[i].cell_id;
-            let target_mxgraph_id = this.navigationLink[i].target_mxgraph_id;
-            // Add all the new rows in the DB
-            await this.restService.postData("addNavLink", this.authService.getToken(), {
-              mxgraph_id: mxgraph_id, cell_id: cell_id, target_mxgraph_id: target_mxgraph_id,
-            })
-              .toPromise().then(async data => {
-                if (data["status"] == 200) {
-                  console.log("Success")
-                }
-              });  
-          }
-        }
-      });
-
-      // Destroy all the rows in DB where graph id = mxgraph_id for ReadLinkMapping
-      await this.restService.postData("deleteReadDetails", this.authService.getToken(), {
-        mxgraph_id: mxgraph_id
-      })
-        .toPromise().then(async data => {
-          // Successful
-          if (data["status"] == 200) {
-            let newReadConfig = [];
-            for (let i = 0; i < this.linkMappingReadConfig.length; i++) {                
-            let newObj = {};
-            if (this.linkMappingReadConfig[i].gpt==""
-            || this.linkMappingReadConfig[i].gpt==null
-            || this.linkMappingReadConfig[i].gpt=="false"
-            || this.linkMappingReadConfig[i].gpt == undefined)
-            {
-              this.linkMappingReadConfig[i].gpt = 'false';
-            } else {
-              this.linkMappingReadConfig[i].gpt = 'true';
-            }
-            newObj['mxgraph_id'] = this.linkMappingReadConfig[i].mxgraph_id;
-            newObj['slave'] = this.linkMappingReadConfig[i].slave;
-            newObj['slave_name'] = this.linkMappingReadConfig[i].slave_name;
-            newObj['slave_type'] = this.linkMappingReadConfig[i].slave_type;
-            newObj['slave_cell_id'] = this.linkMappingReadConfig[i].slave_cell_id;
-            newObj['gpt'] = this.linkMappingReadConfig[i].gpt; 
-            newReadConfig.push(newObj);
-            }
-            await this.restService.postData("settingReadDetails", this.authService.getToken(), newReadConfig)
-            .toPromise().then( data => {
-              if (data['status'] == 200 ) {
+    .toPromise().then(async data => {
+      console.log('deleteById', data);
+      if (data["status"] == 200) {
+        // bind navigation link
+        for (let i = 0; i < this.navigationLink.length; i++) {
+          let mxgraph_id = this.navigationLink[i].mxgraph_id;
+          let cell_id = this.navigationLink[i].cell_id;
+          let target_mxgraph_id = this.navigationLink[i].target_mxgraph_id;
+          await this.restService.postData("addNavLink", this.authService.getToken(), {
+            mxgraph_id: mxgraph_id, cell_id: cell_id, target_mxgraph_id: target_mxgraph_id,
+          })
+            .toPromise().then(async data => {
+              if (data["status"] == 200) {
                 console.log("Success")
               }
-            })
-          }
-        });
+            });  
+        }
 
-        // Destroy all the rows in DB where graph id = mxgraph_id for Flow Link
-        await this.restService.postData("deleteFlowLink", this.authService.getToken(), {
-          mxgraph_id: mxgraph_id
+        // add details on table 
+        let newReadConfig = [];
+        for (let i = 0; i < this.linkMappingReadConfig.length; i++) {                
+        let newObj = {};
+        if (this.linkMappingReadConfig[i].gpt==""
+        || this.linkMappingReadConfig[i].gpt==null
+        || this.linkMappingReadConfig[i].gpt=="false"
+        || this.linkMappingReadConfig[i].gpt == undefined)
+        {
+          this.linkMappingReadConfig[i].gpt = 'false';
+        } else {
+          this.linkMappingReadConfig[i].gpt = 'true';
+        }
+        newObj['mxgraph_id'] = this.linkMappingReadConfig[i].mxgraph_id;
+        newObj['slave'] = this.linkMappingReadConfig[i].slave;
+        newObj['slave_name'] = this.linkMappingReadConfig[i].slave_name;
+        newObj['slave_type'] = this.linkMappingReadConfig[i].slave_type;
+        newObj['slave_cell_id'] = this.linkMappingReadConfig[i].slave_cell_id;
+        newObj['gpt'] = this.linkMappingReadConfig[i].gpt; 
+        newReadConfig.push(newObj);
+        }
+        await this.restService.postData("settingReadDetails", this.authService.getToken(), newReadConfig)
+        .toPromise().then( data => {
+          if (data['status'] == 200 ) {
+            console.log("Success")
+          }
+        })
+      }
+
+      // add flow_link in table
+      for (let i = 0; i < this.flowLink.length; i++) {
+        let mxgraph_id = this.flowLink[i].mxgraph_id;
+        let cell_id = this.flowLink[i].cell_id;
+        let flow_type = this.flowLink[i].flow_type;
+        let flow_colour = this.flowLink[i].flow_colour;
+        // Add all the new rows in the DB
+        await this.restService.postData("addFlowLink", this.authService.getToken(), {
+          mxgraph_id: mxgraph_id, cell_id: cell_id, flow_type: flow_type, flow_colour: flow_colour
         })
           .toPromise().then(async data => {
-            // Successful
             if (data["status"] == 200) {
-              for (let i = 0; i < this.flowLink.length; i++) {
-                let mxgraph_id = this.flowLink[i].mxgraph_id;
-                let cell_id = this.flowLink[i].cell_id;
-                let flow_type = this.flowLink[i].flow_type;
-                let flow_colour = this.flowLink[i].flow_colour;
-                // Add all the new rows in the DB
-                await this.restService.postData("addFlowLink", this.authService.getToken(), {
-                  mxgraph_id: mxgraph_id, cell_id: cell_id, flow_type: flow_type, flow_colour: flow_colour
-                })
-                  .toPromise().then(async data => {
-                    if (data["status"] == 200) {
-                      console.log("Success")
-                    }
-                  });  
-              }
+              console.log("Success")
             }
-          });
+          });  
+      }
+    });
 
-            let graphData = {
-              Id: this.mxgraphData["Id"],
-              mxgraph_name: this.mxgraphData["mxgraph_name"],
-              mxgraph_code: this.mxgraphData["mxgraph_code"]
-            }
-            this.onSelectGraph(graphData);
-            this.router.navigate([this.router.url]);
-            this.toastr.clear();
-            this.successToast("Changes has been successfuly saved.")
+    let graphData = {
+      Id: this.mxgraphData["Id"],
+      mxgraph_name: this.mxgraphData["mxgraph_name"],
+      mxgraph_code: this.mxgraphData["mxgraph_code"]
+    }
+    this.onSelectGraph(graphData);
+    this.router.navigate([this.router.url]);
+    this.toastr.clear();
+    this.successToast("Changes has been successfuly saved.")
   }
 
   // Function to revert changes in read config
