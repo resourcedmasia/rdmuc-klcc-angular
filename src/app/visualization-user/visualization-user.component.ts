@@ -933,7 +933,8 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
       }      
       this.restService.postData("getSlave", this.authService.getToken(), typeArray).subscribe(data => {        
         // Success
-        if (data["status"] == 200 && data["data"]["rows"] !== false) { 
+      if (data["data"]["rows"] !== null) {
+        if (data["status"] == 200 && data["data"]["rows"] !== false && data["data"]["rows"] !== null) { 
           let $responseArray = [];
           $responseArray = data["data"]["rows"];
           for (const data of $responseArray) {
@@ -943,6 +944,7 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
         else {
           console.log("Can't get Slave data.");
         }
+      }
     });    
         // Re-add the cells with new value
         this.refreshCells(cells);
@@ -995,12 +997,14 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
         }
           await this.restService.postData("getSlave", this.authService.getToken(), typeArray).toPromise().then(data => {
           // Success
-          if (data["status"] == 200 && data["data"]["rows"] !== false) {    
+        if (data["data"]["rows"] !== null) {
+          if (data["status"] == 200 && data["data"]["rows"] !== false && data["data"]["rows"] !== null) {    
              let $responseArray = [];
              $responseArray = data["data"]["rows"];
              for (const data of $responseArray) {
               this.getAllSlaveArray[data.type] = data.data;              
             }
+          }
           }
           else {
             console.log("Can't get data for Slave")
