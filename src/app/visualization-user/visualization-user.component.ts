@@ -473,8 +473,6 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
           elt = elt.nextSibling;
         }
 
-        
-        
         this.cells = cells;
      
         // Iterate read config field and change value of cells
@@ -485,15 +483,6 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
         this.loadingIndicator = false;    
 
         this.graph.refresh();
-
-        // Start 5 seconds interval subscription
-        if (this.subscription) {
-          // If already subscribed, unsubbed to the previous sub
-          this.subscription.unsubscribe();
-          this.sub(cells);
-        } else {
-          this.sub(cells);
-        }
 
         this.graph.addCells(cells);
         this.changeCellColour(this.cells)
@@ -508,6 +497,16 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
         this.addClickListener();
 
         this.centerGraph();
+
+        
+        // Start 5 seconds interval subscription
+        if (this.subscription) {
+          // If already subscribed, unsubbed to the previous sub
+          this.subscription.unsubscribe();
+          this.sub(cells);
+        } else {
+          this.sub(cells);
+        }
 
       }
     });
@@ -885,20 +884,24 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
   changeCellColour(cells) {
     for(let i = 0; i < cells.length; i++) {
       let state =  this.graph.view.getState(cells[i]);
-      if (cells[i] == null || cells[i] == "") {
+      if (cells[i] == null || cells[i] == "" || !state) {
         // Skip Cells
+        continue;
       }
       else if (this.config.CELL_VALUE_ON.indexOf(cells[i].value) > -1) {
-        state.style = mxUtils.clone(state.style);
+        // state.style = mxUtils.clone(state.style);
         state.style[mxConstants.STYLE_FILLCOLOR] = this.config.cell_colour_ON;
         state.shape.apply(state);
         state.shape.redraw();
       }
       else if (this.config.CELL_VALUE_OFF.indexOf(cells[i].value) > -1) {
-        state.style = mxUtils.clone(state.style);
+        // state.style = mxUtils.clone(state.style);
         state.style[mxConstants.STYLE_FILLCOLOR] = this.config.cell_colour_OFF;
         state.shape.apply(state);
         state.shape.redraw(); 
+      }
+      else {
+        // Skip
       }
     }
   }
@@ -984,6 +987,7 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
                         else{
                           // Sets the cell value using the mapped ID
                           cells[k].value = this.getAllSlaveArray[this.linkMappingReadConfig[i].slave].Items.Item[j].Value;
+                          this.graph.refresh();
                         }
                       }
                       else {
@@ -998,7 +1002,7 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
              
           }
         }
-          await this.restService.postData("getSlave", this.authService.getToken(), typeArray).toPromise().then(data => {
+        await this.restService.postData("getSlave", this.authService.getToken(), typeArray).toPromise().then(data => {
           // Success
         if (data["data"]["rows"] !== null) {
           if (data["status"] == 200 && data["data"]["rows"] !== false && data["data"]["rows"] !== null) {    
@@ -1016,6 +1020,7 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
         
     // this.changeCellColour(cells);
     // this.animateState(cells);
+    
   }
 
   /* Function: Change the value of the cells after getting value from function "sub" */
