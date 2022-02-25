@@ -924,50 +924,45 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
     const names = this.linkMappingReadConfig.map(o => o.slave);
     const filtered = this.linkMappingReadConfig.filter(({slave}, index) => !names.includes(slave, index + 1))
     // Set time out for 5 seconds
-    this.subscription = timer(0, this.config.subscriptionInterval).pipe().subscribe( async () => {
+    this.subscription = timer(0, this.config.subscriptionInterval).pipe().subscribe( async() => {      
+      let typeArray = [];
       for(let i = 0; i < filtered.length; i++) {
-        if (this.getAllSlaveArray[filtered[i].slave] === "" || !this.getAllSlaveArray[filtered[i].slave]) {
-          // Skip if empty
-        }
-        else {
-          this.restService.postData("getSlave", this.authService.getToken(), { type: filtered[i].slave }).toPromise().then(async data => {
-                // Success
-                if (data["status"] == 200 && data["data"]["rows"] !== false) {    
-                    // Re-assign the new data values to controller object
-                    this.getAllSlaveArray[filtered[i].slave] = data["data"]["rows"];
-                }
-                else {
-                  console.log("Can't get Slave data.");
-                }
-              });
+        let typeObj = {};
+        typeObj['type'] = filtered[i].slave;
+        typeArray.push(typeObj);
+      }      
+      this.restService.postData("getSlave", this.authService.getToken(), typeArray).subscribe(data => {        
+        // Success
+        if (data["status"] == 200 && data["data"]["rows"] !== false) { 
+          let $responseArray = [];
+          $responseArray = data["data"]["rows"];
+          for (const data of $responseArray) {
+            this.getAllSlaveArray[data.type] = data.data;
           }
         }
-         // Re-add the cells with new value
-         this.refreshCells(cells);
-
-      });
+        else {
+          console.log("Can't get Slave data.");
+        }
+    });    
+        // Re-add the cells with new value
+        this.refreshCells(cells);
+    });
   }
 
   /* Function: Adding the value to the linked cells on the graph */
   async generateCells(cells) {
         // Populate number of rows in Read Config
+        let typeArray = [];
         for (let i = 0; i < this.linkMappingReadConfig.length; i++) {
           if (this.linkMappingReadConfig.length === 0) {
             console.log("Attribute is empty");
           } else {
             this.fieldArray.push(this.linkMappingReadConfig[i]);
               // Check if controller object is empty
-              if (this.getAllSlaveArray[this.linkMappingReadConfig[i].slave] === "" || this.getAllSlaveArray[this.linkMappingReadConfig[i].slave] == false) {
-                await this.restService.postData("getSlave", this.authService.getToken(), { type: this.linkMappingReadConfig[i].slave }).toPromise().then(data => {
-                  // Success
-                  if (data["status"] == 200 && data["data"]["rows"] !== false) {    
-                     this.getAllSlaveArray[this.linkMappingReadConfig[i].slave] = data["data"]["rows"];
-                  }
-                  else {
-                    console.log("Can't get data for Slave")
-                  }
-                });
-              } 
+              let typeObj = {};
+              typeObj['type'] = this.linkMappingReadConfig[i].slave;
+              typeArray.push(typeObj);
+
               // Iterate cells to find the matched controller name
               if (this.getAllSlaveArray[this.linkMappingReadConfig[i].slave]) {
                   for (let j = 0; j < (this.getAllSlaveArray[this.linkMappingReadConfig[i].slave].Items.Item).length; j++){
@@ -998,6 +993,19 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
              
           }
         }
+          await this.restService.postData("getSlave", this.authService.getToken(), typeArray).toPromise().then(data => {
+          // Success
+          if (data["status"] == 200 && data["data"]["rows"] !== false) {    
+             let $responseArray = [];
+             $responseArray = data["data"]["rows"];
+             for (const data of $responseArray) {
+              this.getAllSlaveArray[data.type] = data.data;              
+            }
+          }
+          else {
+            console.log("Can't get data for Slave")
+          }
+        });
         
     // this.changeCellColour(cells);
     // this.animateState(cells);
@@ -1061,62 +1069,65 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
   /* Function: Re-draw graph */
   async refreshGraph() {
 
-        let doc = mxUtils.parseXml(this.mxgraphData["mxgraph_code"]);
-        let codec = new mxCodec(doc);
-        let elt = doc.documentElement.firstChild;
-        let cells = [];
+    let doc = mxUtils.parseXml(this.mxgraphData["mxgraph_code"]);
+    let codec = new mxCodec(doc);
+    let elt = doc.documentElement.firstChild;
+    let cells = [];
 
 
-        while (elt != null) {
-          cells.push(codec.decodeCell(elt));
-          elt = elt.nextSibling;
-        }
+    while (elt != null) {
+      cells.push(codec.decodeCell(elt));
+      elt = elt.nextSibling;
+    }
 
-        // await this.refreshCells(cells)
-        for (let i = 0; i < this.linkMappingReadConfig.length; i++) {
-          if (this.linkMappingReadConfig.length === 0) {
-            console.log("Attribute is empty");
-          } else {
-              // Check if controller object is empty
-              if (this.getAllSlaveArray[this.linkMappingReadConfig[i].slave] === "") {
-                await this.restService.postData("getSlave", this.authService.getToken(), { type: this.linkMappingReadConfig[i].slave }).toPromise().then(data => {
-                  // Success
-                  if (data["status"] == 200) {    
-                     this.getAllSlaveArray[this.linkMappingReadConfig[i].slave] = data["data"]["rows"];
-                     console.log("GetAllSlaveArray",this.getAllSlaveArray);
-                  }
-                });
-              } 
-    
-              // Iterate cells to find the matched controller name
-              for (let j = 0; j < this.getAllSlaveArray[this.linkMappingReadConfig[i].slave].Items.Item.length; j++){
-                if (this.getAllSlaveArray[this.linkMappingReadConfig[i].slave].Items.Item[j].Name == this.linkMappingReadConfig[i].slave_name) {
-                 for (let k = 0; k < (cells.length); k++) {
-                  if (cells[k] == null) {
-                    // Skip cell if null
-                  }
-                  else if (cells[k].id == this.linkMappingReadConfig[i].slave_cell_id){
-                    // Sets the cell value using the mapped ID
-                    cells[k].value = this.getAllSlaveArray[this.linkMappingReadConfig[i].slave].Items.Item[j].Value;
-                    this.graph.refresh();
-                  }
-                  else {
-                    // Skip cell
-                  }
-                 }
-                }    
+    // await this.refreshCells(cells)
+    let typeArray = [];
+    for (let i = 0; i < this.linkMappingReadConfig.length; i++) {
+      let typeObj = {};
+      typeObj['type'] = this.linkMappingReadConfig[i].slave;
+      typeArray.push(typeObj);
+      if (this.linkMappingReadConfig.length === 0) {
+        console.log("Attribute is empty");
+      } else {    
+          // Iterate cells to find the matched controller name
+          for (let j = 0; j < this.getAllSlaveArray[this.linkMappingReadConfig[i].slave].Items.Item.length; j++){
+            if (this.getAllSlaveArray[this.linkMappingReadConfig[i].slave].Items.Item[j].Name == this.linkMappingReadConfig[i].slave_name) {
+             for (let k = 0; k < (cells.length); k++) {
+              if (cells[k] == null) {
+                // Skip cell if null
               }
-                 
-            }
+              else if (cells[k].id == this.linkMappingReadConfig[i].slave_cell_id){
+                // Sets the cell value using the mapped ID
+                cells[k].value = this.getAllSlaveArray[this.linkMappingReadConfig[i].slave].Items.Item[j].Value;
+                this.graph.refresh();
+              }
+              else {
+                // Skip cell
+              }
+             }
+            }    
+          }
+             
         }
+    }
+    await this.restService.postData("getSlave", this.authService.getToken(), typeArray).toPromise().then(data => {
+    // Success
+    if (data["status"] == 200) {
+      let $responseArray = [];
+      $responseArray = data["data"]["rows"];
+      for (const data of $responseArray) {
+        this.getAllSlaveArray[data.type] = data.data;
+      }
+    }
+  });
 
-        this.graph.addCells(cells);
+    this.graph.addCells(cells);
 
-        // Disable mxGraph editing
-        this.graph.setEnabled(false);
-        // this.centerGraph();
+    // Disable mxGraph editing
+    this.graph.setEnabled(false);
+    // this.centerGraph();
 
-  }
+}
 
   readConfigSave() {
 
