@@ -281,9 +281,14 @@
                   This field is required.
                 </small>
               <br>
-              <textarea type="text" formControlName="mxgraph_code" class="form-control" [class.is-invalid]="mxGraphForm.get('mxgraph_code').touched && mxGraphForm.get('mxgraph_code').errors?.required"
+              <textarea type="text" formControlName="mxgraph_code" class="form-control" (input)="isMxCodeChange($event)" [class.is-invalid]="mxGraphForm.get('mxgraph_code').touched && mxGraphForm.get('mxgraph_code').errors?.required"
                 placeholder="Enter mxGraph XML (eg. <root> <mxCell id=..)">
               </textarea>
+              <br>
+              <input  [ngClass]="{'border-error-file': isErrorFileType}" type="file" id="mxGraphCode_id" style="height: auto;" class="form-control" (change)="fileChangeEvent($event)" >
+              <small *ngIf="isErrorFileType" class="fileError">
+                Please upload Text file only.
+              </small>
             </div>
           </form>
         </div>

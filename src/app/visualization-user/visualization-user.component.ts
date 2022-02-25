@@ -9,6 +9,7 @@ import { NgxSpinnerService } from "ngx-spinner";
 import { LayoutService } from '../layout/layout.service';
 import ResizeObserver from 'resize-observer-polyfill';
 
+
 import { NgbModal, NgbModalOptions, NgbTabset } from '@ng-bootstrap/ng-bootstrap';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { MxgraphEditComponent } from '../mxgraph-edit/mxgraph-edit.component';
@@ -60,6 +61,7 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
   selectedMxGraph = [];
   graph;
   ro;
+  roFullScreen;
   mxgraphData = [];
 
   // Selected mxGraph cell ID (ngModel binding)
@@ -162,7 +164,7 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
               private spinner: NgxSpinnerService,
               private layoutService: LayoutService,
               private _cdRef: ChangeDetectorRef,
-              private zone: NgZone
+              private zone: NgZone,
               ) {
     
     this.appService.pageTitle = 'Visualization Dashboard';
@@ -180,7 +182,7 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
   @HostListener('window:resize', ['$event'])
   onResize(event) {
     if (event) {
-      this.centerGraph();
+      this.centerGraph()
     }
   }
 
@@ -270,12 +272,12 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
     this.ro = new ResizeObserver(async entries => {
       for (let entry of entries) {
         const cr = entry.contentRect;
-        this.centerGraph();
         setTimeout(()=> {
           this.changeCellColour(this.cells);
           this.animateState(this.cells);
+          this.centerGraph();
           this._cdRef.detectChanges();
-        },60);
+        },0);
       }
     });
 
@@ -318,6 +320,7 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
     }
     this.toastr.clear();
     this.ro.unobserve(this.container.nativeElement)
+    this.ro.unobserve(this.divRef.nativeElement);
   }
 
 
@@ -470,8 +473,6 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
           elt = elt.nextSibling;
         }
 
-        
-        
         this.cells = cells;
      
         // Iterate read config field and change value of cells
@@ -482,15 +483,6 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
         this.loadingIndicator = false;    
 
         this.graph.refresh();
-
-        // Start 5 seconds interval subscription
-        if (this.subscription) {
-          // If already subscribed, unsubbed to the previous sub
-          this.subscription.unsubscribe();
-          this.sub(cells);
-        } else {
-          this.sub(cells);
-        }
 
         this.graph.addCells(cells);
         this.changeCellColour(this.cells)
@@ -506,6 +498,16 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
 
         this.centerGraph();
 
+        
+        // Start 5 seconds interval subscription
+        if (this.subscription) {
+          // If already subscribed, unsubbed to the previous sub
+          this.subscription.unsubscribe();
+          this.sub(cells);
+        } else {
+          this.sub(cells);
+        }
+
       }
     });
     // Stops loading spinner in Table
@@ -517,7 +519,7 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
   animateState(cells) {
     for(let i = 0; i < cells.length; i++) {
       let state =  this.graph.view.getState(cells[i]);
-      if(cells[i] == null || cells[i] == "") {
+      if(cells[i] == null || cells[i] == "" || !state) {
         // Skip Cells
       }
       else if(state == null || state == "") {
@@ -882,20 +884,24 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
   changeCellColour(cells) {
     for(let i = 0; i < cells.length; i++) {
       let state =  this.graph.view.getState(cells[i]);
-      if (cells[i] == null || cells[i] == "") {
+      if (cells[i] == null || cells[i] == "" || !state) {
         // Skip Cells
+        continue;
       }
       else if (this.config.CELL_VALUE_ON.indexOf(cells[i].value) > -1) {
-        state.style = mxUtils.clone(state.style);
+        // state.style = mxUtils.clone(state.style);
         state.style[mxConstants.STYLE_FILLCOLOR] = this.config.cell_colour_ON;
         state.shape.apply(state);
         state.shape.redraw();
       }
       else if (this.config.CELL_VALUE_OFF.indexOf(cells[i].value) > -1) {
-        state.style = mxUtils.clone(state.style);
+        // state.style = mxUtils.clone(state.style);
         state.style[mxConstants.STYLE_FILLCOLOR] = this.config.cell_colour_OFF;
         state.shape.apply(state);
         state.shape.redraw(); 
+      }
+      else {
+        // Skip
       }
     }
   }
@@ -981,6 +987,7 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
                         else{
                           // Sets the cell value using the mapped ID
                           cells[k].value = this.getAllSlaveArray[this.linkMappingReadConfig[i].slave].Items.Item[j].Value;
+                          this.graph.refresh();
                         }
                       }
                       else {
@@ -995,7 +1002,7 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
              
           }
         }
-          await this.restService.postData("getSlave", this.authService.getToken(), typeArray).toPromise().then(data => {
+        await this.restService.postData("getSlave", this.authService.getToken(), typeArray).toPromise().then(data => {
           // Success
         if (data["data"]["rows"] !== null) {
           if (data["status"] == 200 && data["data"]["rows"] !== false && data["data"]["rows"] !== null) {    
@@ -1013,6 +1020,7 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
         
     // this.changeCellColour(cells);
     // this.animateState(cells);
+    
   }
 
   /* Function: Change the value of the cells after getting value from function "sub" */
@@ -1338,15 +1346,23 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
     const elem = this.divRef.nativeElement;
   
     if (elem.requestFullscreen) {
-      await elem.requestFullscreen();
+      await elem.requestFullscreen().then(()=>{
+        setTimeout(()=>{ this.centerGraph(); }, 100);
+      });
     } else if (elem.msRequestFullscreen) {
-      await elem.msRequestFullscreen();
+      await elem.msRequestFullscreen().then(()=>{
+        setTimeout(()=>{ this.centerGraph(); }, 0);
+      });
     } else if (elem.mozRequestFullScreen) {
-      await elem.mozRequestFullScreen();
+      await elem.mozRequestFullScreen().then(()=>{
+        setTimeout(()=>{ this.centerGraph(); }, 0);
+      });
     } else if (elem.webkitRequestFullscreen) {
-      await elem.webkitRequestFullscreen();
+      await elem.webkitRequestFullscreen().then(()=>{
+        setTimeout(()=>{ this.centerGraph(); }, 0);
+      });
     }
-    setTimeout(()=>{ this.centerGraph(); }, 70);
+    setTimeout(()=>{ this.centerGraph(); }, 0);
   }
 
   fullScreenEvent() {
@@ -1358,6 +1374,7 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
       }
       else {
         thisC.isFullScreen = true;
+        setTimeout(()=>{ thisC.centerGraph(); }, 100);
       }   
     });
     document.addEventListener("mozfullscreenchange", function() {
@@ -1366,6 +1383,7 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
       }
       else {
         thisC.isFullScreen = true;
+        setTimeout(()=>{ thisC.centerGraph(); }, 100);
       }
     });
     document.addEventListener("webkitfullscreenchange", function() {
@@ -1374,6 +1392,7 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
       }
       else {
         thisC.isFullScreen = true;
+        setTimeout(()=>{ thisC.centerGraph(); }, 100);
       }
     });
     document.addEventListener("msfullscreenchange", function() {
@@ -1382,9 +1401,11 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
       }
       else {
         thisC.isFullScreen = true;
+        setTimeout(()=>{ thisC.centerGraph(); }, 100);
       }
     });
-    setTimeout(()=>{ thisC.centerGraph(); }, 70);
+    setTimeout(()=>{ thisC.centerGraph(); }, 100);
+    thisC._cdRef.detectChanges();
   }
 
 }

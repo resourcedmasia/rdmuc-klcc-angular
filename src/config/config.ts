@@ -33,6 +33,10 @@ export class Config {
         return code;
     }
 
+    mxFileNameFilter(value) {
+        return value.substr(0,value.length-4);
+    }
+
     subscriptionInterval = 10 * 1000;
 
     /* MxGraph Cell */
