@@ -4,7 +4,7 @@
 <div class="card mb-4 p-0" [ngClass]="{'col-sm-5' : !cardExpand , 'col-sm-7' : cardExpand}">
   <h4 class="card-header">
     <i class="ion ion-md-analytics"></i>&nbsp;&nbsp; Graph Selection
-    <i (click)="expand()" style="font-size: 13px; margin-top: 10px;" class="float-sm-right font-weight-light text-muted" [ngClass]="{'ion ion-ios-arrow-forward': !cardExpand , 'ion ion-ios-arrow-back': cardExpand}"></i>
+    <i (click)="expand()" style="font-size: 13px; margin-top: 10px; cursor: pointer;" class="float-sm-right font-weight-light text-muted" [ngClass]="{'ion ion-ios-arrow-forward': !cardExpand , 'ion ion-ios-arrow-back': cardExpand}"></i>
   </h4>
   <div #container id="container" class="card-body scroll justify-content-center">
     <ng-select appendTo="body" placeholder="Select Graph" [clearable]="false" [items]="selectedMxGraph" bindLabel="mxgraph_name"
