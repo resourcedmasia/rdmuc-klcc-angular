@@ -517,105 +517,160 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
 
   /* Function: Change the opacity of Image if value == 'On','Off' */
   animateState(cells) {
-    for(let i = 0; i < cells.length; i++) {
-      let state =  this.graph.view.getState(cells[i]);
-      if(cells[i] == null || cells[i] == "" || !state) {
-        // Skip Cells
-      }
-      else if(state == null || state == "") {
-        // Skip Cells
-      }
-      else if(cells[i] !== null && state.style.shape == "image") {
-
-        for(let j = 0; j < this.fieldArray.length; j++) {
-          if(this.fieldArray[j].slave_cell_id == cells[i].id) {
-            let slave = this.fieldArray[j].slave; 
-            let slave_name = this.fieldArray[j].slave_name;
-            let slave_type = this.fieldArray[j].slave_type;
-            
-            for (let k = 0; k < this.getAllSlaveArray[slave].Items.Item.length; k++) {
-              if(this.getAllSlaveArray[slave].Items.Item[k].Name == slave_name) {
-                let value = this.getAllSlaveArray[slave].Items.Item[k].Value;
-                  if (this.config.CELL_VALUE_ON.indexOf(value) > -1) {
-                    state.style = mxUtils.clone(state.style);
-                    state.shape.node.removeAttribute('visibility');
-                    state.shape.node.setAttribute('class','clockwiseSpin');
-                  }
-                  else if (this.config.CELL_VALUE_OFF.indexOf(value) > -1) {
-                    state.style = mxUtils.clone(state.style);
-                    state.shape.node.removeAttribute('clockwiseSpin');         
-                  }
-              }
-            }
-          }
-        }
-      }
-      else if(cells[i] !== null && state.style.shape == "connector") {
-        for(let j = 0; j < this.flowLink.length; j++) {
-          if( this.flowLink[j].cell_id == cells[i].id ){
-            if(this.flowLink[j].flow_type == this.config.FLOW_1) {
-              if(this.flowLink[j].flow_colour == this.config.FLOW_RED) {
-                state.shape.node.getElementsByTagName('path')[0].removeAttribute('visibility');
-                state.shape.node.getElementsByTagName('path')[0].setAttribute('stroke-width', '6');
-                state.shape.node.getElementsByTagName('path')[0].setAttribute('stroke', this.config.FLOW_COLOUR_RED);
-                state.shape.node.getElementsByTagName('path')[1].setAttribute('class', this.config.FLOW_1);
-                state.shape.node.getElementsByTagName('path')[2].setAttribute('stroke', this.config.FLOW_COLOUR_RED);
-                state.shape.node.getElementsByTagName('path')[2].setAttribute('fill', this.config.FLOW_COLOUR_RED);
-              }
-              else if(this.flowLink[j].flow_colour == this.config.FLOW_BLUE) {
-                state.shape.node.getElementsByTagName('path')[0].removeAttribute('visibility');
-                state.shape.node.getElementsByTagName('path')[0].setAttribute('stroke-width', '6');
-                state.shape.node.getElementsByTagName('path')[0].setAttribute('stroke', this.config.FLOW_COLOUR_BLUE);
-                state.shape.node.getElementsByTagName('path')[1].setAttribute('class', this.config.FLOW_1);
-                state.shape.node.getElementsByTagName('path')[2].setAttribute('stroke', this.config.FLOW_COLOUR_BLUE);
-                state.shape.node.getElementsByTagName('path')[2].setAttribute('fill', this.config.FLOW_COLOUR_BLUE);
-              }
-              else if(this.flowLink[j].flow_colour == this.config.FLOW_GREY) {
-                state.shape.node.getElementsByTagName('path')[0].removeAttribute('visibility');
-                state.shape.node.getElementsByTagName('path')[0].setAttribute('stroke-width', '6');
-                state.shape.node.getElementsByTagName('path')[0].setAttribute('stroke', this.config.FLOW_COLOUR_GREY);
-                state.shape.node.getElementsByTagName('path')[1].setAttribute('class', this.config.FLOW_1);
-                state.shape.node.getElementsByTagName('path')[2].setAttribute('stroke', this.config.FLOW_COLOUR_GREY);
-                state.shape.node.getElementsByTagName('path')[2].setAttribute('fill', this.config.FLOW_COLOUR_GREY);
-              }
-            }
-            else if(this.flowLink[j].flow_type == this.config.FLOW_2) {
-              if(this.flowLink[j].flow_colour == this.config.FLOW_RED) {
-                state.shape.node.getElementsByTagName('path')[0].removeAttribute('visibility');
-                state.shape.node.getElementsByTagName('path')[0].setAttribute('stroke-width', '6');
-                state.shape.node.getElementsByTagName('path')[0].setAttribute('stroke', this.config.FLOW_COLOUR_RED);
-                state.shape.node.getElementsByTagName('path')[1].setAttribute('class', this.config.FLOW_2);
-                state.shape.node.getElementsByTagName('path')[2].setAttribute('stroke', this.config.FLOW_COLOUR_RED);
-                state.shape.node.getElementsByTagName('path')[2].setAttribute('fill', this.config.FLOW_COLOUR_RED);
-              }
-              else if(this.flowLink[j].flow_colour == this.config.FLOW_BLUE) {
-                state.shape.node.getElementsByTagName('path')[0].removeAttribute('visibility');
-                state.shape.node.getElementsByTagName('path')[0].setAttribute('stroke-width', '6');
-                state.shape.node.getElementsByTagName('path')[0].setAttribute('stroke', this.config.FLOW_COLOUR_BLUE);
-                state.shape.node.getElementsByTagName('path')[1].setAttribute('class', this.config.FLOW_2);
-                state.shape.node.getElementsByTagName('path')[2].setAttribute('stroke', this.config.FLOW_COLOUR_BLUE);
-                state.shape.node.getElementsByTagName('path')[2].setAttribute('fill', this.config.FLOW_COLOUR_BLUE);
-              }
-              else if(this.flowLink[j].flow_colour == this.config.FLOW_GREY) {
-                state.shape.node.getElementsByTagName('path')[0].removeAttribute('visibility');
-                state.shape.node.getElementsByTagName('path')[0].setAttribute('stroke-width', '6');
-                state.shape.node.getElementsByTagName('path')[0].setAttribute('stroke', this.config.FLOW_COLOUR_GREY);
-                state.shape.node.getElementsByTagName('path')[1].setAttribute('class', this.config.FLOW_2);
-                state.shape.node.getElementsByTagName('path')[2].setAttribute('stroke', this.config.FLOW_COLOUR_GREY);
-                state.shape.node.getElementsByTagName('path')[2].setAttribute('fill', this.config.FLOW_COLOUR_GREY);
-              }
-            }
+   
+      for(let i = 0; i < cells.length; i++) {
+        let state =  this.graph.view.getState(cells[i]);
+        if(state && cells[i] !== null && cells[i] !== undefined) {
+          if (state.style.shape == "image") {
+            let cellImage = "";
+            let arr = [];
+            cellImage = state.style.image;
+            arr = cellImage.split(";")
+            var imageType = arr[0]; 
           }
           else {
-            //Skip
+            // Skip
           }
         }
-      }
-      else {
-        // Skip
+
+        if(cells[i] == null || cells[i] == "" || cells[i] == undefined || state == null || state == "") {
+          // Skip Cells
+        }
+        else if(cells[i] !== null && state.style.shape == "connector") {
+          for(let j = 0; j < this.flowLink.length; j++) {
+            if( this.flowLink[j].cell_id == cells[i].id ){
+              if(this.flowLink[j].flow_type == this.config.FLOW_1) {
+                if(this.flowLink[j].flow_colour == this.config.FLOW_RED) {
+                  state.shape.node.getElementsByTagName('path')[0].removeAttribute('visibility');
+                  state.shape.node.getElementsByTagName('path')[0].setAttribute('stroke-width', '6');
+                  state.shape.node.getElementsByTagName('path')[0].setAttribute('stroke', this.config.FLOW_COLOUR_RED);
+                  state.shape.node.getElementsByTagName('path')[1].setAttribute('class', this.config.FLOW_1);
+                  state.shape.node.getElementsByTagName('path')[2].setAttribute('stroke', this.config.FLOW_COLOUR_RED);
+                  state.shape.node.getElementsByTagName('path')[2].setAttribute('fill', this.config.FLOW_COLOUR_RED);
+                }
+                else if(this.flowLink[j].flow_colour == this.config.FLOW_BLUE) {
+                  state.shape.node.getElementsByTagName('path')[0].removeAttribute('visibility');
+                  state.shape.node.getElementsByTagName('path')[0].setAttribute('stroke-width', '6');
+                  state.shape.node.getElementsByTagName('path')[0].setAttribute('stroke', this.config.FLOW_COLOUR_BLUE);
+                  state.shape.node.getElementsByTagName('path')[1].setAttribute('class', this.config.FLOW_1);
+                  state.shape.node.getElementsByTagName('path')[2].setAttribute('stroke', this.config.FLOW_COLOUR_BLUE);
+                  state.shape.node.getElementsByTagName('path')[2].setAttribute('fill', this.config.FLOW_COLOUR_BLUE);
+                }
+                else if(this.flowLink[j].flow_colour == this.config.FLOW_GREY) {
+                  state.shape.node.getElementsByTagName('path')[0].removeAttribute('visibility');
+                  state.shape.node.getElementsByTagName('path')[0].setAttribute('stroke-width', '6');
+                  state.shape.node.getElementsByTagName('path')[0].setAttribute('stroke', this.config.FLOW_COLOUR_GREY);
+                  state.shape.node.getElementsByTagName('path')[1].setAttribute('class', this.config.FLOW_1);
+                  state.shape.node.getElementsByTagName('path')[2].setAttribute('stroke', this.config.FLOW_COLOUR_GREY);
+                  state.shape.node.getElementsByTagName('path')[2].setAttribute('fill', this.config.FLOW_COLOUR_GREY);
+                }
+              }
+              else if(this.flowLink[j].flow_type == this.config.FLOW_2) {
+                if(this.flowLink[j].flow_colour == this.config.FLOW_RED) {
+                  state.shape.node.getElementsByTagName('path')[0].removeAttribute('visibility');
+                  state.shape.node.getElementsByTagName('path')[0].setAttribute('stroke-width', '6');
+                  state.shape.node.getElementsByTagName('path')[0].setAttribute('stroke', this.config.FLOW_COLOUR_RED);
+                  state.shape.node.getElementsByTagName('path')[1].setAttribute('class', this.config.FLOW_2);
+                  state.shape.node.getElementsByTagName('path')[2].setAttribute('stroke', this.config.FLOW_COLOUR_RED);
+                  state.shape.node.getElementsByTagName('path')[2].setAttribute('fill', this.config.FLOW_COLOUR_RED);
+                }
+                else if(this.flowLink[j].flow_colour == this.config.FLOW_BLUE) {
+                  state.shape.node.getElementsByTagName('path')[0].removeAttribute('visibility');
+                  state.shape.node.getElementsByTagName('path')[0].setAttribute('stroke-width', '6');
+                  state.shape.node.getElementsByTagName('path')[0].setAttribute('stroke', this.config.FLOW_COLOUR_BLUE);
+                  state.shape.node.getElementsByTagName('path')[1].setAttribute('class', this.config.FLOW_2);
+                  state.shape.node.getElementsByTagName('path')[2].setAttribute('stroke', this.config.FLOW_COLOUR_BLUE);
+                  state.shape.node.getElementsByTagName('path')[2].setAttribute('fill', this.config.FLOW_COLOUR_BLUE);
+                }
+                else if(this.flowLink[j].flow_colour == this.config.FLOW_GREY) {
+                  state.shape.node.getElementsByTagName('path')[0].removeAttribute('visibility');
+                  state.shape.node.getElementsByTagName('path')[0].setAttribute('stroke-width', '6');
+                  state.shape.node.getElementsByTagName('path')[0].setAttribute('stroke', this.config.FLOW_COLOUR_GREY);
+                  state.shape.node.getElementsByTagName('path')[1].setAttribute('class', this.config.FLOW_2);
+                  state.shape.node.getElementsByTagName('path')[2].setAttribute('stroke', this.config.FLOW_COLOUR_GREY);
+                  state.shape.node.getElementsByTagName('path')[2].setAttribute('fill', this.config.FLOW_COLOUR_GREY);
+                }
+              }
+            }
+            else {
+              //Skip
+            }
+          }
+        }
+        else if(cells[i] !== null && state.style.shape == "image" && imageType == "data:image/png" || imageType == "data:image/jpeg" ) {
+          for(let j = 0; j < this.fieldArray.length; j++) {
+            if(this.fieldArray[j].slave_cell_id == cells[i].id) {
+              let slave = this.fieldArray[j].slave; 
+              let slave_name = this.fieldArray[j].slave_name;
+              let slave_type = this.fieldArray[j].slave_type;
+              
+                for (let k = 0; k < this.getAllSlaveArray[slave].Items.Item.length; k++) {
+                    if(this.getAllSlaveArray[slave].Items.Item[k].Name == slave_name) {
+                    let value = this.getAllSlaveArray[slave].Items.Item[k].Value;
+                      if (this.config.CELL_VALUE_ON.indexOf(value) > -1) {
+                        state.style = mxUtils.clone(state.style);
+                        state.shape.node.removeAttribute('visibility');
+                        state.shape.node.setAttribute('class','clockwiseSpin');
+                      }
+                      else if (this.config.CELL_VALUE_OFF.indexOf(value) > -1) {
+                        state.style = mxUtils.clone(state.style);
+                        state.shape.node.removeAttribute('clockwiseSpin');         
+                      }
+                      else {
+                        state.style = mxUtils.clone(state.style);
+                        state.shape.node.removeAttribute('clockwiseSpin');    
+                      }
+                  }
+                }
+            }
+          }
+        }
+        else if(cells[i] !== null &&  state.style.shape == "image" && imageType == "data:image/gif") {
+          for(let j = 0; j < this.fieldArray.length; j++) {
+            if(this.fieldArray[j].slave_cell_id == cells[i].id) {
+              let slave = this.fieldArray[j].slave; 
+              let slave_name = this.fieldArray[j].slave_name;
+              let slave_type = this.fieldArray[j].slave_type;
+              
+                for (let k = 0; k < this.getAllSlaveArray[slave].Items.Item.length; k++) {
+                    if(this.getAllSlaveArray[slave].Items.Item[k].Name == slave_name) {
+                    let value = this.getAllSlaveArray[slave].Items.Item[k].Value;
+                      if (this.config.CELL_VALUE_ON.indexOf(value) > -1) {
+                        // state.style = mxUtils.clone(state.style);
+                        // state.style[mxConstants.STYLE_STROKE_OPACITY] =  '100';
+                        state.style[mxConstants.STYLE_FILL_OPACITY] = '100';
+                        state.style[mxConstants.STYLE_OPACITY] = '100';   
+                        state.shape.apply(state);
+                        state.shape.redraw();
+                      }
+                      else if (this.config.CELL_VALUE_OFF.indexOf(value) > -1) {
+                        // state.style = mxUtils.clone(state.style);
+                        // state.style[mxConstants.STYLE_STROKE_OPACITY] =  '0';
+                        state.style[mxConstants.STYLE_FILL_OPACITY] = '0';    
+                        state.style[mxConstants.STYLE_OPACITY] = '0'; 
+                        state.shape.apply(state);
+                        state.shape.redraw();    
+                      }
+                      else {
+                        // state.style = mxUtils.clone(state.style);
+                        // state.style[mxConstants.STYLE_STROKE_OPACITY] =  '100';
+                        state.style[mxConstants.STYLE_FILL_OPACITY] = '100';  
+                        state.style[mxConstants.STYLE_OPACITY] = '100';
+                        state.shape.apply(state);
+                        state.shape.redraw();   
+                      }
+                  }
+                }
+            }
+          }
+        }
+        else {
+          // Skip
+          
+        }
       }
     }
-  }
+  
 
   /* Function: Makes the cells on the graph clickable */
   async addClickListener() {
