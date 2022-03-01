@@ -947,11 +947,20 @@ export class VisualizationComponent implements OnInit, OnDestroy {
 
 
         while (elt != null) {
-          cells.push(codec.decodeCell(elt));
+          let cell = codec.decode(elt)
+          if(cell != undefined){
+              if(cell.id != undefined && cell.parent != undefined && (cell.id == cell.parent)){
+                  elt = elt.nextSibling;
+                  continue;
+              }
+              cells.push(cell);
+          }
           elt = elt.nextSibling;
         }
 
-        
+        cells = cells.filter(function (el) {
+          return el != null;
+        });        
         
         this.cells = cells;
      
