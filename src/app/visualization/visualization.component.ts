@@ -955,6 +955,7 @@ export class VisualizationComponent implements OnInit, OnDestroy {
         let elt = doc.documentElement.firstChild;
         let cells = [];
 
+        this.graph.getModel().clear();
 
         while (elt != null) {
           let cell = codec.decode(elt)
@@ -1624,8 +1625,9 @@ export class VisualizationComponent implements OnInit, OnDestroy {
   }
 
   /* Function: Change the value of the cells after getting value from function "sub" */
-  refreshCells(cells) {
-    
+  refreshCells(cells) {        
+    this.graph.addCells(cells);
+    this.animateState(cells);
     for (let i = 0; i < this.linkMappingReadConfig.length; i++) {
       if (this.linkMappingReadConfig.length === 0) {
         console.log("Attribute is empty");
@@ -1649,8 +1651,8 @@ export class VisualizationComponent implements OnInit, OnDestroy {
                         // Skip
                       }
                       else {
-                        cells[k].value = this.getAllSlaveArray[this.linkMappingReadConfig[i].slave].Items.Item[j].Value;
-                        this.graph.refresh();
+                        this.unhighlightRow();
+                        cells[k].value = this.getAllSlaveArray[this.linkMappingReadConfig[i].slave].Items.Item[j].Value;                                                
                         if (this.isMouseHover == true) {
                           this.highlightRow(this.tempHoverField,event);
                         }
@@ -1668,8 +1670,7 @@ export class VisualizationComponent implements OnInit, OnDestroy {
          } 
         }
     }
-    this.animateState(cells);
-    // this.graph.refresh();
+    this.graph.refresh();
     // this.changeCellColour(cells);
   }
 
