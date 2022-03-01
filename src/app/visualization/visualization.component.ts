@@ -276,20 +276,10 @@ export class VisualizationComponent implements OnInit, OnDestroy {
     let cells = [];
 
     while (elt != null) {
-          let cell = codec.decode(elt)
-          if(cell != undefined){
-              if(cell.id != undefined && cell.parent != undefined && (cell.id == cell.parent)){
-                  elt = elt.nextSibling;
-                  continue;
-              }
-              cells.push(cell);
-          }
+      cells.push(codec.decodeCell(elt));
+      this.graph.refresh();
       elt = elt.nextSibling;
     }
-
-        cells = cells.filter(function (el) {
-          return el != null;
-        });
 
     this.graph.addCells(cells);
     // this.changeCellColour(this.cells)
@@ -472,7 +462,7 @@ export class VisualizationComponent implements OnInit, OnDestroy {
     
   }
 
-  addFlowFieldValue() {
+  async addFlowFieldValue() {
     console.log(this.newFlowAttribute)
     console.log("flow_type",this.newFlowAttribute.flow_type)
     console.log("flow_colour",this.newFlowAttribute.flow_colour)
@@ -517,7 +507,7 @@ export class VisualizationComponent implements OnInit, OnDestroy {
           this.graphClickable = false;
           this.removeClickListener();
           // Show toastr for unsaved changes.
-          this.unsavedToast();
+          await this.unsavedToast();
           this.isAddFlowError = false;
           this.animateState(this.cells);
         }
@@ -959,20 +949,10 @@ export class VisualizationComponent implements OnInit, OnDestroy {
         this.graph.getModel().clear();
 
         while (elt != null) {
-          let cell = codec.decode(elt)
-          if(cell != undefined){
-              if(cell.id != undefined && cell.parent != undefined && (cell.id == cell.parent)){
-                  elt = elt.nextSibling;
-                  continue;
-              }
-              cells.push(cell);
-          }
+          cells.push(codec.decodeCell(elt));
+          this.graph.refresh();
           elt = elt.nextSibling;
         }
-
-        cells = cells.filter(function (el) {
-          return el != null;
-        });        
         
         this.cells = cells;
      
@@ -1334,6 +1314,7 @@ export class VisualizationComponent implements OnInit, OnDestroy {
           try {
             // Get cell from model by cell ID string (https://jgraph.github.io/mxgraph/docs/js-api/files/model/mxGraphModel-js.html#mxGraphModel.getCell)
             let cell = model.getCell(evt.getProperty("cell").id);
+            console.log("adwqdqwd",cell)
             let cellStyle = cell.style;
             // Set value in cell when clicked
             if (valued) {
@@ -1677,7 +1658,6 @@ export class VisualizationComponent implements OnInit, OnDestroy {
   /* Function: Change the value of the cells after getting value from function "sub" */
   refreshCells(cells) {        
     this.graph.addCells(cells);
-    this.animateState(cells);
     for (let i = 0; i < this.linkMappingReadConfig.length; i++) {
       if (this.linkMappingReadConfig.length === 0) {
         console.log("Attribute is empty");
@@ -1723,6 +1703,7 @@ export class VisualizationComponent implements OnInit, OnDestroy {
         }
     }
     this.graph.refresh();
+    this.animateState(cells);
     // this.changeCellColour(cells);
   }
 

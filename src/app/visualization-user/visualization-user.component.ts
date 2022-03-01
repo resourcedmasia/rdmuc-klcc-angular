@@ -244,14 +244,7 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
     let cells = [];
 
     while (elt != null) {
-      let cell = codec.decode(elt)
-      if(cell != undefined){
-          if(cell.id != undefined && cell.parent != undefined && (cell.id == cell.parent)){
-              elt = elt.nextSibling;
-              continue;
-          }
-          cells.push(cell);
-      }
+      cells.push(codec.decodeCell(elt));
       elt = elt.nextSibling;
     }
 
@@ -478,21 +471,10 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
         let cells = [];
 
 
-        while (elt != null) {
-          let cell = codec.decode(elt)
-          if(cell != undefined){
-              if(cell.id != undefined && cell.parent != undefined && (cell.id == cell.parent)){
-                  elt = elt.nextSibling;
-                  continue;
-              }
-              cells.push(cell);
-          }
+       while (elt != null) {
+          cells.push(codec.decodeCell(elt));
           elt = elt.nextSibling;
         }
-
-        cells = cells.filter(function (el) {
-          return el != null;
-        });
 
         this.cells = cells;
      
@@ -548,6 +530,7 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
             cellImage = state.style.image;
             arr = cellImage.split(";")
             var imageType = arr[0]; 
+            console.log("imageType",imageType)
           }
           else {
             // Skip
@@ -619,6 +602,8 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
           }
         }
         else if(cells[i] !== null && state.style.shape == "image" && imageType == "data:image/png" || imageType == "data:image/jpeg" ) {
+          console.log("PNG");
+          console.log(state.style)
           for(let j = 0; j < this.fieldArray.length; j++) {
             if(this.fieldArray[j].slave_cell_id == cells[i].id) {
               let slave = this.fieldArray[j].slave; 
@@ -647,6 +632,8 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
           }
         }
         else if(cells[i] !== null &&  state.style.shape == "image" && imageType == "data:image/gif") {
+          console.log("GIF");
+          console.log("gif",state.style)
           for(let j = 0; j < this.fieldArray.length; j++) {
             if(this.fieldArray[j].slave_cell_id == cells[i].id) {
               let slave = this.fieldArray[j].slave; 
@@ -1103,7 +1090,7 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
   /* Function: Change the value of the cells after getting value from function "sub" */
   async refreshCells(cells) {
     this.graph.addCells(cells);
-    this.animateState(cells);
+    // this.animateState(cells);
     for (let i = 0; i < this.linkMappingReadConfig.length; i++) {
       if (this.linkMappingReadConfig.length === 0) {
         console.log("Attribute is empty");
@@ -1140,7 +1127,7 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
         }
     }
     this.graph.refresh();
-    // this.animateState(cells)
+    this.animateState(cells)
     this.changeCellColour(cells);
   }
 
