@@ -244,10 +244,20 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
     let cells = [];
 
     while (elt != null) {
-      cells.push(codec.decodeCell(elt));
-      this.graph.refresh();
+      let cell = codec.decode(elt)
+      if(cell != undefined){
+          if(cell.id != undefined && cell.parent != undefined && (cell.id == cell.parent)){
+              elt = elt.nextSibling;
+              continue;
+          }
+          cells.push(cell);
+      }
       elt = elt.nextSibling;
     }
+
+    cells = cells.filter(function (el) {
+      return el != null;
+    });
 
     this.graph.addCells(cells);
 
@@ -469,9 +479,20 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
 
 
         while (elt != null) {
-          cells.push(codec.decodeCell(elt));
+          let cell = codec.decode(elt)
+          if(cell != undefined){
+              if(cell.id != undefined && cell.parent != undefined && (cell.id == cell.parent)){
+                  elt = elt.nextSibling;
+                  continue;
+              }
+              cells.push(cell);
+          }
           elt = elt.nextSibling;
         }
+
+        cells = cells.filter(function (el) {
+          return el != null;
+        });
 
         this.cells = cells;
      
@@ -987,7 +1008,8 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
                         else{
                           // Sets the cell value using the mapped ID
                           cells[k].value = this.getAllSlaveArray[this.linkMappingReadConfig[i].slave].Items.Item[j].Value;
-                          this.graph.refresh();
+                          // this.graph.refresh();
+                          this.graph.addCells(cells);
                         }
                       }
                       else {
@@ -1025,7 +1047,8 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
 
   /* Function: Change the value of the cells after getting value from function "sub" */
   async refreshCells(cells) {
-    
+    this.graph.addCells(cells);
+    this.animateState(cells);
     for (let i = 0; i < this.linkMappingReadConfig.length; i++) {
       if (this.linkMappingReadConfig.length === 0) {
         console.log("Attribute is empty");
@@ -1049,7 +1072,7 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
                       else {
                         // Sets the cell value using the mapped ID
                         cells[k].value = this.getAllSlaveArray[this.linkMappingReadConfig[i].slave].Items.Item[j].Value;
-                        this.graph.refresh();
+                        // this.graph.refresh();
                       }
                     }
                     else {
@@ -1061,8 +1084,8 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
          } 
         }
     }
-    // this.graph.refresh();
-    this.animateState(cells)
+    this.graph.refresh();
+    // this.animateState(cells)
     this.changeCellColour(cells);
   }
 
