@@ -23,7 +23,6 @@ import { VerifyDeleteGraphModalComponent } from './verify-delete-graph-modal/ver
 import { SetGptimerModalComponent } from './set-gptimer-modal/set-gptimer-modal.component';
 import { CdkDragDrop, moveItemInArray } from "@angular/cdk/drag-drop";
 import { share } from 'rxjs/operators';
-import greenlet from 'greenlet'
 import { kill } from 'process';
 
 
