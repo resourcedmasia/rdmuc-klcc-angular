@@ -530,7 +530,6 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
             cellImage = state.style.image;
             arr = cellImage.split(";")
             var imageType = arr[0]; 
-            console.log("imageType",imageType)
           }
           else {
             // Skip
@@ -602,8 +601,6 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
           }
         }
         else if(cells[i] !== null && state.style.shape == "image" && imageType == "data:image/png" || imageType == "data:image/jpeg" ) {
-          console.log("PNG");
-          console.log(state.style)
           for(let j = 0; j < this.fieldArray.length; j++) {
             if(this.fieldArray[j].slave_cell_id == cells[i].id) {
               let slave = this.fieldArray[j].slave; 
@@ -632,8 +629,6 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
           }
         }
         else if(cells[i] !== null &&  state.style.shape == "image" && imageType == "data:image/gif") {
-          console.log("GIF");
-          console.log("gif",state.style)
           for(let j = 0; j < this.fieldArray.length; j++) {
             if(this.fieldArray[j].slave_cell_id == cells[i].id) {
               let slave = this.fieldArray[j].slave; 
