@@ -23,7 +23,8 @@ import { VerifyDeleteGraphModalComponent } from './verify-delete-graph-modal/ver
 import { SetGptimerModalComponent } from './set-gptimer-modal/set-gptimer-modal.component';
 import { CdkDragDrop, moveItemInArray } from "@angular/cdk/drag-drop";
 import { share } from 'rxjs/operators';
-
+import greenlet from 'greenlet'
+import { kill } from 'process';
 
 
 declare var mxUtils: any;
@@ -275,20 +276,10 @@ export class VisualizationComponent implements OnInit, OnDestroy {
     let cells = [];
 
     while (elt != null) {
-          let cell = codec.decode(elt)
-          if(cell != undefined){
-              if(cell.id != undefined && cell.parent != undefined && (cell.id == cell.parent)){
-                  elt = elt.nextSibling;
-                  continue;
-              }
-              cells.push(cell);
-          }
+      cells.push(codec.decodeCell(elt));
+      this.graph.refresh();
       elt = elt.nextSibling;
     }
-
-        cells = cells.filter(function (el) {
-          return el != null;
-        });
 
     this.graph.addCells(cells);
     // this.changeCellColour(this.cells)
@@ -471,7 +462,7 @@ export class VisualizationComponent implements OnInit, OnDestroy {
     
   }
 
-  addFlowFieldValue() {
+  async addFlowFieldValue() {
     console.log(this.newFlowAttribute)
     console.log("flow_type",this.newFlowAttribute.flow_type)
     console.log("flow_colour",this.newFlowAttribute.flow_colour)
@@ -516,7 +507,7 @@ export class VisualizationComponent implements OnInit, OnDestroy {
           this.graphClickable = false;
           this.removeClickListener();
           // Show toastr for unsaved changes.
-          this.unsavedToast();
+          await this.unsavedToast();
           this.isAddFlowError = false;
           this.animateState(this.cells);
         }
@@ -958,20 +949,10 @@ export class VisualizationComponent implements OnInit, OnDestroy {
         this.graph.getModel().clear();
 
         while (elt != null) {
-          let cell = codec.decode(elt)
-          if(cell != undefined){
-              if(cell.id != undefined && cell.parent != undefined && (cell.id == cell.parent)){
-                  elt = elt.nextSibling;
-                  continue;
-              }
-              cells.push(cell);
-          }
+          cells.push(codec.decodeCell(elt));
+          this.graph.refresh();
           elt = elt.nextSibling;
         }
-
-        cells = cells.filter(function (el) {
-          return el != null;
-        });        
         
         this.cells = cells;
      
@@ -1019,40 +1000,21 @@ export class VisualizationComponent implements OnInit, OnDestroy {
     if(this.isEdit == false) {
       for(let i = 0; i < cells.length; i++) {
         let state =  this.graph.view.getState(cells[i]);
-        if(cells[i] == null || cells[i] == "" || cells[i] == undefined) {
-          // Skip Cells
-        }
-        else if(state == null || state == "" || cells[i] == undefined) {
-          // Skip Cells
-        }
-        else if(cells[i] !== null && state.style.shape == "image" && cells[i] !== undefined && cells[i] !== "") {
-    
-          for(let j = 0; j < this.fieldArray.length; j++) {
-            if(this.fieldArray[j].slave_cell_id == cells[i].id) {
-              let slave = this.fieldArray[j].slave; 
-              let slave_name = this.fieldArray[j].slave_name;
-              let slave_type = this.fieldArray[j].slave_type;
-              
-                for (let k = 0; k < this.getAllSlaveArray[slave].Items.Item.length; k++) {
-                    if(this.getAllSlaveArray[slave].Items.Item[k].Name == slave_name) {
-                    let value = this.getAllSlaveArray[slave].Items.Item[k].Value;
-                      if (this.config.CELL_VALUE_ON.indexOf(value) > -1) {
-                        state.style = mxUtils.clone(state.style);
-                        state.shape.node.removeAttribute('visibility');
-                        state.shape.node.setAttribute('class','clockwiseSpin');
-                      }
-                      else if (this.config.CELL_VALUE_OFF.indexOf(value) > -1) {
-                        state.style = mxUtils.clone(state.style);
-                        state.shape.node.removeAttribute('clockwiseSpin');         
-                      }
-                      else {
-                        state.style = mxUtils.clone(state.style);
-                        state.shape.node.removeAttribute('clockwiseSpin');    
-                      }
-                  }
-                }
-            }
+        if(state && cells[i] !== null && cells[i] !== undefined) {
+          if (state.style.shape == "image") {
+            let cellImage = "";
+            let arr = [];
+            cellImage = state.style.image;
+            arr = cellImage.split(";")
+            var imageType = arr[0]; 
           }
+          else {
+            // Skip
+          }
+        }
+
+        if(cells[i] == null || cells[i] == "" || cells[i] == undefined || state == null || state == "") {
+          // Skip Cells
         }
         else if(cells[i] !== null && state.style.shape == "connector") {
           for(let j = 0; j < this.flowLink.length; j++) {
@@ -1115,6 +1077,73 @@ export class VisualizationComponent implements OnInit, OnDestroy {
             }
           }
         }
+        else if(cells[i] !== null && state.style.shape == "image" && imageType == "data:image/png" || imageType == "data:image/jpeg" ) {
+          for(let j = 0; j < this.fieldArray.length; j++) {
+            if(this.fieldArray[j].slave_cell_id == cells[i].id) {
+              let slave = this.fieldArray[j].slave; 
+              let slave_name = this.fieldArray[j].slave_name;
+              let slave_type = this.fieldArray[j].slave_type;
+              
+                for (let k = 0; k < this.getAllSlaveArray[slave].Items.Item.length; k++) {
+                    if(this.getAllSlaveArray[slave].Items.Item[k].Name == slave_name) {
+                    let value = this.getAllSlaveArray[slave].Items.Item[k].Value;
+                      if (this.config.CELL_VALUE_ON.indexOf(value) > -1) {
+                        state.style = mxUtils.clone(state.style);
+                        state.shape.node.removeAttribute('visibility');
+                        state.shape.node.setAttribute('class','clockwiseSpin');
+                      }
+                      else if (this.config.CELL_VALUE_OFF.indexOf(value) > -1) {
+                        state.style = mxUtils.clone(state.style);
+                        state.shape.node.removeAttribute('clockwiseSpin');         
+                      }
+                      else {
+                        state.style = mxUtils.clone(state.style);
+                        state.shape.node.removeAttribute('clockwiseSpin');    
+                      }
+                  }
+                }
+            }
+          }
+        }
+        else if(cells[i] !== null &&  state.style.shape == "image" && imageType == "data:image/gif") {
+          for(let j = 0; j < this.fieldArray.length; j++) {
+            if(this.fieldArray[j].slave_cell_id == cells[i].id) {
+              let slave = this.fieldArray[j].slave; 
+              let slave_name = this.fieldArray[j].slave_name;
+              let slave_type = this.fieldArray[j].slave_type;
+              
+                for (let k = 0; k < this.getAllSlaveArray[slave].Items.Item.length; k++) {
+                    if(this.getAllSlaveArray[slave].Items.Item[k].Name == slave_name) {
+                    let value = this.getAllSlaveArray[slave].Items.Item[k].Value;
+                      if (this.config.CELL_VALUE_ON.indexOf(value) > -1) {
+                        // state.style = mxUtils.clone(state.style);
+                        // state.style[mxConstants.STYLE_STROKE_OPACITY] =  '100';
+                        state.style[mxConstants.STYLE_FILL_OPACITY] = '100';
+                        state.style[mxConstants.STYLE_OPACITY] = '100';   
+                        state.shape.apply(state);
+                        state.shape.redraw();
+                      }
+                      else if (this.config.CELL_VALUE_OFF.indexOf(value) > -1) {
+                        // state.style = mxUtils.clone(state.style);
+                        // state.style[mxConstants.STYLE_STROKE_OPACITY] =  '0';
+                        state.style[mxConstants.STYLE_FILL_OPACITY] = '0';    
+                        state.style[mxConstants.STYLE_OPACITY] = '0'; 
+                        state.shape.apply(state);
+                        state.shape.redraw();    
+                      }
+                      else {
+                        // state.style = mxUtils.clone(state.style);
+                        // state.style[mxConstants.STYLE_STROKE_OPACITY] =  '100';
+                        state.style[mxConstants.STYLE_FILL_OPACITY] = '100';  
+                        state.style[mxConstants.STYLE_OPACITY] = '100';
+                        state.shape.apply(state);
+                        state.shape.redraw();   
+                      }
+                  }
+                }
+            }
+          }
+        }
         else {
           // Skip
           
@@ -1129,14 +1158,15 @@ export class VisualizationComponent implements OnInit, OnDestroy {
       let state =  this.graph.view.getState(cells[i]);
       if (cells[i] == null || cells[i] == "") {
         // Skip Cells
+        continue;
       }
-      else if (cells[i].value == "On" || cells[i].value == "ON") {
+      else if (this.config.CELL_VALUE_ON.indexOf(cells[i].value) > -1) {
         state.style = mxUtils.clone(state.style);
         state.style[mxConstants.STYLE_FILLCOLOR] = this.config.cell_colour_ON;
         state.shape.apply(state);
         state.shape.redraw();
       }
-      else if (cells[i].value == "Off" || cells[i].value == "OFF") {
+      else if (this.config.CELL_VALUE_OFF.indexOf(cells[i].value) > -1) {
         state.style = mxUtils.clone(state.style);
         state.style[mxConstants.STYLE_FILLCOLOR] = this.config.cell_colour_OFF;
         state.shape.apply(state);
@@ -1284,6 +1314,7 @@ export class VisualizationComponent implements OnInit, OnDestroy {
           try {
             // Get cell from model by cell ID string (https://jgraph.github.io/mxgraph/docs/js-api/files/model/mxGraphModel-js.html#mxGraphModel.getCell)
             let cell = model.getCell(evt.getProperty("cell").id);
+            console.log("adwqdqwd",cell)
             let cellStyle = cell.style;
             // Set value in cell when clicked
             if (valued) {
@@ -1531,12 +1562,12 @@ export class VisualizationComponent implements OnInit, OnDestroy {
   }
 
   /* Function: Makes API calls every 5 seconds */
-  sub(cells) {
+  async sub(cells) {
     // Normalize the object array through Slave
     const names = this.linkMappingReadConfig.map(o => o.slave);
     const filtered = this.linkMappingReadConfig.filter(({slave}, index) => !names.includes(slave, index + 1))
     // Set time out for 5 seconds
-    this.subscription = timer(0, this.config.subscriptionInterval).pipe().subscribe( () => {      
+    this.subscription = timer(0, this.config.subscriptionInterval).pipe().subscribe( async () => {      
       let typeArray = [];
       for(let i = 0; i < filtered.length; i++) {
         let typeObj = {};
@@ -1627,7 +1658,6 @@ export class VisualizationComponent implements OnInit, OnDestroy {
   /* Function: Change the value of the cells after getting value from function "sub" */
   refreshCells(cells) {        
     this.graph.addCells(cells);
-    this.animateState(cells);
     for (let i = 0; i < this.linkMappingReadConfig.length; i++) {
       if (this.linkMappingReadConfig.length === 0) {
         console.log("Attribute is empty");
@@ -1640,15 +1670,17 @@ export class VisualizationComponent implements OnInit, OnDestroy {
               // Iterate cells to find the matched controller name
               for (let j = 0; j < this.getAllSlaveArray[this.linkMappingReadConfig[i].slave].Items.Item.length; j++){
                 if (this.getAllSlaveArray[this.linkMappingReadConfig[i].slave].Items.Item[j].Name == this.linkMappingReadConfig[i].slave_name) {
-                  for (let k = 0; k < (cells.length); k++) {
+                  for (let k = 0; k < (cells.length); k++) { 
                     if (cells[k] == null) {
                       // Skip cell if null
+                     
                     }
                     else if (cells[k].id == this.linkMappingReadConfig[i].slave_cell_id){
                       // Sets the cell value using the mapped ID
                       let cellStyle = cells[k].style;
                       if(cellStyle.includes("image=data:image/gif") || cellStyle.includes("image=data:image")) {
                         // Skip
+                      
                       }
                       else {
                         this.unhighlightRow();
@@ -1671,6 +1703,7 @@ export class VisualizationComponent implements OnInit, OnDestroy {
         }
     }
     this.graph.refresh();
+    this.animateState(cells);
     // this.changeCellColour(cells);
   }
 
