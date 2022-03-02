@@ -1,5 +1,5 @@
 import { BrowserModule, Title } from '@angular/platform-browser';
-import { ErrorHandler, NgModule } from '@angular/core';
+import { NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { HttpClientModule } from '@angular/common/http';
@@ -77,8 +77,6 @@ import { DragDropModule } from '@angular/cdk/drag-drop';
 //
 // Config File
 import { Config } from '../config/config';
-import { GlobalErrorHandlerService } from './global-error-handler.service';
-
 
 
 
@@ -156,11 +154,6 @@ import { GlobalErrorHandlerService } from './global-error-handler.service';
     AppService,
     RestService,
     Config,
-    {
-      // processes all errors
-      provide: ErrorHandler,
-      useClass: GlobalErrorHandlerService,
-    },
   ],
 
   bootstrap: [
