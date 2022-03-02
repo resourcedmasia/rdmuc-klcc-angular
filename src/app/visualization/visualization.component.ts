@@ -627,7 +627,7 @@ export class VisualizationComponent implements OnInit, OnDestroy {
           
             // Call API if the selected slave is not in getAllSlaveArray to get the slave value
             if (this.getAllSlaveArray[event.slave] === "" || this.getAllSlaveArray[event.slave] == false) {
-
+             
             } 
       
             this.readOnly = i
@@ -637,32 +637,6 @@ export class VisualizationComponent implements OnInit, OnDestroy {
             this.addClickListener();
           }
       }
-      
-      let typeArray = [];
-      let typeObj = {};
-      typeObj['type'] = this.fieldArray[i].slave;
-      typeArray.push(typeObj);
-
-      await this.restService.postData("getSlave", this.authService.getToken(), typeArray).toPromise().then(async data => {
-        // Success
-        if (data["status"] == 200 && data["data"]["rows"] !== false) {
-          
-          let $responseArray = [];
-          $responseArray = data["data"]["rows"];
-          for (const data of $responseArray) {
-            this.getAllSlaveArray[data.type] = data.data;
-            for (let i = 0; i < this.getAllSlaveArray[event.slave].Items.Item.length; i++) {
-              if (this.getAllSlaveArray[event.slave].Items.Item[i].Name == event.slave_name) {
-                let cell_value = this.getAllSlaveArray[event.slave].Items.Item[i].Value
-                await this.config.asyncLocalStorage.setItem('cell_value', cell_value)
-              }
-            }
-          }
-        }
-        else {
-          console.log("Can't get data for Slave")
-        }
-      });
 
     },10);
    }

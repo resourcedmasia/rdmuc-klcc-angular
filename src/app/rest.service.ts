@@ -30,7 +30,7 @@ export class RestService {
       }).pipe(share(),
         catchError( err => {
           if (err.status === 500 ||  err.status === 503 ) {
-            this.warningToast('There are error with your connection.Please check your connection');
+            this.warningToast('There is an error with your connection. Please check your connection');
           }
           return err;
         })
