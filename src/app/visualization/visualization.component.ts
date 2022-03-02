@@ -935,14 +935,7 @@ export class VisualizationComponent implements OnInit, OnDestroy {
         this.loadingIndicator = false;    
         this.graph.refresh();
 
-        // Start 5 seconds interval subscription
-        if (this.subscription) {
-          // If already subscribed, unsubbed to the previous sub
-          this.subscription.unsubscribe();
-          this.sub(cells);
-        } else {
-          this.sub(cells);
-        }
+       
         
         this.graph.addCells(cells);
         this.animateState(cells);
@@ -960,13 +953,22 @@ export class VisualizationComponent implements OnInit, OnDestroy {
 
         
         this.centerGraph();
-        
+        // Stops loading spinner in Table
+        this.spinner.hide().then(()=> {
+           // Start 5 seconds interval subscription
+        if (this.subscription) {
+          // If already subscribed, unsubbed to the previous sub
+          this.subscription.unsubscribe();
+          this.sub(cells);
+        } else {
+          this.sub(cells);
+        }
+        });
         
 
       }
     });
-    // Stops loading spinner in Table
-    this.spinner.hide();
+  
   }
 
   animateState(cells) {
@@ -1630,7 +1632,7 @@ export class VisualizationComponent implements OnInit, OnDestroy {
 
   /* Function: Change the value of the cells after getting value from function "sub" */
   refreshCells(cells) {        
-    this.graph.addCells(cells);
+    // this.graph.addCells(cells);
     for (let i = 0; i < this.linkMappingReadConfig.length; i++) {
       if (this.linkMappingReadConfig.length === 0) {
         console.log("Attribute is empty");
@@ -2345,7 +2347,7 @@ export class VisualizationComponent implements OnInit, OnDestroy {
       // once it is set, whereas the above overrides the default value
       // state.style[mxConstants.STYLE_STROKE_OPACITY] = (hover) ? '60' : '100';
       // state.style[mxConstants.STYLE_FILL_OPACITY] = (hover) ? '40' : '100';
-      state.style[mxConstants.STYLE_ROUNDED] = (hover) ? '0' : '0';
+      // state.style[mxConstants.STYLE_ROUNDED] = (hover) ? '0' : '0';
       state.style[mxConstants.STYLE_STROKEWIDTH] = (hover) ? '2' : '1';
       // state.style[mxConstants.STYLE_FONTSTYLE] = (hover) ? mxConstants.FONT_BOLD : '0';
   };

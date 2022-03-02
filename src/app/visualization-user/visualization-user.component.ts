@@ -418,6 +418,7 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
                   let targetMxGraphName = {
                     mxgraph_name: mxgraphData["mxgraph_name"],
                   }
+                  // this.graphContainer.nativeElement.style.display = "none";
                   this.navigationLink[i] = Object.assign(this.navigationLink[i],targetMxGraphName)
                 }
               }); 
@@ -460,15 +461,17 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
     await this.restService.postData("getMxGraphCodeByID", this.authService.getToken(), {
       id: event.Id
     }).toPromise().then(async data => {
+      this.mxgraphData = [];
+      let mxgraphData = [];
       // Success
       if (data["status"] == 200) {
-        let mxgraphData = data["data"].rows[0];
+        mxgraphData = data["data"].rows[0];
         this.mxgraphData = data["data"].rows[0];
-
         let doc = mxUtils.parseXml(mxgraphData["mxgraph_code"]);
         let codec = new mxCodec(doc);
         let elt = doc.documentElement.firstChild;
         let cells = [];
+        this.cells = [];
 
 
        while (elt != null) {
@@ -479,7 +482,7 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
         this.cells = cells;
      
         // Iterate read config field and change value of cells
-        await this.generateCells(cells) 
+        this.generateCells(cells) 
 
      
         // Stops loading indicator  
@@ -500,9 +503,9 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
         this.addClickListener();
 
         this.centerGraph();
-
-        
-        // Start 5 seconds interval subscription
+        // Stops loading spinner in Table
+        this.spinner.hide().then(()=>{
+          // Start 5 seconds interval subscription
         if (this.subscription) {
           // If already subscribed, unsubbed to the previous sub
           this.subscription.unsubscribe();
@@ -510,11 +513,13 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
         } else {
           this.sub(cells);
         }
+        });
+        
+        
 
       }
     });
-    // Stops loading spinner in Table
-    this.spinner.hide();
+    
 
   }
 
@@ -1084,7 +1089,7 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
 
   /* Function: Change the value of the cells after getting value from function "sub" */
   async refreshCells(cells) {
-    this.graph.addCells(cells);
+    // this.graph.addCells(cells);
     // this.animateState(cells);
     for (let i = 0; i < this.linkMappingReadConfig.length; i++) {
       if (this.linkMappingReadConfig.length === 0) {
