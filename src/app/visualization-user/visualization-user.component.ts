@@ -1052,13 +1052,15 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
                         }
                         else{
                           // Sets the cell value using the mapped ID
-                          let cellValue = this.getAllSlaveArray[this.linkMappingReadConfig[i].slave].Items.Item[j].Value;
-                          let cellUnits = this.getAllSlaveArray[this.linkMappingReadConfig[i].slave].Items.Item[j].Units;
-                          if(cellUnits && cellUnits == this.config.UNITS_DEGREES_CELCIUS) {
-                            // Converts to °C
-                            cellUnits = this.config.SYMBOL_UNITS_DEGREES_CELCIUS;
+                          if(cells[k].value == "" || cells[k].value == null) {
+                            let cellValue = this.getAllSlaveArray[this.linkMappingReadConfig[i].slave].Items.Item[j].Value;
+                            let cellUnits = this.getAllSlaveArray[this.linkMappingReadConfig[i].slave].Items.Item[j].Units;
+                            if(cellUnits && cellUnits == this.config.UNITS_DEGREES_CELCIUS) {
+                              // Converts to °C
+                              cellUnits = this.config.SYMBOL_UNITS_DEGREES_CELCIUS;
+                            }
+                            cells[k].value = cellValue + " " + cellUnits;
                           }
-                          cells[k].value = cellValue + " " + cellUnits;
                           
                           // this.graph.refresh();
                           this.graph.addCells(cells);
@@ -1123,14 +1125,15 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
                       }
                       else {
                         // Sets the cell value using the mapped ID
-                        let cellValue = this.getAllSlaveArray[this.linkMappingReadConfig[i].slave].Items.Item[j].Value;
-                        let cellUnits = this.getAllSlaveArray[this.linkMappingReadConfig[i].slave].Items.Item[j].Units;
-                        
-                        if(cellUnits && cellUnits == this.config.UNITS_DEGREES_CELCIUS) {
-                          // Converts to °C
-                          cellUnits = this.config.SYMBOL_UNITS_DEGREES_CELCIUS;
+                        if(cells[k].value == "" || cells[k].value == null) {
+                          let cellValue = this.getAllSlaveArray[this.linkMappingReadConfig[i].slave].Items.Item[j].Value;
+                          let cellUnits = this.getAllSlaveArray[this.linkMappingReadConfig[i].slave].Items.Item[j].Units;
+                          if(cellUnits && cellUnits == this.config.UNITS_DEGREES_CELCIUS) {
+                            // Converts to °C
+                            cellUnits = this.config.SYMBOL_UNITS_DEGREES_CELCIUS;
+                          }
+                          cells[k].value = cellValue + " " + cellUnits;
                         }
-                        cells[k].value = cellValue + " " + cellUnits;
                       }
                     }
                     else {

@@ -1298,15 +1298,18 @@ export class VisualizationComponent implements OnInit, OnDestroy {
           try {
             // Get cell from model by cell ID string (https://jgraph.github.io/mxgraph/docs/js-api/files/model/mxGraphModel-js.html#mxGraphModel.getCell)
             let cell = model.getCell(evt.getProperty("cell").id);
-            console.log("adwqdqwd",cell)
             let cellStyle = cell.style;
+            let cellValue = cell.value;
+            let cellValueTrimmed = cellValue.trim();
             // Set value in cell when clicked
             if (valued) {
               if(cellStyle.includes("image=data:image/gif") || cellStyle.includes("image=data:image")) {
                 // Skip
               }
               else {
-                model.setValue(cell, valued);
+                if (cellValueTrimmed == "" || cellValueTrimmed == null) {
+                  model.setValue(cell, valued);
+                }
               }
               
               for (let i = 0; i < tempFieldArray.length; i++) {
@@ -1605,13 +1608,15 @@ export class VisualizationComponent implements OnInit, OnDestroy {
                           // Skip
                         }
                         else {
-                          let cellValue = this.getAllSlaveArray[this.linkMappingReadConfig[i].slave].Items.Item[j].Value;
-                          let cellUnits = this.getAllSlaveArray[this.linkMappingReadConfig[i].slave].Items.Item[j].Units;
-                          if(cellUnits && cellUnits == this.config.UNITS_DEGREES_CELCIUS) {
-                            // Converts to °C
-                            cellUnits = this.config.SYMBOL_UNITS_DEGREES_CELCIUS;
+                          if(cells[k].value == "" || cells[k].value == null) {
+                            let cellValue = this.getAllSlaveArray[this.linkMappingReadConfig[i].slave].Items.Item[j].Value;
+                            let cellUnits = this.getAllSlaveArray[this.linkMappingReadConfig[i].slave].Items.Item[j].Units;
+                            if(cellUnits && cellUnits == this.config.UNITS_DEGREES_CELCIUS) {
+                              // Converts to °C
+                              cellUnits = this.config.SYMBOL_UNITS_DEGREES_CELCIUS;
+                            }
+                            cells[k].value = cellValue + " " + cellUnits;
                           }
-                          cells[k].value = cellValue + " " + cellUnits;
                         }    
                       }
                       else {
@@ -1673,13 +1678,15 @@ export class VisualizationComponent implements OnInit, OnDestroy {
                       }
                       else {
                         this.unhighlightRow();
-                        let cellValue = this.getAllSlaveArray[this.linkMappingReadConfig[i].slave].Items.Item[j].Value;
+                        if(cells[k].value == "" || cells[k].value == null) {
+                          let cellValue = this.getAllSlaveArray[this.linkMappingReadConfig[i].slave].Items.Item[j].Value;
                           let cellUnits = this.getAllSlaveArray[this.linkMappingReadConfig[i].slave].Items.Item[j].Units;
                           if(cellUnits && cellUnits == this.config.UNITS_DEGREES_CELCIUS) {
                             // Converts to °C
                             cellUnits = this.config.SYMBOL_UNITS_DEGREES_CELCIUS;
                           }
-                          cells[k].value = cellValue + " " + cellUnits;                                               
+                          cells[k].value = cellValue + " " + cellUnits;
+                        }                                               
                         if (this.isMouseHover == true) {
                           this.highlightRow(this.tempHoverField,event);
                         }
