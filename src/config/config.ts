@@ -69,8 +69,9 @@ export class Config {
 
     FLOW_COLOUR_GREY = 'lightGray';
 
+    UNITS_DEGREES_CELCIUS = "Deg. C";
 
-
+    SYMBOL_UNITS_DEGREES_CELCIUS = "°C";
 
 
 }

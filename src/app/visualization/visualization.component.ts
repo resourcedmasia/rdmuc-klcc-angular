@@ -1132,16 +1132,25 @@ export class VisualizationComponent implements OnInit, OnDestroy {
     for(let i = 0; i < cells.length; i++) {
       let state =  this.graph.view.getState(cells[i]);
       if (cells[i] == null || cells[i] == "") {
+        // Skip
+        continue;
+      }
+      else {
+        let cellValue = cells[i].value;
+        var cellValueTrimmed  = typeof cellValue === 'string' ? cellValue.trim() : '';
+      }
+
+      if (cells[i] == null || cells[i] == "") {
         // Skip Cells
         continue;
       }
-      else if (this.config.CELL_VALUE_ON.indexOf(cells[i].value) > -1) {
+      else if (this.config.CELL_VALUE_ON.indexOf(cellValueTrimmed) > -1) {
         state.style = mxUtils.clone(state.style);
         state.style[mxConstants.STYLE_FILLCOLOR] = this.config.cell_colour_ON;
         state.shape.apply(state);
         state.shape.redraw();
       }
-      else if (this.config.CELL_VALUE_OFF.indexOf(cells[i].value) > -1) {
+      else if (this.config.CELL_VALUE_OFF.indexOf(cellValueTrimmed) > -1) {
         state.style = mxUtils.clone(state.style);
         state.style[mxConstants.STYLE_FILLCOLOR] = this.config.cell_colour_OFF;
         state.shape.apply(state);
@@ -1596,8 +1605,13 @@ export class VisualizationComponent implements OnInit, OnDestroy {
                           // Skip
                         }
                         else {
-                          // Sets the cell value using the mapped ID
-                          cells[k].value = this.getAllSlaveArray[this.linkMappingReadConfig[i].slave].Items.Item[j].Value;
+                          let cellValue = this.getAllSlaveArray[this.linkMappingReadConfig[i].slave].Items.Item[j].Value;
+                          let cellUnits = this.getAllSlaveArray[this.linkMappingReadConfig[i].slave].Items.Item[j].Units;
+                          if(cellUnits && cellUnits == this.config.UNITS_DEGREES_CELCIUS) {
+                            // Converts to °C
+                            cellUnits = this.config.SYMBOL_UNITS_DEGREES_CELCIUS;
+                          }
+                          cells[k].value = cellValue + " " + cellUnits;
                         }    
                       }
                       else {
@@ -1659,7 +1673,13 @@ export class VisualizationComponent implements OnInit, OnDestroy {
                       }
                       else {
                         this.unhighlightRow();
-                        cells[k].value = this.getAllSlaveArray[this.linkMappingReadConfig[i].slave].Items.Item[j].Value;                                                
+                        let cellValue = this.getAllSlaveArray[this.linkMappingReadConfig[i].slave].Items.Item[j].Value;
+                          let cellUnits = this.getAllSlaveArray[this.linkMappingReadConfig[i].slave].Items.Item[j].Units;
+                          if(cellUnits && cellUnits == this.config.UNITS_DEGREES_CELCIUS) {
+                            // Converts to °C
+                            cellUnits = this.config.SYMBOL_UNITS_DEGREES_CELCIUS;
+                          }
+                          cells[k].value = cellValue + " " + cellUnits;                                               
                         if (this.isMouseHover == true) {
                           this.highlightRow(this.tempHoverField,event);
                         }
@@ -2338,8 +2358,16 @@ export class VisualizationComponent implements OnInit, OnDestroy {
   updateStyle(state, hover) {
       if (hover)
       {
-        state.style[mxConstants.STYLE_FILLCOLOR] = '#00FF00';
-        state.style[mxConstants.STYLE_STROKECOLOR] = '#00FF00';
+        if(state.style.shape == "image") {
+          state.style[mxConstants.STYLE_OPACITY] = '70'; 
+          state.style[mxConstants.STYLE_IMAGE_BACKGROUND] = '#00FF00';
+          state.style[mxConstants.STYLE_IMAGE_BORDER] = '#00FF00';
+        }
+        else {
+          state.style[mxConstants.STYLE_FILLCOLOR] = '#00FF00';
+          state.style[mxConstants.STYLE_STROKECOLOR] = '#00FF00';
+        }
+        
       }
       
       // Sets rounded style for both cases since the rounded style
@@ -2348,7 +2376,7 @@ export class VisualizationComponent implements OnInit, OnDestroy {
       // state.style[mxConstants.STYLE_STROKE_OPACITY] = (hover) ? '60' : '100';
       // state.style[mxConstants.STYLE_FILL_OPACITY] = (hover) ? '40' : '100';
       // state.style[mxConstants.STYLE_ROUNDED] = (hover) ? '0' : '0';
-      state.style[mxConstants.STYLE_STROKEWIDTH] = (hover) ? '2' : '1';
+      // state.style[mxConstants.STYLE_STROKEWIDTH] = (hover) ? '2' : '1';
       // state.style[mxConstants.STYLE_FONTSTYLE] = (hover) ? mxConstants.FONT_BOLD : '0';
   };
 

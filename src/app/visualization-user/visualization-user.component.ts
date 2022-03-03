@@ -482,7 +482,7 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
         this.cells = cells;
      
         // Iterate read config field and change value of cells
-        this.generateCells(cells) 
+        await this.generateCells(cells) 
 
      
         // Stops loading indicator  
@@ -506,13 +506,13 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
         // Stops loading spinner in Table
         this.spinner.hide().then(()=>{
           // Start 5 seconds interval subscription
-        if (this.subscription) {
+          if (this.subscription) {
           // If already subscribed, unsubbed to the previous sub
-          this.subscription.unsubscribe();
-          this.sub(cells);
-        } else {
-          this.sub(cells);
-        }
+            this.subscription.unsubscribe();
+            this.sub(cells);
+          } else {
+            this.sub(cells);
+          }
         });
         
         
@@ -639,29 +639,23 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
               let slave = this.fieldArray[j].slave; 
               let slave_name = this.fieldArray[j].slave_name;
               let slave_type = this.fieldArray[j].slave_type;
-              
+
                 for (let k = 0; k < this.getAllSlaveArray[slave].Items.Item.length; k++) {
                     if(this.getAllSlaveArray[slave].Items.Item[k].Name == slave_name) {
                     let value = this.getAllSlaveArray[slave].Items.Item[k].Value;
                       if (this.config.CELL_VALUE_ON.indexOf(value) > -1) {
-                        // state.style = mxUtils.clone(state.style);
-                        // state.style[mxConstants.STYLE_STROKE_OPACITY] =  '100';
                         state.style[mxConstants.STYLE_FILL_OPACITY] = '100';
                         state.style[mxConstants.STYLE_OPACITY] = '100';   
                         state.shape.apply(state);
                         state.shape.redraw();
                       }
                       else if (this.config.CELL_VALUE_OFF.indexOf(value) > -1) {
-                        // state.style = mxUtils.clone(state.style);
-                        // state.style[mxConstants.STYLE_STROKE_OPACITY] =  '0';
                         state.style[mxConstants.STYLE_FILL_OPACITY] = '0';    
                         state.style[mxConstants.STYLE_OPACITY] = '0'; 
                         state.shape.apply(state);
                         state.shape.redraw();    
                       }
                       else {
-                        // state.style = mxUtils.clone(state.style);
-                        // state.style[mxConstants.STYLE_STROKE_OPACITY] =  '100';
                         state.style[mxConstants.STYLE_FILL_OPACITY] = '100';  
                         state.style[mxConstants.STYLE_OPACITY] = '100';
                         state.shape.apply(state);
@@ -947,17 +941,26 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
   changeCellColour(cells) {
     for(let i = 0; i < cells.length; i++) {
       let state =  this.graph.view.getState(cells[i]);
+      if (cells[i] == null || cells[i] == "") {
+        // Skip
+        continue;
+      }
+      else {
+        let cellValue = cells[i].value;
+        var cellValueTrimmed  = typeof cellValue === 'string' ? cellValue.trim() : '';
+      }
+
       if (cells[i] == null || cells[i] == "" || !state) {
         // Skip Cells
         continue;
       }
-      else if (this.config.CELL_VALUE_ON.indexOf(cells[i].value) > -1) {
+      else if (this.config.CELL_VALUE_ON.indexOf(cellValueTrimmed) > -1) {
         // state.style = mxUtils.clone(state.style);
         state.style[mxConstants.STYLE_FILLCOLOR] = this.config.cell_colour_ON;
         state.shape.apply(state);
         state.shape.redraw();
       }
-      else if (this.config.CELL_VALUE_OFF.indexOf(cells[i].value) > -1) {
+      else if (this.config.CELL_VALUE_OFF.indexOf(cellValueTrimmed) > -1) {
         // state.style = mxUtils.clone(state.style);
         state.style[mxConstants.STYLE_FILLCOLOR] = this.config.cell_colour_OFF;
         state.shape.apply(state);
@@ -1049,7 +1052,14 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
                         }
                         else{
                           // Sets the cell value using the mapped ID
-                          cells[k].value = this.getAllSlaveArray[this.linkMappingReadConfig[i].slave].Items.Item[j].Value;
+                          let cellValue = this.getAllSlaveArray[this.linkMappingReadConfig[i].slave].Items.Item[j].Value;
+                          let cellUnits = this.getAllSlaveArray[this.linkMappingReadConfig[i].slave].Items.Item[j].Units;
+                          if(cellUnits && cellUnits == this.config.UNITS_DEGREES_CELCIUS) {
+                            // Converts to °C
+                            cellUnits = this.config.SYMBOL_UNITS_DEGREES_CELCIUS;
+                          }
+                          cells[k].value = cellValue + " " + cellUnits;
+                          
                           // this.graph.refresh();
                           this.graph.addCells(cells);
                         }
@@ -1113,8 +1123,14 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
                       }
                       else {
                         // Sets the cell value using the mapped ID
-                        cells[k].value = this.getAllSlaveArray[this.linkMappingReadConfig[i].slave].Items.Item[j].Value;
-                        // this.graph.refresh();
+                        let cellValue = this.getAllSlaveArray[this.linkMappingReadConfig[i].slave].Items.Item[j].Value;
+                        let cellUnits = this.getAllSlaveArray[this.linkMappingReadConfig[i].slave].Items.Item[j].Units;
+                        
+                        if(cellUnits && cellUnits == this.config.UNITS_DEGREES_CELCIUS) {
+                          // Converts to °C
+                          cellUnits = this.config.SYMBOL_UNITS_DEGREES_CELCIUS;
+                        }
+                        cells[k].value = cellValue + " " + cellUnits;
                       }
                     }
                     else {
