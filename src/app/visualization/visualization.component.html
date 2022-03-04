@@ -6,10 +6,23 @@
     <i class="ion ion-md-analytics"></i>&nbsp;&nbsp; Graph Selection
     <i (click)="expand()" style="font-size: 13px; margin-top: 10px; cursor: pointer;" class="float-sm-right font-weight-light text-muted" [ngClass]="{'ion ion-ios-arrow-forward': !cardExpand , 'ion ion-ios-arrow-back': cardExpand}"></i>
   </h4>
-  <div #container id="container" class="card-body scroll justify-content-center">
+
+  <div class="card-body">
     <ng-select appendTo="body" placeholder="Select Graph" [clearable]="false" [items]="selectedMxGraph" bindLabel="mxgraph_name"
-      [(ngModel)]="selectedGraph" (change)="onSelectGraph($event)">
+    [(ngModel)]="selectedGraph" (change)="onSelectGraph($event)">
     </ng-select>
+    <div style="display: flex;">
+      <button class="btn-zoom" (click)="zoomIn(); disabledCenter(true)">
+        <i class="ion ion-md-add"></i>
+      </button>
+      <button class="btn-zoom" (click)="zoomOut(); disabledCenter(true)">
+        <i class="
+        ion-md-remove-circle-outline"></i>
+      </button>    
+    </div>
+  </div>
+
+  <div #container id="container" class="card-body scroll justify-content-center">
     <div #graphContainer id="graphContainer"></div>
   </div>
 </div>
