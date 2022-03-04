@@ -145,6 +145,7 @@ export class VisualizationComponent implements OnInit, OnDestroy {
   currentState: any;
   ng_mxgraph_code: any;
   fileUploadEvent: any;
+  isDisabledCenter = false;
   
 
 
@@ -319,6 +320,7 @@ export class VisualizationComponent implements OnInit, OnDestroy {
   }
 
   centerGraph() {
+    if (!this.isDisabledCenter) {
    
     this.graph.view.rendering = true;
 
@@ -343,8 +345,7 @@ export class VisualizationComponent implements OnInit, OnDestroy {
     this.graph.refresh();
     // this.changeCellColour(this.cells)
     this.animateState(this.cells)
-
-
+    }
   }
 
   ngOnDestroy() {
@@ -770,6 +771,7 @@ export class VisualizationComponent implements OnInit, OnDestroy {
   async onSelectGraph(event) {
     
     // Starts loading spinner in Table
+    this.isDisabledCenter = false;
     this.spinner.show();
     this.graphClickable = false;
     this.hideEditGraph = false;
@@ -2656,6 +2658,25 @@ export class VisualizationComponent implements OnInit, OnDestroy {
 
 
 
+  zoomIn() {
+    this.graph.zoomIn();
+    let bounds = this.graph.getGraphBounds(); 
+    this.graph.view.setTranslate
+    (-bounds.x - (bounds.width - this.graph.container.clientWidth) / 2, -bounds.y - 
+    (bounds.height - this.graph.container.clientHeight) / 2);  
+  }
+
+  zoomOut() {
+    this.graph.zoomOut();
+    let bounds = this.graph.getGraphBounds(); 
+    this.graph.view.setTranslate
+    (-bounds.x - (bounds.width - this.graph.container.clientWidth) / 2, -bounds.y - 
+    (bounds.height - this.graph.container.clientHeight) / 2);  
+  }
+
+  disabledCenter(flag: boolean) {
+    this.isDisabledCenter = flag;
+  }
 }
 
 
