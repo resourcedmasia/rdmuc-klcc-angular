@@ -2541,7 +2541,7 @@ export class VisualizationComponent implements OnInit, OnDestroy {
     } else {
       this.cardExpand = true;
     } 
-
+    this.isDisabledCenter = false;
     setTimeout(()=>{ this.centerGraph(); }, 10);
 
   }
@@ -2662,16 +2662,16 @@ export class VisualizationComponent implements OnInit, OnDestroy {
     this.graph.zoomIn();
     let bounds = this.graph.getGraphBounds(); 
     this.graph.view.setTranslate
-    (-bounds.x - (bounds.width - this.graph.container.clientWidth) / 2, -bounds.y - 
-    (bounds.height - this.graph.container.clientHeight) / 2);  
+    (-bounds.x - (bounds.width - this.graph.container.clientWidth) / 3, -bounds.y - 
+    (bounds.height - this.graph.container.clientHeight) / 3);  
   }
 
   zoomOut() {
     this.graph.zoomOut();
     let bounds = this.graph.getGraphBounds(); 
     this.graph.view.setTranslate
-    (-bounds.x - (bounds.width - this.graph.container.clientWidth) / 2, -bounds.y - 
-    (bounds.height - this.graph.container.clientHeight) / 2);  
+    (-bounds.x - (bounds.width - this.graph.container.clientWidth) / 3, -bounds.y - 
+    (bounds.height - this.graph.container.clientHeight) / 3);  
   }
 
   disabledCenter(flag: boolean) {
