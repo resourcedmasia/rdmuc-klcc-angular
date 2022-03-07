@@ -14,7 +14,7 @@ export class RestService {
     ) { }
 
   // API Endpoint
-  private baseUrl = 'http://10.1.128.128:8080/api/api.php';
+  private baseUrl = 'http://10.1.128.18:8080/api/api.php';
   // private baseUrl = 'http://wismagenting.uc.rdmsite.com/api/api.php';
   
 
