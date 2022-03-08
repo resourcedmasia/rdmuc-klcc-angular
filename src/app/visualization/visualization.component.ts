@@ -21,6 +21,7 @@ import { VerifyUserModalComponent } from './verify-user-modal/verify-user-modal.
 import { DeleteGraphModalComponent } from './delete-graph-modal/delete-graph-modal.component';
 import { VerifyDeleteGraphModalComponent } from './verify-delete-graph-modal/verify-delete-graph-modal.component';
 import { SetGptimerModalComponent } from './set-gptimer-modal/set-gptimer-modal.component';
+import { ReadActiveAlarmComponent } from './read-active-alarm/read-active-alarm.component';
 import { CdkDragDrop, moveItemInArray } from "@angular/cdk/drag-drop";
 import { share } from 'rxjs/operators';
 import { kill } from 'process';
@@ -91,6 +92,7 @@ export class VisualizationComponent implements OnInit, OnDestroy {
   slaveArray = [];
   getAllSlaveArray = [];
   getSlaveValue = [];
+  getAllActiveAlarms = [];
   mxGraphFloors = [];
   tempLinkMap = {};
   tempNavLinkMap = {};
@@ -934,18 +936,22 @@ export class VisualizationComponent implements OnInit, OnDestroy {
         // Iterate read config field and change value of cells
         await this.generateCells(cells) 
         // Stops loading indicator  
-        this.loadingIndicator = false;    
+        this.loadingIndicator = false;  
+        this.graph.addCells(cells);  
         this.graph.refresh();
 
        
         
-        this.graph.addCells(cells);
+       
         this.animateState(cells);
 
         // this.changeCellColour(cells);
 
         // GPTimer Overlay
         this.addCellOverlay(cells);
+
+        // Get Active Alarm
+        this.getActiveAlarm();
 
         // Disable mxGraph editing
         this.graph.setEnabled(false);
@@ -971,6 +977,47 @@ export class VisualizationComponent implements OnInit, OnDestroy {
       }
     });
   
+  }
+
+  getActiveAlarm() {
+    this.restService.postData("getActiveAlarmSoap", this.authService.getToken()).subscribe(data => {  
+      // Success
+      if (data["status"] == 200 && data["data"]["rows"] !== false && data["data"]["rows"] !== null) { 
+        let $responseArray = [];
+        $responseArray = data["data"]["rows"];
+        this.getAllActiveAlarms = $responseArray;
+     
+        if ($responseArray.length > 0) {
+          let temp = this.graph.getModel().getCell("alarm-id");
+          if (temp) {
+            this.graph.getModel().remove(temp)
+          }
+          let parent = this.graph.getDefaultParent();
+          var custom = new Object();
+          custom[mxConstants.STYLE_SHAPE] = 'image';
+          custom[mxConstants.STYLE_IMAGE] = '../../assets/img/warning.gif';
+          this.graph.getStylesheet().putCellStyle('customstyle', custom);
+          this.graph.insertVertex(parent,"alarm-id",null,0,0,70,70,'customstyle',false)
+          this.centerGraph();
+        }
+        else {
+          let temp = this.graph.getModel().getCell("alarm-id");
+          if (temp) {
+            this.getAllActiveAlarms = [];
+            this.graph.getModel().remove(temp);
+            this.graph.refresh();
+          }
+        }
+      }
+      else {
+        let temp = this.graph.getModel().getCell("alarm-id");
+        if (temp) {
+          this.getAllActiveAlarms = [];
+          this.graph.getModel().remove(temp);
+          this.graph.refresh();
+        }
+      }
+   });
   }
 
   animateState(cells) {
@@ -1392,9 +1439,6 @@ export class VisualizationComponent implements OnInit, OnDestroy {
         let cellStyle = evt.properties.cell.style;
         let cellId = evt.properties.cell.id;
        
-        // if(cellStyle.includes("image=data:image/gif")) {
-
-        // }
         for (let i = 0; i < linkMap.length; i++) {
           if (linkMap[i].slave_cell_id == cellId && linkMap[i].slave_type == "Parameter" && !cellStyle.includes("image=data:image")) {
             let row = {
@@ -1451,6 +1495,12 @@ export class VisualizationComponent implements OnInit, OnDestroy {
             thisContext.onSelectGraph(graphData);
             thisContext.selectedGraph = graphData.mxgraph_name;
           }
+        }
+
+        if(cellId == "alarm-id") {
+          let row = thisContext.getAllActiveAlarms;
+          const modalRef = modalService.open(ReadActiveAlarmComponent);
+          modalRef.componentInstance.row = row;
         }
    
       }
@@ -1580,6 +1630,7 @@ export class VisualizationComponent implements OnInit, OnDestroy {
     });    
         // Re-add the cells with new value
         this.refreshCells(cells);
+        this.getActiveAlarm();
     });
 
   }
@@ -1680,7 +1731,7 @@ export class VisualizationComponent implements OnInit, OnDestroy {
                       }
                       else {
                         this.unhighlightRow();
-                        if(cells[k].value == "" || cells[k].value == null) {
+                       
                           let cellValue = this.getAllSlaveArray[this.linkMappingReadConfig[i].slave].Items.Item[j].Value;
                           let cellUnits = this.getAllSlaveArray[this.linkMappingReadConfig[i].slave].Items.Item[j].Units;
                           if(cellUnits && cellUnits == this.config.UNITS_DEGREES_CELCIUS) {
@@ -1688,7 +1739,7 @@ export class VisualizationComponent implements OnInit, OnDestroy {
                             cellUnits = this.config.SYMBOL_UNITS_DEGREES_CELCIUS;
                           }
                           cells[k].value = cellValue + " " + cellUnits;
-                        }                                               
+                                                                    
                         if (this.isMouseHover == true) {
                           this.highlightRow(this.tempHoverField,event);
                         }

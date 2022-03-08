@@ -22,7 +22,7 @@ import { ReadOnlyGptimerModalComponent } from '../visualization-user/read-only-g
 import { VerifyUserModalComponent } from '../visualization/verify-user-modal/verify-user-modal.component';
 import { DeleteGraphModalComponent } from '../visualization/delete-graph-modal/delete-graph-modal.component';
 import { VerifyDeleteGraphModalComponent } from '../visualization/verify-delete-graph-modal/verify-delete-graph-modal.component';
-
+import { ReadActiveAlarmComponent } from '../visualization/read-active-alarm/read-active-alarm.component';
 
 declare var mxUtils: any;
 declare var mxCodec: any;
@@ -88,6 +88,7 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
   slaveArray = [];
   getAllSlaveArray = [];
   getSlaveValue = [];
+  getAllActiveAlarms = [];
   mxGraphFloors = [];
   tempLinkMap = {};
   tempNavLinkMap = {};
@@ -317,6 +318,48 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
     this.animateState(this.cells);
   }
 
+  getActiveAlarm() {
+    this.restService.postData("getActiveAlarmSoap", this.authService.getToken()).subscribe(data => {  
+      // Success
+      if (data["status"] == 200 && data["data"]["rows"] !== false && data["data"]["rows"] !== null) { 
+        let $responseArray = [];
+        $responseArray = data["data"]["rows"];
+        this.getAllActiveAlarms = $responseArray;
+     
+        if ($responseArray.length > 0) {
+          let temp = this.graph.getModel().getCell("alarm-id");
+          if (temp) {
+            this.graph.getModel().remove(temp)
+          }
+          let parent = this.graph.getDefaultParent();
+          var custom = new Object();
+          custom[mxConstants.STYLE_SHAPE] = 'image';
+          custom[mxConstants.STYLE_IMAGE] = '../../assets/img/warning.gif';
+          this.graph.getStylesheet().putCellStyle('customstyle', custom);
+          this.graph.insertVertex(parent,"alarm-id",null,0,0,70,70,'customstyle',false)
+          this.centerGraph();
+        }
+        else {
+          let temp = this.graph.getModel().getCell("alarm-id");
+          if (temp) {
+            this.getAllActiveAlarms = [];
+            this.graph.getModel().remove(temp);
+            this.graph.refresh();
+          }
+        }
+      }
+      else {
+        let temp = this.graph.getModel().getCell("alarm-id");
+        if (temp) {
+          this.getAllActiveAlarms = [];
+          this.graph.getModel().remove(temp);
+          this.graph.refresh();
+          this.centerGraph();
+        }
+      }
+   });
+  }
+
   ngOnDestroy() {
     if(this.subscription) {
       this.subscription.unsubscribe();
@@ -495,6 +538,9 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
 
         // GPTimer Overlay
         this.addCellOverlay(cells);
+
+        // Get Active Alarm
+        this.getActiveAlarm();
 
         // Disable mxGraph editing
         this.graph.setEnabled(false);
@@ -860,6 +906,18 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
             thisContext.selectedGraph = graphData.mxgraph_name;
           }
         }
+
+        if(cellId == "alarm-id") {
+          let row = thisContext.getAllActiveAlarms;
+          const options: NgbModalOptions = {
+            backdropClass: '.app-session-modal-backdrop',
+            windowClass: '.app-session-modal-window',
+            centered: true,
+            container: '#fullScreen'
+          };
+          const modalRef = modalService.open(ReadActiveAlarmComponent, options);
+          modalRef.componentInstance.row = row;
+        }
    
       }
     });
@@ -1020,6 +1078,7 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
     });    
         // Re-add the cells with new value
         this.refreshCells(cells);
+        this.getActiveAlarm();
     });
   }
 
@@ -1125,7 +1184,7 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
                       }
                       else {
                         // Sets the cell value using the mapped ID
-                        if(cells[k].value == "" || cells[k].value == null) {
+                      
                           let cellValue = this.getAllSlaveArray[this.linkMappingReadConfig[i].slave].Items.Item[j].Value;
                           let cellUnits = this.getAllSlaveArray[this.linkMappingReadConfig[i].slave].Items.Item[j].Units;
                           if(cellUnits && cellUnits == this.config.UNITS_DEGREES_CELCIUS) {
@@ -1133,7 +1192,7 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
                             cellUnits = this.config.SYMBOL_UNITS_DEGREES_CELCIUS;
                           }
                           cells[k].value = cellValue + " " + cellUnits;
-                        }
+                        
                       }
                     }
                     else {

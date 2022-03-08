@@ -69,6 +69,7 @@ import { VerifyDeleteGraphModalComponent } from './visualization/verify-delete-g
 import { ReadOnlyGptimerModalComponent } from './visualization-user/read-only-gptimer-modal/read-only-gptimer-modal.component';
 import { SetGptimerModalComponent } from './visualization/set-gptimer-modal/set-gptimer-modal.component';
 import { AddScheduleModalComponent } from './visualization/add-schedule-modal/add-schedule-modal.component';
+import { ReadActiveAlarmComponent } from './visualization/read-active-alarm/read-active-alarm.component';
 import { ToastrModule, ToastContainerModule } from 'ngx-toastr';
 import { DragDropModule } from '@angular/cdk/drag-drop';
 
@@ -77,6 +78,7 @@ import { DragDropModule } from '@angular/cdk/drag-drop';
 //
 // Config File
 import { Config } from '../config/config';
+
 
 
 
@@ -109,7 +111,8 @@ import { Config } from '../config/config';
     VisualizationUserComponent,
     ReadOnlyGptimerModalComponent,
     SetGptimerModalComponent,
-    AddScheduleModalComponent
+    AddScheduleModalComponent,
+    ReadActiveAlarmComponent
   ],
 
   imports: [
@@ -166,7 +169,8 @@ import { Config } from '../config/config';
     VerifyDeleteGraphModalComponent,
     ReadOnlyGptimerModalComponent,
     SetGptimerModalComponent,
-    AddScheduleModalComponent
+    AddScheduleModalComponent,
+    ReadActiveAlarmComponent
   ]
 })
 export class AppModule { }
