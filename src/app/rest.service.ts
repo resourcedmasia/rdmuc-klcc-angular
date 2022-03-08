@@ -31,6 +31,8 @@ export class RestService {
         catchError( err => {
           if (err.status === 500 ||  err.status === 503 ) {
             this.warningToast('There is an error with your connection. Please check your connection');
+          } else if (err.status === 400) {
+            this.warningToast('There is an error with your connection. Please check your connection');
           }
           return err;
         })

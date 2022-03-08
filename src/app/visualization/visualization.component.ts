@@ -1612,8 +1612,9 @@ export class VisualizationComponent implements OnInit, OnDestroy {
         let typeObj = {};
         typeObj['type'] = filtered[i].slave;
         typeArray.push(typeObj);
-      }      
-      this.restService.postData("getSlave", this.authService.getToken(), typeArray).subscribe(data => {  
+      }            
+     if (typeArray.length > 0) {
+      this.restService.postData("getSlave", this.authService.getToken(), typeArray).subscribe(data => {          
         if (data["data"]["rows"] !== null) {
         // Success
         if (data["status"] == 200 && data["data"]["rows"] !== false && data["data"]["rows"] !== null) { 
@@ -1627,7 +1628,8 @@ export class VisualizationComponent implements OnInit, OnDestroy {
           console.log("Can't get Slave data.");
         }
       }
-    });    
+    }); 
+    }
         // Re-add the cells with new value
         this.refreshCells(cells);
         this.getActiveAlarm();
@@ -1681,23 +1683,26 @@ export class VisualizationComponent implements OnInit, OnDestroy {
               }
           }
         }
-        await this.restService.postData("getSlave", this.authService.getToken(), typeArray).toPromise().then(data => {          
+        await this.restService.postData("getSlave", this.authService.getToken(), typeArray).toPromise().then(data => { 
+
           // Success
-        if (data["data"]["rows"] !== null) {
-          if (data["status"] == 200 && data["data"]["rows"] !== false && data["data"]["rows"] !== null) {    
-            let $responseArray = [];
-            $responseArray = data["data"]["rows"];
-            console.log($responseArray.length);
-            
-           if ($responseArray.length > 0) {
-             for (const data of $responseArray) {                
-              this.getAllSlaveArray[data.type] = data.data;              
-            }
+        if (data !== null) {
+          if (data["data"]["rows"] !== null) {
+            if (data["status"] == 200 && data["data"]["rows"] !== false && data["data"]["rows"] !== null) {    
+              let $responseArray = [];
+              $responseArray = data["data"]["rows"];
+              console.log($responseArray.length);
+              
+             if ($responseArray.length > 0) {
+               for (const data of $responseArray) {                
+                this.getAllSlaveArray[data.type] = data.data;              
+              }
+             }
            }
-         }
-         else {
-           console.log("Can't get data for Slave")
-         }
+           else {
+             console.log("Can't get data for Slave")
+           }
+          }
         }
         });
   }
