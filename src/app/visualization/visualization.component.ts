@@ -315,6 +315,7 @@ export class VisualizationComponent implements OnInit, OnDestroy {
         const cr = entry.contentRect;
         this.centerGraph();
       }
+      
   });
 
     // Element for which to observe height and width 
@@ -336,10 +337,12 @@ export class VisualizationComponent implements OnInit, OnDestroy {
     var w = bounds.width / this.graph.view.scale;
     var h = bounds.height / this.graph.view.scale;
     var s = Math.min(max, Math.min(cw / w, ch / h));
+    var scaledX = (margin + cw - w * s) / (2 * s) - bounds.x / this.graph.view.scale;
+    var scaledY = (margin + ch - h * s) / (2 * s) - bounds.y / this.graph.view.scale;
     
     this.graph.view.scaleAndTranslate(s,
-      (margin + cw - w * s) / (2 * s) - bounds.x / this.graph.view.scale,
-      (margin + ch - h * s) / (2 * s) - bounds.y / this.graph.view.scale);
+      scaledX,
+      scaledY);
 
     // Re-scale the graph to fit the container
     this.graph.fit();

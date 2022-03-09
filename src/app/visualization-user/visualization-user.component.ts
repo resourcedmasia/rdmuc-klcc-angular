@@ -35,6 +35,7 @@ declare var mxConstants: any;
 declare var mxCellOverlay: any;
 declare var mxImage: any;
 declare var mxPoint: any;
+declare var mxTooltipHandler: any;
 
 @Component({
   selector: 'app-visualization-user',
@@ -60,6 +61,7 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
   selectedGraph;
   selectedMxGraph = [];
   graph;
+  graph2;
   ro;
   roFullScreen;
   mxgraphData = [];
@@ -221,6 +223,7 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
     
     // Prepare initial graph
     this.graph = new mxGraph(this.graphContainer.nativeElement);
+    this.graph2 = new mxGraph(this.divRef.nativeElement);
     
     // this.graph.view.rendering = false;
     this.graph.setTooltips(true);

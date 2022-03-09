@@ -9,8 +9,15 @@
 .scroll {
     overflow-y: auto;
     overflow-x: auto;
-    max-height: 80vh;
+    // max-height: 80vh;
     position: relative;
+}
+
+.scroll-table {
+  overflow-y: auto;
+  overflow-x: auto;
+  max-height: 80vh;
+  position: relative;
 }
 
 .invalid-add {

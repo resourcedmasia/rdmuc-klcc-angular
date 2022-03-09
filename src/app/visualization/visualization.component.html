@@ -29,6 +29,9 @@
 
 
 <div class="card mb-4 p-3" [ngClass]="{'col-sm-7' : !cardExpand , 'col-sm-5' : cardExpand}">
+  <ngx-spinner style="z-index: 1;" [fullScreen]="false" type = "line-scale" size="small" bdColor="rgba(39,39,45,1)">
+    <p style="color: white" > Loading... </p>
+  </ngx-spinner>
   <ngb-tabset #tabs [destroyOnHide]="false"  (tabChange)="fetchActiveTab($event)">  
     <!-- START FIRST TAB --> 
     <ngb-tab id="tab1">  
@@ -38,7 +41,7 @@
         </h4>
       </ng-template>
       <ng-template ngbTabContent >  
-      <div class="scroll">
+      <div class="scroll-table">
         <table class="table table-bordered table-hover ">
           <thead>
             <tr>
@@ -51,10 +54,6 @@
             </tr>
           </thead>
           <tbody cdkDropList (cdkDropListDropped)="drop($event)">
-            <ngx-spinner [fullScreen]="false" type = "ball-beat" size="small" bdColor="rgba(39,39,45,1)">
-              <br>
-              <p style="color: white" > Loading... </p>
-            </ngx-spinner>
             <tr cdkDrag cdkDragLockAxis="y" (mouseover)="highlightRow(field,j)" (mouseout)="unhighlightRow()" *ngFor="let field of fieldArray; let i = index; let j = index">
               <td cdkDragHandle><label>{{i + 1}}</label></td>
               <td>

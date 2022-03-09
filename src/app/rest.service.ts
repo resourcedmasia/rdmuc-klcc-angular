@@ -14,8 +14,8 @@ export class RestService {
     ) { }
 
   // API Endpoint
-  // private baseUrl = 'http://10.1.128.47:8080/api/api.php';
-  private baseUrl = 'http://wismagenting.uc.rdmsite.com/api/api.php';
+  private baseUrl = 'http://10.1.128.47:8080/api/api.php';
+  // private baseUrl = 'http://wismagenting.uc.rdmsite.com/api/api.php';
   
 
   
@@ -29,7 +29,7 @@ export class RestService {
         data: data
       }).pipe(share(),
         catchError( err => {
-          if (err.status === 500 ||  err.status === 503 ) {
+          if (err.status === 500 ||  err.status === 503) {
             this.warningToast('There is an error with your connection. Please check your connection');
           } else if (err.status === 400) {
             this.warningToast('There is an error with your connection. Please check your connection');
