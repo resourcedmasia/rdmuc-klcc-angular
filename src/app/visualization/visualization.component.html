@@ -329,7 +329,21 @@
           </form>
         </div>  
       </ng-template>  
-    </ngb-tab>  
+    </ngb-tab> 
+
+    <ngb-tab title="Landing Page">  
+      <ng-template ngbTabContent>  
+        <h4 class="card-header">
+          <i class="ion ion-md-today"></i>&nbsp;&nbsp;<span class="text-muted font-weight-light">Add Default Landing Page</span>
+          <button class="float-sm-right btn btn-primary" (click)="updateLandingPage()">Save</button>
+        </h4>
+        <div class="card-body">
+          <ng-select appendTo="body" placeholder="Select Graph" [clearable]="false" [items]="selectedMxGraph" bindLabel="mxgraph_name"
+          [(ngModel)]="selectedGraphLanding" (change)="onSelectLanding($event)">
+          </ng-select>
+        </div>
+      </ng-template>  
+    </ngb-tab> 
 
   </ngb-tabset>  
 </div>
