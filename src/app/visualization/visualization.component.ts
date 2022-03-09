@@ -60,6 +60,7 @@ export class VisualizationComponent implements OnInit, OnDestroy {
   rows1 = [];
   // Selected mxGraph dropdown
   selectedGraph;
+  selectedGraphLanding;
   selectedMxGraph = [];
   graph;
   rO;
@@ -758,9 +759,11 @@ export class VisualizationComponent implements OnInit, OnDestroy {
         // Success
         if (data["status"] == 200) {
         for (const item of data["data"].rows) {
-          if (item.is_landing_page === '1' ) {
+          if (item.is_landing_page === '1') {
             this.onSelectGraph(item);
-            this.selectedGraph = item.mxgraph_name;    
+            this.selectedGraphLanding = item.mxgraph_name;    
+          } else {
+
           }
         }
           this.selectedMxGraph = data["data"].rows;
@@ -2776,6 +2779,26 @@ export class VisualizationComponent implements OnInit, OnDestroy {
 
   disabledCenter(flag: boolean) {
     this.isDisabledCenter = flag;
+  }
+
+  onSelectLanding($event) {
+    this.landingId = $event.Id;
+    this.selectedGraphLanding = $event.mxgraph_name;
+  }
+
+  updateLandingPage() {
+    let data = {
+      mxgraph_id: this.landingId,
+      is_landing_page:1
+    };
+    this.restService.postData("mxGraphLandingPage", this.authService.getToken(), data)
+    .subscribe((data: any) => {
+      if (data["data"].rows = true) {
+        this.successToast('successfully update landing page');
+      } else {
+        this.failToast("error on update landing page");
+      }
+    });
   }
 }
 
