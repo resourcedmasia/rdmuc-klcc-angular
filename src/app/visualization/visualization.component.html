@@ -29,7 +29,7 @@
 
 
 <div class="card mb-4 p-3" [ngClass]="{'col-sm-7' : !cardExpand , 'col-sm-5' : cardExpand}">
-  <ngx-spinner style="z-index: 1;" [fullScreen]="false" type = "line-scale" size="small" bdColor="rgba(39,39,45,1)">
+  <ngx-spinner style="z-index: 2;" [fullScreen]="false" type = "line-scale" size="small" bdColor="rgba(39,39,45,1)">
     <p style="color: white" > Loading... </p>
   </ngx-spinner>
   <ngb-tabset #tabs [destroyOnHide]="false"  (tabChange)="fetchActiveTab($event)">  
