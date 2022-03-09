@@ -149,6 +149,7 @@ export class VisualizationComponent implements OnInit, OnDestroy {
   ng_mxgraph_code: any;
   fileUploadEvent: any;
   isDisabledCenter = false;
+  landingId: number;
   
 
 
