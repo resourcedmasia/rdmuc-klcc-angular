@@ -25,7 +25,7 @@ export class ReadActiveAlarmComponent implements OnInit {
 
   convertDate(dt) {
     let cdt = new Date(dt);
-    return cdt.toLocaleString();
+    return cdt.toLocaleString("en-MY");
   }
 
 }
