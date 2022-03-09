@@ -757,6 +757,12 @@ export class VisualizationComponent implements OnInit, OnDestroy {
       .subscribe(data => {
         // Success
         if (data["status"] == 200) {
+        for (const item of data["data"].rows) {
+          if (item.is_landing_page === '1' ) {
+            this.onSelectGraph(item);
+            this.selectedGraph = item.mxgraph_name;    
+          }
+        }
           this.selectedMxGraph = data["data"].rows;
         }
       });
