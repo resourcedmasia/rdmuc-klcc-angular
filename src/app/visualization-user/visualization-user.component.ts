@@ -766,20 +766,22 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
 
                   if (this.currentState != null)
                   {
-
-                      for(let i = 0; i < tempNavArray.length; i++) {
-                        if (tempNavArray[i].cell_id == tmp.cell.id) {
-                          this.dragEnter(me.getEvent(), this.currentState, "Link", tmp, null, null);
-                        }
+                    if(tmp.cell.id == "alarm-id") {
+                      this.dragEnter(me.getEvent(), this.currentState, "Alarm", tmp, null, null);
+                    }
+                    for(let i = 0; i < tempNavArray.length; i++) {
+                      if (tempNavArray[i].cell_id == tmp.cell.id) {
+                        this.dragEnter(me.getEvent(), this.currentState, "Link", tmp, null, null);
                       }
-                      for (let i = 0; i < linkMap.length; i++) {
-                        if (linkMap[i].slave_cell_id == tmp.cell.id && linkMap[i].slave_type == "Parameter") {
-                          this.dragEnter(me.getEvent(), this.currentState, "Parameter", tmp, linkMap[i].slave, linkMap[i].slave_name);
-                        }
-                        else if(linkMap[i].slave_cell_id == tmp.cell.id && linkMap[i].slave_type !== "Parameter") {
-                          this.dragEnter(me.getEvent(), this.currentState, "Non-Parameter", tmp, linkMap[i].slave, linkMap[i].slave_name);
-                        }                       
+                    }
+                    for (let i = 0; i < linkMap.length; i++) {
+                      if (linkMap[i].slave_cell_id == tmp.cell.id && linkMap[i].slave_type == "Parameter") {
+                        this.dragEnter(me.getEvent(), this.currentState, "Parameter", tmp, linkMap[i].slave, linkMap[i].slave_name);
                       }
+                      else if(linkMap[i].slave_cell_id == tmp.cell.id && linkMap[i].slave_type !== "Parameter") {
+                        this.dragEnter(me.getEvent(), this.currentState, "Non-Parameter", tmp, linkMap[i].slave, linkMap[i].slave_name);
+                      }                       
+                    }
                   }
               }
           },
@@ -798,6 +800,14 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
                   return slave + " - " + slave_name;
                 }  
               }
+            }
+            else if (parameter == "Alarm" && cellStyle == "image") {
+              thisContext.currentState = this.currentState
+              this.currentState.setCursor('pointer');
+              thisContext.graph.getTooltipForCell = function(cell)
+                {
+                  return thisContext.getAllActiveAlarms.length + ' Active Alarms.';
+                } 
             }
             else if (parameter == "Link" && cellStyle == "image") {
               thisContext.currentState = this.currentState

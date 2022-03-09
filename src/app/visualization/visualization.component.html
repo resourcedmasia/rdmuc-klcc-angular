@@ -44,7 +44,7 @@
       <div class="scroll-table">
         <table class="table table-bordered table-hover ">
           <thead>
-            <tr>
+            <tr class="table-header">
               <th >Index</th>
               <th style="min-width: 120px;">Controller</th>
               <th style="min-width: 200px;">Name</th>
@@ -87,7 +87,7 @@
                 </div>
             </tr>
            
-            <tr [hidden]="hideAddRow">
+            <tr class="add-row-table" [hidden]="hideAddRow">
               <td><label></label></td>
               <td>
                 <ng-select [ngClass]="{'border-error': isAddError}" appendTo="body" [clearable]="false" [items]="readSlaveType" bindLabel="type" [(ngModel)]="newAttribute.controller"
@@ -129,7 +129,7 @@
         <div class="scroll">
           <table class="table table-bordered table-hover ">
             <thead>
-              <tr>
+              <tr class="table-header">
                 <th >Index</th>
                 <th style="min-width: 200px;">Floor Name</th>
                 <th style="min-width: 170px;">Cell Id</th>
@@ -164,7 +164,7 @@
                 </div>
               </tr>
         
-              <tr [hidden]="hideAddRow">
+              <tr class="add-row-table" [hidden]="hideAddRow">
                 <td><label></label></td>
                 <td>
                   <ng-select [(ngModel)]="newNavAttribute.mxgraph_name" [ngClass]="{'border-error': isAddNavError}" appendTo="body" [clearable]="false" [items]="selectedMxGraph" bindLabel="mxgraph_name" (change)="readTargetFloorChange($event, true)">
@@ -195,7 +195,7 @@
           <div class="scroll">
             <table class="table table-bordered table-hover ">
               <thead>
-                <tr>
+                <tr class="table-header">
                   <th >Index</th>
                   <th style="min-width: 100px;">Flow Type</th>
                   <th style="min-width: 100px;">Flow Colour</th>
@@ -235,7 +235,7 @@
                   </div>
                 </tr>
           
-                <tr [hidden]="hideAddRow">
+                <tr class="add-row-table" [hidden]="hideAddRow">
                   <td><label></label></td>
                   <td>
                     <ng-select [(ngModel)]="newFlowAttribute.flow_type" [ngClass]="{'border-error': isAddFlowError}" appendTo="body" [clearable]="false" [items]="config.FLOW_TYPE" bindLabel="flow_type" (change)="readTargetFlowChange($event, true)" >

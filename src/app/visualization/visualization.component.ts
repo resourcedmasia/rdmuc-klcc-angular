@@ -361,7 +361,7 @@ export class VisualizationComponent implements OnInit, OnDestroy {
     this.rO.unobserve(this.container.nativeElement)
   }
 
-  addFieldValue() {
+  async addFieldValue() {
     // If attribute is empty, no new rows will be added
     if (Object.keys(this.newAttribute).length === 0){
       console.log("Attribute is empty");
@@ -403,7 +403,7 @@ export class VisualizationComponent implements OnInit, OnDestroy {
           this.graphClickable = false;
           this.removeClickListener();
           // Show toastr for unsaved changes.
-          this.unsavedToast();
+          await this.unsavedToast();
           this.isAddError = false;
         }
         else {
@@ -414,7 +414,7 @@ export class VisualizationComponent implements OnInit, OnDestroy {
     
   }
 
-  addNavFieldValue() {
+  async addNavFieldValue() {
     // If attribute is empty, no new rows will be added
     if (Object.keys(this.newNavAttribute).length === 0){
       console.log("Attribute is empty");
@@ -456,7 +456,7 @@ export class VisualizationComponent implements OnInit, OnDestroy {
           this.graphClickable = false;
           this.removeClickListener();
           // Show toastr for unsaved changes.
-          this.unsavedToast();
+          await this.unsavedToast();
           this.isAddNavError = false;
         }
         else {
@@ -554,7 +554,7 @@ export class VisualizationComponent implements OnInit, OnDestroy {
           this.linkMappingReadConfig.splice(index,1);
         }
 
-        this.unsavedToast();  
+        await this.unsavedToast();  
         this.graph.refresh();
         this.animateState(this.cells);
         this.unhighlightRow();
@@ -563,13 +563,13 @@ export class VisualizationComponent implements OnInit, OnDestroy {
     }
   }
 
-  deleteNavFieldValue(event) {
+  async deleteNavFieldValue(event) {
     for(let i = 0; i < this.navigationLink.length; ++i){
       if (this.navigationLink[i].cell_id === event.target.id) {
         // Splice array in navigation link
         this.navigationLink.splice(i,1);
         // this.navigationArray.splice(i,1);
-        this.unsavedToast();
+        await this.unsavedToast();
       }
     }
    this.graph.refresh();
@@ -577,12 +577,12 @@ export class VisualizationComponent implements OnInit, OnDestroy {
    this.unhighlightRow();
   }
 
-  deleteFlowFieldValue(event) {
+  async deleteFlowFieldValue(event) {
     for(let i = 0; i < this.flowLink.length; ++i){
       if (this.flowLink[i].cell_id === event.target.id) {
         // Splice array in flow link
         this.flowLink.splice(i,1);
-        this.unsavedToast();
+        await this.unsavedToast();
       }
     }
    this.graph.refresh();
@@ -1264,6 +1264,9 @@ export class VisualizationComponent implements OnInit, OnDestroy {
 
                   if (this.currentState != null)
                   {
+                    if(tmp.cell.id == "alarm-id") {
+                      this.dragEnter(me.getEvent(), this.currentState, "Alarm", tmp, null, null);
+                    }
                     for(let i = 0; i < tempNavArray.length; i++) {
                       if (tempNavArray[i].cell_id == tmp.cell.id) {
                         this.dragEnter(me.getEvent(), this.currentState, "Link", tmp, null, null);
@@ -1301,6 +1304,14 @@ export class VisualizationComponent implements OnInit, OnDestroy {
                   return slave + " - " + slave_name;
                 }  
               }
+            }
+            else if (parameter == "Alarm" && cellStyle == "image") {
+              thisContext.currentState = this.currentState
+              this.currentState.setCursor('pointer');
+              thisContext.graph.getTooltipForCell = function(cell)
+                {
+                  return thisContext.getAllActiveAlarms.length + ' Active Alarms.';
+                } 
             }
             else if (parameter == "Link" && cellStyle == "image") {
               thisContext.currentState = this.currentState
@@ -2481,7 +2492,7 @@ export class VisualizationComponent implements OnInit, OnDestroy {
       if(attributeArray.slave_cell_id && attributeArray.slave && attributeArray.mxgraph_id && attributeArray.slave_name && attributeArray.slave_type){
         this.linkMappingReadConfig[index] = attributeArray;
         this.fieldArray[index] = this.linkMappingReadConfig[index];
-        this.unsavedToast();
+        await this.unsavedToast();
       }
       else {
         // If any of the field is empty, revert to original value
@@ -2544,7 +2555,7 @@ export class VisualizationComponent implements OnInit, OnDestroy {
         if(attributeArray.mxgraph_id && attributeArray.cell_id && attributeArray.target_mxgraph_id && attributeArray.mxgraph_name){
           this.navigationLink[index] = attributeArray;
           // this.navigationArray[index] = this.navigationLink[index];
-          this.unsavedToast();
+          await this.unsavedToast();
         }
         else {
           // If any of the field is empty, revert to original value
@@ -2600,7 +2611,7 @@ export class VisualizationComponent implements OnInit, OnDestroy {
         if(attributeArray.mxgraph_id && attributeArray.cell_id && attributeArray.flow_type && attributeArray.flow_colour){
           this.flowLink[index] = attributeArray;
           // this.navigationArray[index] = this.navigationLink[index];
-          this.unsavedToast();
+          await this.unsavedToast();
         }
         else {
           // If any of the field is empty, revert to original value
