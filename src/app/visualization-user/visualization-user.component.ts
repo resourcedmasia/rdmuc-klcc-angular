@@ -238,10 +238,13 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
       }
     };
     loadStylesheet(this.graph, this.config.DEFAULT_MXGRAPH_STYLESHEET);
-    
+
+    this.renderXml(this.config.XMLnograph); 
+  }
+
+  renderXml(config) {
     // Default no graph from config.ts 
-    let xml = this.config.XMLnograph;
-    
+    let xml = config;
     let doc = mxUtils.parseXml(xml);
     let codec = new mxCodec(doc);
     let elt = doc.documentElement.firstChild;
@@ -269,7 +272,6 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
     this.centerGraph();
     // Disable loading indicator on table
     this.spinner.hide();
-   
   }
 
   ngAfterViewInit() {
@@ -379,6 +381,13 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
       .subscribe(data => {
         // Success
         if (data["status"] == 200) {
+          for (const item of data["data"].rows) {
+            if (item.is_landing_page === '1') {
+              this.onSelectGraph(item);
+              this.selectedGraph = item.mxgraph_name;  
+              this.renderXml(this.config.XMLLoading);
+            }
+          }
           this.selectedMxGraph = data["data"].rows;
         }
       });
