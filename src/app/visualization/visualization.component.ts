@@ -193,6 +193,7 @@ export class VisualizationComponent implements OnInit, OnDestroy {
     
     this.appService.pageTitle = 'Visualization Dashboard';
     // modalService = this.modalService;
+    this.toastr.overlayContainer = undefined;
 
   }
 
@@ -2754,7 +2755,7 @@ export class VisualizationComponent implements OnInit, OnDestroy {
       tapToDismiss: true,
       disableTimeOut: false,
       timeOut: 2000,
-      positionClass: 'toast-bottom-right'
+      positionClass: 'toast-bottom-right',
     });
   }
 
@@ -2811,8 +2812,9 @@ export class VisualizationComponent implements OnInit, OnDestroy {
 
     if(data.mxgraph_id !== undefined) {
       this.restService.postData("mxGraphLandingPage", this.authService.getToken(), data)
-      .subscribe(async (data: any) => {
+      .toPromise().then(async (data: any) => {
         if (data["data"].rows === true) {
+          console.log(this.toastr.toasts)
           this.successToast('Successfully Updated Landing Page');
         } else {
           this.failToast("Error Updating Landing Page");

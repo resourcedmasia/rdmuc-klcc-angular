@@ -172,6 +172,8 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
               ) {
     
     this.appService.pageTitle = 'Visualization Dashboard';
+    this.toastr.overlayContainer = undefined;
+
   }
 
   subscription: Subscription;
