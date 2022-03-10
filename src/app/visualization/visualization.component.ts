@@ -762,7 +762,8 @@ export class VisualizationComponent implements OnInit, OnDestroy {
         for (const item of data["data"].rows) {
           if (item.is_landing_page === '1') {
             this.onSelectGraph(item);
-            this.selectedGraphLanding = item.mxgraph_name;    
+            this.selectedGraphLanding = item.mxgraph_name;
+            this.selectedGraph = item.mxgraph_name;        
           } else {
 
           }
