@@ -764,10 +764,11 @@ export class VisualizationComponent implements OnInit, OnDestroy {
         if (data["status"] == 200) {
         for (const item of data["data"].rows) {
           if (item.is_landing_page === '1') {
-            this.onSelectGraph(item);
             this.selectedGraphLanding = item.mxgraph_name;
             this.selectedGraph = item.mxgraph_name;  
             this.renderXml(this.config.XMLLoading);
+            this.onSelectGraph(item);
+
           }
         }
           this.selectedMxGraph = data["data"].rows;
@@ -967,7 +968,7 @@ export class VisualizationComponent implements OnInit, OnDestroy {
         this.addCellOverlay(cells);
 
         // Get Active Alarm
-        this.getActiveAlarm();
+        // this.getActiveAlarm();
 
         // Disable mxGraph editing
         this.graph.setEnabled(false);
@@ -2807,14 +2808,18 @@ export class VisualizationComponent implements OnInit, OnDestroy {
       mxgraph_id: this.landingId,
       is_landing_page:1
     };
-    this.restService.postData("mxGraphLandingPage", this.authService.getToken(), data)
-    .subscribe(async (data: any) => {
-      if (data["data"].rows = true) {
-        await this.successToast('successfully update landing page');
-      } else {
-        await this.failToast("error on update landing page");
-      }
-    });
+
+    if(data.mxgraph_id !== undefined) {
+      this.restService.postData("mxGraphLandingPage", this.authService.getToken(), data)
+      .subscribe(async (data: any) => {
+        if (data["data"].rows === true) {
+          this.successToast('Successfully Updated Landing Page');
+        } else {
+          this.failToast("Error Updating Landing Page");
+        }
+      });
+    }
+  
   }
 }
 
