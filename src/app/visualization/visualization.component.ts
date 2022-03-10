@@ -150,6 +150,7 @@ export class VisualizationComponent implements OnInit, OnDestroy {
   fileUploadEvent: any;
   isDisabledCenter = false;
   landingId: number;
+  xmlLoading = false;
   
 
 
@@ -272,7 +273,7 @@ export class VisualizationComponent implements OnInit, OnDestroy {
     loadStylesheet(this.graph, this.config.DEFAULT_MXGRAPH_STYLESHEET);
     
     // Default no graph from config.ts 
-    let xml = this.config.XMLnograph;
+    let xml = this.xmlLoading ? this.config.XMLnograph:this.config.XMLLoading;
     
     let doc = mxUtils.parseXml(xml);
     let codec = new mxCodec(doc);
@@ -763,9 +764,8 @@ export class VisualizationComponent implements OnInit, OnDestroy {
           if (item.is_landing_page === '1') {
             this.onSelectGraph(item);
             this.selectedGraphLanding = item.mxgraph_name;
-            this.selectedGraph = item.mxgraph_name;        
-          } else {
-
+            this.selectedGraph = item.mxgraph_name;  
+            this.xmlLoading = false;
           }
         }
           this.selectedMxGraph = data["data"].rows;
