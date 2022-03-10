@@ -62,6 +62,7 @@ export class VisualizationComponent implements OnInit, OnDestroy {
   rows1 = [];
   // Selected mxGraph dropdown
   selectedGraph;
+  selectedGraphLanding;
   selectedMxGraph = [];
   graph;
   rO;
@@ -150,6 +151,7 @@ export class VisualizationComponent implements OnInit, OnDestroy {
   ng_mxgraph_code: any;
   fileUploadEvent: any;
   isDisabledCenter = false;
+  landingId: number;
   
 
 
@@ -270,10 +272,12 @@ export class VisualizationComponent implements OnInit, OnDestroy {
       }
     };
     loadStylesheet(this.graph, this.config.DEFAULT_MXGRAPH_STYLESHEET);
-    
+    this.renderXml(this.config.XMLnograph);
+  }
+
+  renderXml(config) {
     // Default no graph from config.ts 
-    let xml = this.config.XMLnograph;
-    
+    let xml = config;
     let doc = mxUtils.parseXml(xml);
     let codec = new mxCodec(doc);
     let elt = doc.documentElement.firstChild;
@@ -301,7 +305,6 @@ export class VisualizationComponent implements OnInit, OnDestroy {
     },0)
     // Disable loading indicator on table
     this.spinner.hide();
-   
   }
   
 
@@ -759,6 +762,14 @@ export class VisualizationComponent implements OnInit, OnDestroy {
       .subscribe(data => {
         // Success
         if (data["status"] == 200) {
+        for (const item of data["data"].rows) {
+          if (item.is_landing_page === '1') {
+            this.onSelectGraph(item);
+            this.selectedGraphLanding = item.mxgraph_name;
+            this.selectedGraph = item.mxgraph_name;  
+            this.renderXml(this.config.XMLLoading);
+          }
+        }
           this.selectedMxGraph = data["data"].rows;
         }
       });
@@ -2784,6 +2795,26 @@ export class VisualizationComponent implements OnInit, OnDestroy {
 
   disabledCenter(flag: boolean) {
     this.isDisabledCenter = flag;
+  }
+
+  onSelectLanding($event) {
+    this.landingId = $event.Id;
+    this.selectedGraphLanding = $event.mxgraph_name;
+  }
+
+  updateLandingPage() {
+    let data = {
+      mxgraph_id: this.landingId,
+      is_landing_page:1
+    };
+    this.restService.postData("mxGraphLandingPage", this.authService.getToken(), data)
+    .subscribe(async (data: any) => {
+      if (data["data"].rows = true) {
+        await this.successToast('successfully update landing page');
+      } else {
+        await this.failToast("error on update landing page");
+      }
+    });
   }
 }
 
