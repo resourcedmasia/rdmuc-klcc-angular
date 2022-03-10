@@ -150,7 +150,6 @@ export class VisualizationComponent implements OnInit, OnDestroy {
   fileUploadEvent: any;
   isDisabledCenter = false;
   landingId: number;
-  xmlLoading = false;
   
 
 
@@ -271,10 +270,12 @@ export class VisualizationComponent implements OnInit, OnDestroy {
       }
     };
     loadStylesheet(this.graph, this.config.DEFAULT_MXGRAPH_STYLESHEET);
-    
+    this.renderXml(this.config.XMLnograph);
+  }
+
+  renderXml(config) {
     // Default no graph from config.ts 
-    let xml = this.xmlLoading ? this.config.XMLnograph:this.config.XMLLoading;
-    
+    let xml = config;
     let doc = mxUtils.parseXml(xml);
     let codec = new mxCodec(doc);
     let elt = doc.documentElement.firstChild;
@@ -302,7 +303,6 @@ export class VisualizationComponent implements OnInit, OnDestroy {
     },0)
     // Disable loading indicator on table
     this.spinner.hide();
-   
   }
   
 
@@ -765,7 +765,7 @@ export class VisualizationComponent implements OnInit, OnDestroy {
             this.onSelectGraph(item);
             this.selectedGraphLanding = item.mxgraph_name;
             this.selectedGraph = item.mxgraph_name;  
-            this.xmlLoading = false;
+            this.renderXml(this.config.XMLLoading);
           }
         }
           this.selectedMxGraph = data["data"].rows;
@@ -2794,11 +2794,11 @@ export class VisualizationComponent implements OnInit, OnDestroy {
       is_landing_page:1
     };
     this.restService.postData("mxGraphLandingPage", this.authService.getToken(), data)
-    .subscribe((data: any) => {
+    .subscribe(async (data: any) => {
       if (data["data"].rows = true) {
-        this.successToast('successfully update landing page');
+        await this.successToast('successfully update landing page');
       } else {
-        this.failToast("error on update landing page");
+        await this.failToast("error on update landing page");
       }
     });
   }
