@@ -39,6 +39,8 @@ declare var cellName: any;
 declare var mxConstants: any;
 declare var mxCellOverlay: any;
 declare var mxGraphHandler: any;
+declare var mxTooltipHandler: any;
+
 
 @Component({
   selector: 'app-visualization',
@@ -1341,6 +1343,7 @@ export class VisualizationComponent implements OnInit, OnDestroy {
           dragLeave: function(evt, state)
           {
             // thisContext.isHoverTooltip = false;
+            mxTooltipHandler.prototype.hide();
           }
       });
 

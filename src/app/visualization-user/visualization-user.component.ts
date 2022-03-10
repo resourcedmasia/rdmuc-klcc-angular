@@ -121,6 +121,7 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
   unsavedStatus: boolean;
   isHoverTooltip: boolean;
   isFullScreen: boolean;
+  isTooltipCreated: boolean;
   currentState: any;
 
 
@@ -206,6 +207,7 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
     this.isMouseHover = false;
     this.isHoverTooltip = false;
     this.isFullScreen = false;
+    this.isTooltipCreated = false;
 
     this.fullScreenEvent();
 
@@ -789,6 +791,74 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
           mouseDown: function(sender, me) {},
           dragEnter: function(evt, state, parameter, cell, slave, slave_name)
           {
+            // if(thisContext.isTooltipCreated == false) {
+            //   thisContext.isTooltipCreated = true;
+            //   mxTooltipHandler.prototype.init = function() {
+            //     if (document.body != null) {
+            //       const container = this.graph.container;
+            //       this.div = document.createElement("div");
+            //       this.div.className = "mxTooltip";
+            //       this.div.style.visibility = "hidden";
+            
+            //       container.appendChild(this.div);
+            
+            //       mxEvent.addGestureListeners(
+            //         this.div,
+            //         mxUtils.bind(this, function(evt) {
+            //           this.hideTooltip();
+            //         })
+            //       );
+            //     }
+            //   };
+
+            //   mxTooltipHandler.prototype.reset = function(
+            //     me,
+            //     restart,
+            //     state
+            //   ) {
+            //     if (mxEvent.isMouseEvent(me.getEvent())) {
+            //       this.resetTimer();
+            //       state = state != null ? state : this.getStateForEvent(me);
+            //       if (
+            //         restart &&
+            //         this.isEnabled() &&
+            //         state != null &&
+            //         (this.div == null || this.div.style.visibility == "hidden")
+            //       ) {
+            //         var node = me.getSource();
+            //         if(!node.attributes.x){
+            //           return
+            //         }
+            //         var x = parseInt(node.attributes.x.nodeValue);
+            //         var y = parseInt(node.attributes.y.nodeValue);
+            
+            //         var stateSource =
+            //           me.isSource(state.shape) || me.isSource(state.text);
+            
+            //         this.thread = window.setTimeout(
+            //           mxUtils.bind(this, function() {
+            //             if (
+            //               !thisContext.graph.isMouseDown
+            //             ) {
+            
+            //               thisContext.graph.getTooltipForCell = function(cell)
+            //               {
+            //                 return slave + " - " + slave_name;
+            //               }
+            //               // this.show(tip, x+50, y-50);
+            //               this.state = state;
+            //               this.node = node;
+            //               this.stateSource = stateSource;
+            //             }
+            //           }),
+            //           this.delay
+            //         );
+            //       }
+            //     }
+            //   };
+
+            // }
+              
             let cellStyle = evt.target.nodeName;
             thisContext.isHoverTooltip = true;
             if(parameter == "Parameter" && cellStyle !== "image") {
@@ -833,6 +903,7 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
           dragLeave: function(evt, state)
           {
             // thisContext.isHoverTooltip = false;
+            mxTooltipHandler.prototype.hide();
             this.currentState.setCursor('mouse')
           }
       });
