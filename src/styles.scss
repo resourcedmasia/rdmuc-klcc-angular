@@ -531,4 +531,14 @@ html:not(.material-style) .material-style-only {
   }
 }
 
+  
+.nav-tabs .nav-link.active {
+  border-bottom-color: #efefef !important;
+  background-color: #efefef !important;
+}
+
+.nav-tabs .nav-link {
+  background-clip: padding-box !important;
+  background-color: #f8f8f8 !important;
+}
 

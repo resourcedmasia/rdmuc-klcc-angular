@@ -37,7 +37,7 @@
     <ngb-tab id="tab1">  
       <ng-template ngbTabTitle>
         <h4 style="margin-bottom: 0px !important">
-          <i class="ion ion-md-today"></i>&nbsp;&nbsp;<span class="text-muted font-weight-light">Add Graph</span>
+          <i class="ion ion-ios-options"></i>&nbsp;&nbsp;<span class="text-muted font-weight-light">Setpoint</span>
         </h4>
       </ng-template>
       <ng-template ngbTabContent >  
@@ -46,10 +46,10 @@
           <thead>
             <tr class="table-header">
               <th >Index</th>
-              <th style="min-width: 120px;">Controller</th>
+              <th style="min-width: 150px;">Controller</th>
               <th style="min-width: 200px;">Name</th>
               <th style="min-width: 120px;">Class</th>
-              <th >GPT</th>
+              <!-- <th >GPT</th> -->
               <th colspan="2">Action</th>
             </tr>
           </thead>
@@ -70,9 +70,9 @@
                 <input [readonly]="true" [(ngModel)]="field.slave_type" class="form-control" type="text" name="{{field.slave_type}}"
                 />
               </td>
-              <td style="text-align: center; text-align: -webkit-center;">
+              <!-- <td style="text-align: center; text-align: -webkit-center;">
                 <input [disabled]="i!==readOnly" (change)="readGPTChangedEdit($event, field)" [checked]="field.gpt == 'true'" class="form-control" style="height: 15px; width: 15px;" type="checkbox"/>
-              </td>
+              </td> -->
               <td >
                 <button title="Delete" [hidden]="hideAddRow" type="button" class="btn btn-danger" value="Delete" [id]="field.slave_cell_id" (click)="deleteFieldValue($event, j)"><i class="ion ion-md-trash"></i></button>
                 <button [hidden]="i!==readOnly" type="button" class="btn btn-primary" [id]="field.slave_cell_id" (click)="doneEdit(i,field,'done', j)">Done</button>
@@ -103,9 +103,9 @@
                 <input [readonly]="true" [(ngModel)]="readConfigClass" class="form-control" type="text" name="{{readConfigClass}}"
                    />
               </td>
-              <td style="text-align: center; text-align: -webkit-center; vertical-align: middle;">
+              <!-- <td style="text-align: center; text-align: -webkit-center; vertical-align: middle;">
                 <input [(ngModel)]="newAttribute.gpt" (change)="readGPTChanged($event)" style="height: 15px; width: 15px;" type="checkbox"/>
-              </td>
+              </td> -->
               <td colspan="2">
                 <button type="button" class="btn btn-primary" (click)="addFieldValue()">+ Add</button>
               </td>
