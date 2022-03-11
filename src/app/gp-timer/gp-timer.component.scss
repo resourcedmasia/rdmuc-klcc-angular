@@ -1,0 +1,126 @@
+#graphContainer {
+    padding: 1.5rem;
+    position: relative;
+    // overflow:auto;
+    // max-height: 60vh;
+    
+}
+
+.scroll {
+    overflow-y: auto;
+    overflow-x: auto;
+    // max-height: 80vh;
+    position: relative;
+}
+
+.scroll-table {
+  overflow-y: auto;
+  overflow-x: auto;
+  max-height: 80vh;
+  position: relative;
+}
+
+.table-header {
+  color: #FFFFFF; 
+  background-color: #3f4853;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+.add-row-table {
+  background-color: #f8f8f8;
+}
+
+.invalid-add {
+  color: #d9534f;
+}
+
+// Remove the bottom border of the table > thead > tr > th element (double border)
+.table thead>tr>th {
+  border-bottom: none;
+}
+
+.ng-select.border-error ::ng-deep .ng-select-container {
+    border-color: #d9534f !important;
+}
+
+// .custom-nav {color: #d9534f;
+//   padding: 0.45rem 1.25rem !important;
+// }
+  
+/* Scrollbar CSS */
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  
+  /* Track */
+  ::-webkit-scrollbar-track {
+    background: #f1f1f1; 
+    border-radius: 10px;
+  }
+   
+  /* Handle */
+  ::-webkit-scrollbar-thumb {
+    background: rgb(196, 193, 193); 
+    border-radius: 10px;
+  }
+  
+  /* Handle on hover */
+  ::-webkit-scrollbar-thumb:hover {
+    background: #999; 
+  }
+
+  /*Draggable Row*/
+  .cdk-drag-preview {
+    box-sizing: border-box;
+    width: 25rem;
+    border-radius: 4px;
+    font-size: 1.5em;
+    text-align: center;
+    opacity: 0.8;
+    box-shadow: 0 5px 5px -3px rgba(0, 0, 0, 0.2),
+      0 8px 10px 1px rgba(0, 0, 0, 0.14), 0 3px 14px 2px rgba(0, 0, 0, 0.12);
+  }
+  
+  .dragdrop-placeholder {
+    background: #ccc;
+    border: dotted 3px #999;
+    min-height: 30px;
+    transition: transform 100ms cubic-bezier(0, 0, 0.2, 1);
+  }
+
+  .fileError {
+    color: #d9534f;
+  }
+
+  .border-error-file {
+    display: block;
+    width: 100%;
+    height: calc(2.25rem + 2px);
+    padding: 0.438rem 0.875rem;
+    font-size: 0.894rem;
+    line-height: 1.54;
+    color: #4E5155;
+    background-color: #fff;
+    background-clip: padding-box;
+    border: 1px solid #d9534f;
+    border-radius: 0.25rem;
+  }
+
+  .btn-zoom {
+    margin: 3px;
+    cursor: pointer;
+    border-radius: 50%;
+    align-items: center;
+    height: 20px;
+    width: 20px;
+    display: flex;
+    justify-content: center;
+    margin-top: 0.5rem;
+  }
+
+  
+  
+
