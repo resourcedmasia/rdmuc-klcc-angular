@@ -127,7 +127,7 @@ export class GpTimerComponent implements OnInit {
       })
       .catch((err) => {
         if (err !== 0) {
-          this.toastr.warning("Error on saved changes.", "", {
+          this.toastr.warning("Error in saving changes.", "", {
             disableTimeOut: false,
             timeOut: 2000,
             positionClass: "toast-bottom-right",
