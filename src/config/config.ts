@@ -28,6 +28,8 @@ export class Config {
             code = code.trim();
             code = code.substr(code.indexOf("<root>"), code.length);
             code = code.replace("</mxGraphModel>","");
+            code = code.replace("strokeColor=default","strokeColor=#000000");
+            code = code.replace("fillColor=default","fillColor=#FFFFFF");
         }
         else {
             code = mxcode;
