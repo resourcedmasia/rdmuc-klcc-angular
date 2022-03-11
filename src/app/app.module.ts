@@ -78,6 +78,7 @@ import { DragDropModule } from '@angular/cdk/drag-drop';
 //
 // Config File
 import { Config } from '../config/config';
+import { GpTimerComponent } from './gp-timer/gp-timer.component';
 
 
 
@@ -103,6 +104,7 @@ import { Config } from '../config/config';
     CarbonEmissionComponent,
     OverviewComponent,
     VisualizationComponent,
+    GpTimerComponent,
     FacilityReportComponent,
     WriteVisualizationModalComponent,
     VerifyUserModalComponent,

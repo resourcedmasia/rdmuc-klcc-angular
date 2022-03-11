@@ -32,6 +32,7 @@ import { FacilityReportComponent } from './facility-report/facility-report.compo
 // Authentication
 import { AuthService } from './auth.service';
 import { AuthGuard } from './auth.guard';
+import { GpTimerComponent } from './gp-timer/gp-timer.component';
 
 // *******************************************************************************
 // Routes
@@ -162,6 +163,16 @@ const routes: Routes = [
       role: ['superadmin','administrator']
     }
   },
+
+    // gp-timer
+    {
+      path: 'gp-timer', component: Layout2Component, canActivate: [AuthGuard], runGuardsAndResolvers: 'always', children: [
+        { path: '', component: GpTimerComponent },
+      ],
+      data: {
+        role: ['superadmin','administrator']
+      }
+    },
 
   // Data Entry - Facility Report 
   {

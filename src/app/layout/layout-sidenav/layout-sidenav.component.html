@@ -32,6 +32,8 @@
       <sidenav-router-link icon="ion ion-md-today" route="/visualization-user" [active]="isActive('/visualization-user')" *ngIf=this.appService.config.moduleVisualizationUser>Dashboard User</sidenav-router-link>
     </sidenav-menu>
 
+    <sidenav-router-link icon="ion ion-ios-timer" route="/gp-timer" [active]="isActive('/gp-timer')" *ngIf=this.appService.config.moduleGPTimer>GP Timer</sidenav-router-link>
+
     <sidenav-menu icon="ion ion-md-paper" text="EOD" [active]="isMenuActive('/eod')" [open]="isMenuOpen('/eod')" *ngIf=this.appService.config.moduleEOD>
       <sidenav-router-link icon="ion ion-md-paper" route="/eod/generate" [queryParams]="{ type: 'eod'}" [active]="isActive('/eod/generate?type=eod')">EOD Report</sidenav-router-link>
       <sidenav-router-link icon="ion ion-md-analytics" route="/eod/analytics" [active]="isActive('/eod/analytics')">Data Analytics</sidenav-router-link>
