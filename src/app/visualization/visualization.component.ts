@@ -922,7 +922,7 @@ export class VisualizationComponent implements OnInit, OnDestroy {
     });
     
     //Get GPTimerChannel
-    await this.getGPTimerChannels();
+    // await this.getGPTimerChannels();
 
     // Clear the existing graph
     this.graph.getModel().clear();
@@ -966,7 +966,7 @@ export class VisualizationComponent implements OnInit, OnDestroy {
         // this.changeCellColour(cells);
 
         // GPTimer Overlay
-        this.addCellOverlay(cells);
+        // this.addCellOverlay(cells);
 
         // Get Active Alarm
         // this.getActiveAlarm();
