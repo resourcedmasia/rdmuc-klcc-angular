@@ -59,6 +59,7 @@ export class GpTimerComponent implements OnInit {
     private spinner: NgxSpinnerService
   ) {
     this.toastr.overlayContainer = undefined;
+    this.spinner.show();
   }
 
   gpTimerChannelsDetail = [];
@@ -76,7 +77,6 @@ export class GpTimerComponent implements OnInit {
       .postData("getAllGPTimerChannel", this.authService.getToken())
       .subscribe((data: any) => {
         if (data["status"] == 200) {
-          this.spinner.show();
           this.filterArray = data["data"].rows.filter(
             (item) =>
               item.Details.OutputMask !== "" && item.Details.OutputMask !== null
@@ -102,6 +102,9 @@ export class GpTimerComponent implements OnInit {
           setTimeout(() => {
             this.spinner.hide();
           }, 1000);
+        } else {
+          this.spinner.hide();
+          this.displayMessage = "No Data To Display";
         }
       });
   }

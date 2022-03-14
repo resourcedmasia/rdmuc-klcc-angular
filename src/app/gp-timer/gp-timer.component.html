@@ -2,11 +2,9 @@
   <h4 class="card-header">
     <i class="ion ion-ios-timer"></i>&nbsp;&nbsp; GP Timer Channels
   </h4>
-  <ng-container *ngIf="this.gpTimerChannelsDetail.length > 0 && isLoading">
-    <div class="scroll-table">
-      <ngx-spinner style="z-index: 2;" [fullScreen]="false" type="line-scale" size="small" bdColor="rgba(39,39,45,1)">
-        <p style="color: white"> Loading... </p>
-      </ngx-spinner>
+  <div class="scroll-table">
+    <ngx-spinner style="z-index: 2;" [fullScreen]="false" type="line-scale" size="small" bdColor="rgba(39,39,45,1)"></ngx-spinner>
+    <ng-container *ngIf="this.gpTimerChannelsDetail.length > 0 && isLoading">
       <table class="table table-bordered table-hover">
         <thead>
           <tr class="table-header">
@@ -33,11 +31,11 @@
           </tr>
         </tbody>
       </table>
-    </div>
-  </ng-container>
-  <ng-container *ngIf="this.gpTimerChannelsDetail.length == 0">
-    <div class="no-data">
-      <h6>{{displayMessage}}</h6>
-    </div>
-  </ng-container>
+    </ng-container>
+    <ng-container *ngIf="this.gpTimerChannelsDetail.length == 0">
+      <div class="no-data">
+        <h6>{{displayMessage}}</h6>
+      </div>
+    </ng-container>
+  </div>
 </div>
