@@ -61,10 +61,10 @@
     </div>
   </div>
   <div class="period">
-    <h6 style="color: red;">Period 1 </h6> <div class="row time-pick" ><ngb-timepicker disabled [spinners]="false" [(ngModel)]="OnTime1" [minuteStep]="5"></ngb-timepicker> <h2 class="dash"> - </h2> <ngb-timepicker disabled [spinners]="false" [(ngModel)]="OffTime1" [minuteStep]="5"></ngb-timepicker></div>
+    <h6 style="color: red;">Period 1 </h6> <div class="row time-pick" ><ngb-timepicker  [spinners]="true" [(ngModel)]="OnTime1" [minuteStep]="5" (ngModelChange)="pickerChange($event,'OnTime1')"></ngb-timepicker> <h2 class="dash"> - </h2> <ngb-timepicker  [spinners]="true" [(ngModel)]="OffTime1" [minuteStep]="5" (ngModelChange)="pickerChange($event,'OffTime1')"></ngb-timepicker></div>
   </div>
   <div class="period">
-    <h6 style="color: red;">Period 2 </h6> <div class="row time-pick" ><ngb-timepicker disabled [spinners]="false" [(ngModel)]="OnTime2" [minuteStep]="5"></ngb-timepicker> <h2 class="dash"> - </h2> <ngb-timepicker disabled [spinners]="false" [(ngModel)]="OffTime2" [minuteStep]="5"></ngb-timepicker></div>
+    <h6 style="color: red;">Period 2 </h6> <div class="row time-pick" ><ngb-timepicker  [spinners]="true" [(ngModel)]="OnTime2" [minuteStep]="5" (ngModelChange)="pickerChange($event,'OnTime2')"></ngb-timepicker> <h2 class="dash"> - </h2> <ngb-timepicker  [spinners]="true" [(ngModel)]="OffTime2" [minuteStep]="5" (ngModelChange)="pickerChange($event,'OffTime2')"></ngb-timepicker></div>
   </div>
   <!-- <div>Model: {{ model | json }}</div> -->
 </div>

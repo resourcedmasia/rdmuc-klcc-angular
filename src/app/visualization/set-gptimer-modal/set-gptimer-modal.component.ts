@@ -18,10 +18,11 @@ const now = new Date();
 })
 export class SetGptimerModalComponent implements OnInit {
   @Input() row: any;
-  @Output() valueChange = new EventEmitter();
+  // @Output() valueChange = new EventEmitter();
 
   GPEvent: any[];
   GPEventModal: any[];
+  GPEventIndex: any;
   rowTemp: any;
   GPEventTemp: any[];
   dayOnceTaken: any[];
@@ -62,6 +63,7 @@ export class SetGptimerModalComponent implements OnInit {
     }
 
   async ngOnInit() {
+    console.log("Init")
     await this.init();
   }
 
@@ -392,6 +394,7 @@ export class SetGptimerModalComponent implements OnInit {
   
 
     for(let i = 0; i < this.GPEvent.length; i++) {
+      this.GPEventIndex = i;
       if(this.GPEvent[i].Type == "Once" && this.GPEvent[i].Day === date.day && this.GPEvent[i].Month === date.month && this.GPEvent[i].Year === date.year) {
         console.log("Once")
         this.OnTime1 = this.GPEvent[i].OnTime1;
@@ -574,6 +577,24 @@ export class SetGptimerModalComponent implements OnInit {
         this.activeModal.close("fail")
       }
     });
+}
+
+pickerChange(event,type) {
+  let minute = event.minute;
+  let hour = Math.floor(event.hour * 60);
+  let time = Math.floor(hour+minute);
+  if (type=="OnTime1"){
+    this.GPEvent[this.GPEventIndex].OnTime1 = time;
+  }
+  else if(type=="OnTime2") {
+    this.GPEvent[this.GPEventIndex].OnTime2 = time;
+  }
+  else if(type=="OffTime1") {
+    this.GPEvent[this.GPEventIndex].OffTime1 = time;
+  }
+  else if(type=="OffTime2") {
+    this.GPEvent[this.GPEventIndex].OffTime2 = time;
+  }
 }
 
 }

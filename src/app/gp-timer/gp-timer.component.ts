@@ -107,8 +107,9 @@ export class GpTimerComponent implements OnInit {
     this.selectedGptimer = this.filterArray.filter(
       (item) => item.Index === channel
     );
+    let selected = JSON.parse(JSON.stringify(this.selectedGptimer[0]))
     const modalRef = this.modalService.open(SetGptimerModalComponent);
-    modalRef.componentInstance.row = this.selectedGptimer[0];
+    modalRef.componentInstance.row = selected;
     modalRef.result
       .then(async (result) => {
         if (result == "success") {
@@ -123,6 +124,7 @@ export class GpTimerComponent implements OnInit {
         }
       })
       .catch((err) => {
+        console.log(err)
         if (err !== 0) {
           this.toastr.warning("Error in saving changes.", "", {
             disableTimeOut: false,
@@ -130,6 +132,7 @@ export class GpTimerComponent implements OnInit {
             positionClass: "toast-bottom-right",
           });
         }
+        console.log(this.selectedGptimer[0])
       });
   }
 }
