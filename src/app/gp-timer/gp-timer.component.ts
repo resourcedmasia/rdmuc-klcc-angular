@@ -64,7 +64,7 @@ export class GpTimerComponent implements OnInit {
   gpTimerChannelsDetail = [];
   filterArray: GPTimerDetail[];
   selectedGptimer;
-  isloading = false;
+  isLoading = false;
 
   ngOnInit() {
     this.getAllGpTimer();
@@ -89,15 +89,12 @@ export class GpTimerComponent implements OnInit {
             } else {
               gpDetail["status"] = "On";
             }
-            if (item.Details.Type === "Master") {
-              gpDetail["type"] = "Parent";
-            } else {
-              gpDetail["type"] = "Children";
-            }
+           
+            gpDetail["type"] = item.Details.Type;
             gpDetail["outputType"] = item.Details.OutputType;
             gpDetail["outputMask"] = item.Details.OutputMask;
             this.gpTimerChannelsDetail.push(gpDetail);
-            this.isloading = true;
+            this.isLoading = true;
             setTimeout(() => {
               this.spinner.hide();
             }, 1000);
@@ -127,7 +124,7 @@ export class GpTimerComponent implements OnInit {
       })
       .catch((err) => {
         if (err !== 0) {
-          this.toastr.warning("Error on saved changes.", "", {
+          this.toastr.warning("Error in saving changes.", "", {
             disableTimeOut: false,
             timeOut: 2000,
             positionClass: "toast-bottom-right",

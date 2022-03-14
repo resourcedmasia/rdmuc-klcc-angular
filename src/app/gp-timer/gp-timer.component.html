@@ -1,39 +1,36 @@
-<div class="card mb-4 p-3">
-  <h4 class="card-header">
-    <i class="ion ion-ios-timer"></i>&nbsp;&nbsp; GP Timer <i style="font-size: 13px; margin-top: 10px; cursor: pointer;" class="float-sm-right font-weight-light text-muted"></i>
-  </h4>
-  <div class="scroll-table">
-    <ng-container *ngIf="!isLoading">
-      <table *ngIf="!isLoading" class="table table-bordered table-hover">
-        <thead>
-          <tr class="table-header">
-            <th>Channel</th>
-            <th style="min-width: 120px;">Description</th>
-            <th style="min-width: 200px;">Status</th>
-            <th style="min-width: 120px;">Type</th>
-            <th style="min-width: 120px;">Output Type</th>
-            <th style="min-width: 120px;">Mask</th>
-            <th colspan="2">Action</th>
-          </tr>
-        </thead>
-        <tbody>
-          <ngx-spinner [fullScreen]="false" type="ball-beat" size="small" bdColor="rgba(39,39,45,0.8)">
-            <br>
-            <p style="color: white"> Loading... </p>
-          </ngx-spinner>
-          <tr *ngFor="let item of gpTimerChannelsDetail">
-            <td>{{item.channel}}</td>
-            <td>{{item.description}}</td>
-            <td>{{item.status}}</td>
-            <td>{{item.type}}</td>
-            <td>{{item.outputType}}</td>
-            <td>{{item.outputMask}}</td>
-            <td colspan="2">
-              <button type="button" class="btn btn-primary" (click)="assignGpTimer(item.channel)">view</button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </ng-container>
-  </div>
+
+  <div class="card mb-4 p-3">
+    <h4 class="card-header">
+      <i class="ion ion-ios-timer"></i>&nbsp;&nbsp; GP Timer Channels
+    </h4>
+    <ng-container *ngIf="this.gpTimerChannelsDetail.length > 0">
+      <div class="scroll-table">
+          <table class="table table-bordered table-hover">
+            <thead>
+              <tr class="table-header">
+                <th>Channel</th>
+                <th style="min-width: 220px;">Description</th>
+                <th style="min-width: 100px;">Status</th>
+                <th style="min-width: 120px;">Type</th>
+                <th style="min-width: 120px;">Output Type</th>
+                <th style="min-width: 120px;">Mask</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let item of gpTimerChannelsDetail">
+                <td>{{item.channel}}</td>
+                <td>{{item.description}}</td>
+                <td>{{item.status}}</td>
+                <td>{{item.type}}</td>
+                <td>{{item.outputType}}</td>
+                <td>{{item.outputMask}}</td>
+                <td>
+                  <button type="button" class="btn btn-primary" (click)="assignGpTimer(item.channel)">View</button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+      </div>
+  </ng-container>
 </div>
