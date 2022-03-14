@@ -29,13 +29,13 @@ export class SetGptimerModalComponent implements OnInit {
   dates: any;
   isEventOnce: boolean;
   isRemoveSingle: boolean;
-  isRemoveAll: boolean;
   date: {year: number, month: number};
   model: NgbDateStruct;
   OnTime1: any;
   OnTime2: any;
   OffTime1: any;
   OffTime2: any;
+  datePickerDisable: boolean;
   
 
   gptimerForm = new FormGroup({
@@ -75,9 +75,10 @@ export class SetGptimerModalComponent implements OnInit {
     this.OffTime1 = {hour: 0, minute: 0};
     this.OffTime2 = {hour: 0, minute: 0};
     this.GPEvent = [];
+    this.GPEventIndex = -1;
     this.GPEventTemp = [];
     this.isRemoveSingle = false;
-    this.isRemoveAll = false;
+    this.datePickerDisable = true;
     var status;
     var runOn;
 
@@ -139,16 +140,17 @@ export class SetGptimerModalComponent implements OnInit {
   }
 
   removeAll() {
-    this.isRemoveAll = true;
     this.OnTime1 = {hour: 0, minute: 0};
     this.OnTime2 = {hour: 0, minute: 0};
     this.OffTime1 = {hour: 0, minute: 0};
     this.OffTime2 = {hour: 0, minute: 0};
     this.GPEvent = [];
+    this.GPEventIndex = -1;
+    this.datePickerDisable = true;
     
-    if(this.row.Details.Events) {
-      this.row.Details.Events = "";
-    }
+    // if(this.row.Details.Events) {
+    //   this.row.Details.Events = "";
+    // }
 
   }
 
@@ -395,6 +397,13 @@ export class SetGptimerModalComponent implements OnInit {
 
     for(let i = 0; i < this.GPEvent.length; i++) {
       this.GPEventIndex = i;
+      if(this.GPEvent.length > 0) {
+        this.datePickerDisable = false;
+      }
+      else {
+        this.datePickerDisable = true;
+      }
+
       if(this.GPEvent[i].Type == "Once" && this.GPEvent[i].Day === date.day && this.GPEvent[i].Month === date.month && this.GPEvent[i].Year === date.year) {
         console.log("Once")
         this.OnTime1 = this.GPEvent[i].OnTime1;
@@ -494,6 +503,10 @@ export class SetGptimerModalComponent implements OnInit {
         this.GPEventModal = this.GPEvent[i];
         return this.calculateHours(this.OnTime1,this.OnTime2,this.OffTime1,this.OffTime2)
       }
+      else {
+        this.GPEventIndex = -1
+        this.datePickerDisable = true;
+      }
     }
     return this.calculateHours(0,0,0,0)
   }
@@ -517,8 +530,6 @@ export class SetGptimerModalComponent implements OnInit {
   }
 
   closeModal() {
-    // this.row = this.rowTemp;
-    // console.log("row",this.row)
     this.activeModal.close("dismiss");
   }
 
@@ -583,18 +594,31 @@ pickerChange(event,type) {
   let minute = event.minute;
   let hour = Math.floor(event.hour * 60);
   let time = Math.floor(hour+minute);
-  if (type=="OnTime1"){
-    this.GPEvent[this.GPEventIndex].OnTime1 = time;
+
+  if(this.GPEvent.length > 0) {
+    this.datePickerDisable = false;
   }
-  else if(type=="OnTime2") {
-    this.GPEvent[this.GPEventIndex].OnTime2 = time;
+  else {
+    this.datePickerDisable = true;
   }
-  else if(type=="OffTime1") {
-    this.GPEvent[this.GPEventIndex].OffTime1 = time;
+
+
+  if(this.GPEventIndex >= 0) {
+    if (type=="OnTime1"){
+      this.GPEvent[this.GPEventIndex].OnTime1 = time;
+    }
+    else if(type=="OnTime2") {
+      this.GPEvent[this.GPEventIndex].OnTime2 = time;
+    }
+    else if(type=="OffTime1") {
+      this.GPEvent[this.GPEventIndex].OffTime1 = time;
+    }
+    else if(type=="OffTime2") {
+      this.GPEvent[this.GPEventIndex].OffTime2 = time;
+    }
   }
-  else if(type=="OffTime2") {
-    this.GPEvent[this.GPEventIndex].OffTime2 = time;
-  }
+ 
+
 }
 
 }
