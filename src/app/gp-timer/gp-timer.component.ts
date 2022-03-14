@@ -59,19 +59,20 @@ export class GpTimerComponent implements OnInit {
     private spinner: NgxSpinnerService
   ) {
     this.toastr.overlayContainer = undefined;
+    this.spinner.show();
   }
 
   gpTimerChannelsDetail = [];
   filterArray: GPTimerDetail[];
   selectedGptimer;
   isLoading = false;
+  displayMessage: string;
 
   ngOnInit() {
     this.getAllGpTimer();
   }
 
   getAllGpTimer() {
-    this.spinner.show();
     this.restService
       .postData("getAllGPTimerChannel", this.authService.getToken())
       .subscribe((data: any) => {
@@ -89,16 +90,21 @@ export class GpTimerComponent implements OnInit {
             } else {
               gpDetail["status"] = "On";
             }
-           
             gpDetail["type"] = item.Details.Type;
             gpDetail["outputType"] = item.Details.OutputType;
             gpDetail["outputMask"] = item.Details.OutputMask;
             this.gpTimerChannelsDetail.push(gpDetail);
-            this.isLoading = true;
-            setTimeout(() => {
-              this.spinner.hide();
-            }, 1000);
           }
+          if (this.gpTimerChannelsDetail.length == 0) {
+            this.displayMessage = "No Data To Display";
+          }
+          this.isLoading = true;
+          setTimeout(() => {
+            this.spinner.hide();
+          }, 1000);
+        } else {
+          this.spinner.hide();
+          this.displayMessage = "No Data To Display";
         }
       });
   }

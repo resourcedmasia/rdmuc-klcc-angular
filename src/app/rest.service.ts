@@ -1,38 +1,37 @@
-import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { catchError, share, shareReplay } from 'rxjs/operators';
-import { ToastrService } from 'ngx-toastr';
+import { Injectable } from "@angular/core";
+import { HttpClient } from "@angular/common/http";
+import { catchError, share, shareReplay } from "rxjs/operators";
+import { ToastrService } from "ngx-toastr";
+import { environment } from "../environments/environment";
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: "root",
 })
 export class RestService {
-
-  constructor(
-    private httpClient: HttpClient,
-    private toastr: ToastrService
-    ) { }
+  constructor(private httpClient: HttpClient, private toastr: ToastrService) {}
 
   // API Endpoint
-  private baseUrl = 'http://10.1.128.47:8080/api/api.php';
-  // private baseUrl = 'http://wismagenting.uc.rdmsite.com/api/api.php';
-  
+  private baseUrl = environment.apiUrl;
 
-  
   // Method exports
   postData(method, token = null, data = null) {
-    return this.httpClient.post(
-      this.baseUrl,
-      {
+    return this.httpClient
+      .post(this.baseUrl, {
         method: method,
         token: token,
-        data: data
-      }).pipe(share(),
-        catchError( err => {
-          if (err.status === 500 ||  err.status === 503) {
-            this.warningToast('There is an error with your connection. Please check your connection');
+        data: data,
+      })
+      .pipe(
+        share(),
+        catchError((err) => {
+          if (err.status === 500 || err.status === 503) {
+            this.warningToast(
+              "There is an error with your connection. Please check your connection"
+            );
           } else if (err.status === 400) {
-            this.warningToast('There is an error with your connection. Please check your connection');
+            this.warningToast(
+              "There is an error with your connection. Please check your connection"
+            );
           }
           return err;
         })
@@ -40,27 +39,30 @@ export class RestService {
   }
 
   getConfig() {
-    return this.httpClient.get(
-      this.baseUrl,
-      {
-        observe: 'body',
-        responseType: 'json'
-      }).pipe(shareReplay(1),
-        catchError( err => {
-          if (err.status === 500 ||  err.status === 503 ) {
-            this.warningToast('There are error with your connection.Please check your connection');
+    return this.httpClient
+      .get(this.baseUrl, {
+        observe: "body",
+        responseType: "json",
+      })
+      .pipe(
+        shareReplay(1),
+        catchError((err) => {
+          if (err.status === 500 || err.status === 503) {
+            this.warningToast(
+              "There are error with your connection.Please check your connection"
+            );
           }
           return err;
         })
       );
   }
 
-  warningToast(msg) {    
-    this.toastr.warning(msg,"", {
+  warningToast(msg) {
+    this.toastr.warning(msg, "", {
       tapToDismiss: true,
       disableTimeOut: false,
       timeOut: 5000,
-      positionClass: 'toast-top-full-width'
+      positionClass: "toast-top-full-width",
     });
   }
 }
