@@ -65,6 +65,8 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
   ro;
   roFullScreen;
   mxgraphData = [];
+  colour: any;
+  cardColour: any;
 
   // Selected mxGraph cell ID (ngModel binding)
   selectedCellId;
@@ -279,6 +281,7 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
   }
 
   ngAfterViewInit() {
+    this.getCardColour();
   }
 
   elementObserver() {
@@ -1649,6 +1652,20 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
     setTimeout(()=>{ thisC.centerGraph(); }, 100);
     thisC._cdRef.detectChanges();
   }
+
+  async getCardColour() {
+    this.cardColour = await this.config.asyncLocalStorage.getItem('cardColour')
+    this.colour = this.cardColour;
+    if(!this.colour || this.colour == undefined){
+      this.colour = "#ffffff";
+      this.cardColour = "#ffffff";
+    }
+}
+
+  async changeCardColour(event) {
+  this.cardColour = event;
+  await this.config.asyncLocalStorage.setItem('cardColour', event);
+}
 
 }
 
