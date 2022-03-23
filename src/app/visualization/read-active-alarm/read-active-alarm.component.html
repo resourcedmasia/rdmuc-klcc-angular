@@ -5,7 +5,7 @@
   </h5>
 </div>
 <div class="modal-body">
-  <div class="scroll">
+  <div id="alarm-table" class="scroll">
     <table class="table table-bordered table-hover">
       <thead>
         <tr class="table-header">
@@ -33,5 +33,6 @@
   </div>
 </div>
 <div class="modal-footer">
+  <button name="Print" type="button" class="btn btn-default print" (click)="print()"><i class="ion ion-md-print"></i></button>
   <button type="button" class="btn btn-default" (click)="closeModal()">Close</button>
 </div>

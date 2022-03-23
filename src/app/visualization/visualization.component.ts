@@ -23,8 +23,7 @@ import { VerifyDeleteGraphModalComponent } from './verify-delete-graph-modal/ver
 import { SetGptimerModalComponent } from './set-gptimer-modal/set-gptimer-modal.component';
 import { ReadActiveAlarmComponent } from './read-active-alarm/read-active-alarm.component';
 import { CdkDragDrop, moveItemInArray } from "@angular/cdk/drag-drop";
-import { share } from 'rxjs/operators';
-import { kill } from 'process';
+
 
 
 declare var mxUtils: any;
@@ -77,6 +76,7 @@ export class VisualizationComponent implements OnInit, OnDestroy {
   tempNavAttributeCellId: any;
   selectRow: any;
   rowIndex: number;
+  alarmSound: any;
 
   temp = [];
   loadingIndicator = true;
@@ -152,7 +152,7 @@ export class VisualizationComponent implements OnInit, OnDestroy {
   fileUploadEvent: any;
   isDisabledCenter = false;
   landingId: number;
-  
+  audio: any;;
 
 
   // Add / Edit Graph Configuration Form
@@ -173,6 +173,7 @@ export class VisualizationComponent implements OnInit, OnDestroy {
   tempHoverField: any;
   tempNavCellId: any;
   tempFlowCellId: any;
+  
   
  
 
@@ -243,6 +244,7 @@ export class VisualizationComponent implements OnInit, OnDestroy {
     this.isErrorFileType = false;
     this.ng_mxgraph_code = "";
     this.isUploadedFile = false;
+    this.alarmSound = false;
     
 
     // Retrieve stored mxGraphs from database and populate dropdown selection
@@ -820,6 +822,7 @@ export class VisualizationComponent implements OnInit, OnDestroy {
     this.tabs.select("tab1");
     this.unhighlightRow();
     this._cdRef.detectChanges();
+    this.alarmSound = false;
 
     localStorage.removeItem('cell_value');
     this.newAttribute = {};
@@ -1016,6 +1019,9 @@ export class VisualizationComponent implements OnInit, OnDestroy {
           custom[mxConstants.STYLE_IMAGE] = '../../assets/img/warning.gif';
           this.graph.getStylesheet().putCellStyle('customstyle', custom);
           this.graph.insertVertex(parent,"alarm-id",null,0,0,70,70,'customstyle',false)
+          if(!this.alarmSound){
+            this.playAlarmAudio();
+          }
           this.centerGraph();
         }
         else {
@@ -1024,6 +1030,9 @@ export class VisualizationComponent implements OnInit, OnDestroy {
             this.getAllActiveAlarms = [];
             this.graph.getModel().remove(temp);
             this.graph.refresh();
+            if(this.alarmSound){
+              this.stopAlarmAudio();
+            }
           }
         }
       }
@@ -1033,6 +1042,9 @@ export class VisualizationComponent implements OnInit, OnDestroy {
           this.getAllActiveAlarms = [];
           this.graph.getModel().remove(temp);
           this.graph.refresh();
+          if(this.alarmSound){
+            this.stopAlarmAudio();
+          }
         }
       }
    });
@@ -2821,8 +2833,23 @@ export class VisualizationComponent implements OnInit, OnDestroy {
         }
       });
     }
-  
   }
+
+  playAlarmAudio(){
+    this.audio = new Audio();
+    this.audio.src = "../../assets/audio/mxgraph-alarm.wav";
+    this.audio.loop = true;
+    this.audio.load();
+    this.audio.play();
+    this.alarmSound = true;
+  }
+
+  stopAlarmAudio(){
+    console.log("alarm stop")
+    this.audio.pause();
+    this.alarmSound = false;
+  }
+
 }
 
 

@@ -136,6 +136,8 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
   temp_mxgraph_name: any;
   tempFieldArray: any;
   isMouseHover: any;
+  audio: any;
+  alarmSound: any;
   
 
 
@@ -212,6 +214,7 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
     this.isHoverTooltip = false;
     this.isFullScreen = false;
     this.isTooltipCreated = false;
+    this.alarmSound = false;
 
     this.fullScreenEvent();
 
@@ -349,6 +352,9 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
           custom[mxConstants.STYLE_IMAGE] = '../../assets/img/warning.gif';
           this.graph.getStylesheet().putCellStyle('customstyle', custom);
           this.graph.insertVertex(parent,"alarm-id",null,0,0,70,70,'customstyle',false)
+          if(!this.alarmSound){
+            this.playAlarmAudio();
+          }
           this.centerGraph();
         }
         else {
@@ -357,6 +363,9 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
             this.getAllActiveAlarms = [];
             this.graph.getModel().remove(temp);
             this.graph.refresh();
+            if(this.alarmSound){
+              this.stopAlarmAudio();
+            }
           }
         }
       }
@@ -367,6 +376,9 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
           this.graph.getModel().remove(temp);
           this.graph.refresh();
           this.centerGraph();
+          if(this.alarmSound){
+            this.stopAlarmAudio();
+          }
         }
       }
    });
@@ -426,6 +438,7 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
     this.gpTimerChannelsDetail = [];
     this.gpTimerChannels = [];
     this.toastr.clear();
+    this.alarmSound = false;
 
     localStorage.removeItem('cell_value');
     this.newAttribute = {};
@@ -1665,6 +1678,21 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
   async changeCardColour(event) {
   this.cardColour = event;
   await this.config.asyncLocalStorage.setItem('cardColour', event);
+}
+
+playAlarmAudio(){
+  this.audio = new Audio();
+  this.audio.src = "../../assets/audio/mxgraph-alarm.wav";
+  this.audio.loop = true;
+  this.audio.load();
+  this.audio.play();
+  this.alarmSound = true;
+}
+
+stopAlarmAudio(){
+  console.log("alarm stop")
+  this.audio.pause();
+  this.alarmSound = false;
 }
 
 }
