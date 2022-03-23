@@ -77,6 +77,13 @@ export class Config {
 
     SYMBOL_UNITS_DEGREES_CELCIUS = "°C";
 
+    isoDateFilter(isoDate) {
+        var i = new Date(isoDate);
+        var t = i.toLocaleTimeString('en-MY')
+        var d = i.toLocaleDateString('en-MY');
+        return d +", "+ t;
+    }
+
 
 }
 

@@ -1,0 +1,45 @@
+<div class="card mb-4 p-3">
+  <h4 class="card-header">
+    <i class="ion ion-ios-eye"></i>&nbsp;&nbsp; Security <span class="text-muted font-weight-light">/ {{ dateToday | amDateFormat: 'LLLL' }}</span>
+    <div class="datePick">
+      <label for="startDate">Start:</label><input type="date" id="startDate" name="startDate" min="{{minDate | date:'yyyy-MM-dd'}}" max="{{dateToday | date:'yyyy-MM-dd'}}" [(ngModel)]="startFormattedDate" (change)="startDateChange($event)"> &nbsp;
+      <label for="endDate">End:</label><input type="date" id="endDate" name="endDate" min="{{minDate | date:'yyyy-MM-dd'}}" max="{{dateToday | date:'yyyy-MM-dd'}}" [(ngModel)]="endFormattedDate" (change)="endDateChange($event)">
+    </div>
+  </h4>
+  <ngx-spinner style="z-index: 1;" [fullScreen]="false" type="line-scale" size="small" bdColor="rgba(39,39,45,1)"></ngx-spinner>
+  <div id="security-table" class="scroll-table">
+   
+    <ng-container  *ngIf="this.guardTour?.length > 0 && isLoading">
+      <table class="table table-bordered table-hover">
+        <thead>
+          <tr class="table-header">
+            <th >Index</th>
+            <th>Time</th>
+            <th >Guard Tour 1 Status</th>
+            <th >Guard Tour 2 Status</th>
+            <th >Guard Tour 3 Status</th>
+            <th >Guard Tour 4 Status</th>
+            <th >Guard Tour 5 Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let item of guardTour; let i = index;">
+            <td >{{i+1}}</td>
+            <td >{{config.isoDateFilter(item.Time)}}</td>
+            <td [ngClass]="{'cell-colour': item.Values.Value[0] == 'Clock-In'}">{{item.Values.Value[0]}}</td>
+            <td [ngClass]="{'cell-colour': item.Values.Value[1] == 'Clock-In'}">{{item.Values.Value[1]}}</td>
+            <td [ngClass]="{'cell-colour': item.Values.Value[2] == 'Clock-In'}">{{item.Values.Value[2]}}</td>
+            <td [ngClass]="{'cell-colour': item.Values.Value[3] == 'Clock-In'}">{{item.Values.Value[3]}}</td>
+            <td [ngClass]="{'cell-colour': item.Values.Value[4] == 'Clock-In'}">{{item.Values.Value[4]}}</td>
+          </tr>
+        </tbody>
+      </table>
+    </ng-container>
+    <ng-container *ngIf="this.guardTour?.length == 0">
+      <div class="no-data">
+        <h6>{{displayMessage}}</h6>
+      </div>
+    </ng-container>
+  </div>
+  <button *ngIf="isLoading" name="Print" type="button" class="btn btn-default print" (click)="print()"><i class="ion ion-md-print"></i></button>
+</div>

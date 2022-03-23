@@ -35,7 +35,8 @@ export class AppService {
       moduleVisualization: true, // mxGraph / visualization module
       moduleVisualizationAdmin: true, // mxGraph / visualization module / Admin 
       moduleVisualizationUser: true, // mxGraph / visualization module / User 
-      moduleGPTimer: true, // mxGraph / gptimer module
+      moduleGPTimer: true, // gptimer module
+      moduleGuardTour: true, // guard-tour module
       //
       moduleDataEntry: false // Human data entry module
   

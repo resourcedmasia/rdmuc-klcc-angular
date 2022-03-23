@@ -80,6 +80,7 @@ import { ColorPickerModule } from 'ngx-color-picker';
 // Config File
 import { Config } from '../config/config';
 import { GpTimerComponent } from './gp-timer/gp-timer.component';
+import { GuardTourComponent } from './guard-tour/guard-tour.component';
 
 
 
@@ -115,7 +116,8 @@ import { GpTimerComponent } from './gp-timer/gp-timer.component';
     ReadOnlyGptimerModalComponent,
     SetGptimerModalComponent,
     AddScheduleModalComponent,
-    ReadActiveAlarmComponent
+    ReadActiveAlarmComponent,
+    GuardTourComponent
   ],
 
   imports: [
