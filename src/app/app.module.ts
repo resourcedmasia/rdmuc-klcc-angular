@@ -11,7 +11,7 @@ import { NgbModule, NgbCalendar } from '@ng-bootstrap/ng-bootstrap';
 
 // *******************************************************************************
 // App
-
+import {NgxPaginationModule} from 'ngx-pagination'; // <-- import the module
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { AppService } from './app.service';
@@ -74,11 +74,13 @@ import { ToastrModule, ToastContainerModule } from 'ngx-toastr';
 import { DragDropModule } from '@angular/cdk/drag-drop';
 
 
+
 // *******************************************************************************
 //
 // Config File
 import { Config } from '../config/config';
 import { GpTimerComponent } from './gp-timer/gp-timer.component';
+import { AuditLogComponent } from './audit-log/audit-log.component';
 
 
 
@@ -114,7 +116,8 @@ import { GpTimerComponent } from './gp-timer/gp-timer.component';
     ReadOnlyGptimerModalComponent,
     SetGptimerModalComponent,
     AddScheduleModalComponent,
-    ReadActiveAlarmComponent
+    ReadActiveAlarmComponent,
+    AuditLogComponent
   ],
 
   imports: [
@@ -153,6 +156,7 @@ import { GpTimerComponent } from './gp-timer/gp-timer.component';
       preventDuplicates: true,
     }),
     ToastContainerModule,
+    NgxPaginationModule
   ],
   providers: [
     Title,
