@@ -11,7 +11,7 @@ import { NgbModule, NgbCalendar } from '@ng-bootstrap/ng-bootstrap';
 
 // *******************************************************************************
 // App
-
+import { NgxPaginationModule } from 'ngx-pagination'; // <-- import the module
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { AppService } from './app.service';
@@ -75,12 +75,14 @@ import { DragDropModule } from '@angular/cdk/drag-drop';
 import { ColorPickerModule } from 'ngx-color-picker';
 
 
+
 // *******************************************************************************
 //
 // Config File
 import { Config } from '../config/config';
 import { GpTimerComponent } from './gp-timer/gp-timer.component';
 import { GuardTourComponent } from './guard-tour/guard-tour.component';
+import { AuditLogComponent } from './audit-log/audit-log.component';
 
 
 
@@ -117,7 +119,8 @@ import { GuardTourComponent } from './guard-tour/guard-tour.component';
     SetGptimerModalComponent,
     AddScheduleModalComponent,
     ReadActiveAlarmComponent,
-    GuardTourComponent
+    GuardTourComponent,
+    AuditLogComponent
   ],
 
   imports: [
@@ -156,7 +159,8 @@ import { GuardTourComponent } from './guard-tour/guard-tour.component';
       preventDuplicates: true,
     }),
     ToastContainerModule,
-    ColorPickerModule
+    ColorPickerModule,
+    NgxPaginationModule
   ],
   providers: [
     Title,
