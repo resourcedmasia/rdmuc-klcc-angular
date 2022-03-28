@@ -22,7 +22,7 @@ export class AppService {
     let config = {
       // Site parameters
       siteName: "Wisma Genting",
-      dmURL: "http://wismagenting.sites.rdmsite.com/", // RDM Data Manager URL
+      dmURL: "http://172.17.86.111/", // RDM Data Manager URL
   
       // Module config
       moduleWorkOrder: false, // Work Order module

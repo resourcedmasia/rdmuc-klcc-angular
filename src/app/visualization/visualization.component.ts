@@ -245,6 +245,7 @@ export class VisualizationComponent implements OnInit, OnDestroy {
     this.ng_mxgraph_code = "";
     this.isUploadedFile = false;
     this.alarmSound = false;
+    this.stopAlarmAudio();
     
 
     // Retrieve stored mxGraphs from database and populate dropdown selection
@@ -362,6 +363,7 @@ export class VisualizationComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
+    this.stopAlarmAudio();
     if(this.subscription) {
       this.subscription.unsubscribe();
     }
@@ -2836,18 +2838,22 @@ export class VisualizationComponent implements OnInit, OnDestroy {
   }
 
   playAlarmAudio(){
-    this.audio = new Audio();
-    this.audio.src = "../../assets/audio/mxgraph-alarm.wav";
-    this.audio.loop = true;
-    this.audio.load();
-    this.audio.play();
-    this.alarmSound = true;
+    if(!this.audio || this.audio == null) {
+      this.audio = new Audio();
+      this.audio.src = "../../assets/audio/mxgraph-alarm.wav";
+      this.audio.loop = true;
+      this.audio.load();
+      this.audio.play();
+      this.alarmSound = true;
+    }
   }
 
   stopAlarmAudio(){
-    console.log("alarm stop")
-    this.audio.pause();
-    this.alarmSound = false;
+    if(this.audio) {
+      this.audio.pause();
+      this.audio = null;
+      this.alarmSound = false;
+    }
   }
 
 }

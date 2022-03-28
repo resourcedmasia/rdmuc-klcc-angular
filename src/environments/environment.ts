@@ -5,6 +5,6 @@
 
 export const environment = {
   appVersion: require('../../package.json').version + '-dev',
-  apiUrl: 'http://10.1.128.17:8080/api/api.php',
+  apiUrl: 'http://10.1.128.62:8080/api/api.php',
   production: false
 };

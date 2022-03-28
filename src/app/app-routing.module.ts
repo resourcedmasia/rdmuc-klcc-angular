@@ -177,14 +177,14 @@ const routes: Routes = [
   },
 
   // guard-tour
-  {
-    path: 'guard-tour', component: Layout2Component, canActivate: [AuthGuard], runGuardsAndResolvers: 'always', children: [
-      { path: '', component: GuardTourComponent },
-    ],
-    data: {
-      role: ['superadmin','administrator']
-    }
-  },
+  // {
+  //   path: 'guard-tour', component: Layout2Component, canActivate: [AuthGuard], runGuardsAndResolvers: 'always', children: [
+  //     { path: '', component: GuardTourComponent },
+  //   ],
+  //   data: {
+  //     role: ['superadmin','administrator']
+  //   }
+  // },
 
   // audit log
   {
