@@ -83,6 +83,7 @@ import { Config } from '../config/config';
 import { GpTimerComponent } from './gp-timer/gp-timer.component';
 import { GuardTourComponent } from './guard-tour/guard-tour.component';
 import { AuditLogComponent } from './audit-log/audit-log.component';
+import { VisualizationViewComponent } from './visualization-view/visualization-view.component';
 
 
 
@@ -115,12 +116,13 @@ import { AuditLogComponent } from './audit-log/audit-log.component';
     DeleteGraphModalComponent,
     VerifyDeleteGraphModalComponent,
     VisualizationUserComponent,
+    VisualizationViewComponent,
     ReadOnlyGptimerModalComponent,
     SetGptimerModalComponent,
     AddScheduleModalComponent,
     ReadActiveAlarmComponent,
     GuardTourComponent,
-    AuditLogComponent
+    AuditLogComponent,
   ],
 
   imports: [

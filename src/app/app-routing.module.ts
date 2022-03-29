@@ -27,6 +27,7 @@ import { OverviewComponent } from './overview/overview.component';
 
 import { VisualizationComponent } from './visualization/visualization.component';
 import { VisualizationUserComponent } from './visualization-user/visualization-user.component';
+import { VisualizationViewComponent } from './visualization-view/visualization-view.component';
 import { FacilityReportComponent } from './facility-report/facility-report.component';
 
 // Authentication
@@ -166,25 +167,31 @@ const routes: Routes = [
     }
   },
 
+  {
+    path: 'visualization-view', component: Layout2Component, canActivate: [AuthGuard], runGuardsAndResolvers: 'always', children: [
+      { path: '', component: VisualizationViewComponent },
+    ],
+    data: {
+      role: ['superadmin','administrator','user']
+    }
+  },
+
   // gp-timer
   {
     path: 'gp-timer', component: Layout2Component, canActivate: [AuthGuard], runGuardsAndResolvers: 'always', children: [
       { path: '', component: GpTimerComponent },
-    ],
-    data: {
-      role: ['superadmin','administrator']
-    }
+    ]
   },
 
   // guard-tour
-  // {
-  //   path: 'guard-tour', component: Layout2Component, canActivate: [AuthGuard], runGuardsAndResolvers: 'always', children: [
-  //     { path: '', component: GuardTourComponent },
-  //   ],
-  //   data: {
-  //     role: ['superadmin','administrator']
-  //   }
-  // },
+  {
+    path: 'guard-tour', component: Layout2Component, canActivate: [AuthGuard], runGuardsAndResolvers: 'always', children: [
+      { path: '', component: GuardTourComponent },
+    ],
+    data: {
+      role: ['superadmin','administrator','user']
+    }
+  },
 
   // audit log
   {
@@ -192,7 +199,7 @@ const routes: Routes = [
       { path: '', component: AuditLogComponent },
     ],
     data: {
-        role: ['superadmin','administrator']
+        role: ['superadmin','administrator','user']
       }
   },
 

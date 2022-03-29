@@ -1,9 +1,12 @@
 import { Injectable } from '@angular/core';
 import { Title } from '@angular/platform-browser';
 
+
 @Injectable()
 export class AppService {
-  constructor(private titleService: Title) {}
+  constructor(private titleService: Title, ) {
+
+  }
 
   // Set page title
   set pageTitle(value: string) {
@@ -35,6 +38,7 @@ export class AppService {
       moduleVisualization: true, // mxGraph / visualization module
       moduleVisualizationAdmin: true, // mxGraph / visualization module / Admin 
       moduleVisualizationUser: true, // mxGraph / visualization module / User 
+      moduleVisualizationView: true, // mxGraph / visualization module / View
       moduleGPTimer: true, // gptimer module
       moduleGuardTour: true, // guard-tour module
       moduleAuditLog: true, // mxGraph / gptimer module

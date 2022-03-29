@@ -1,0 +1,78 @@
+#graphContainer {
+    padding: 0.75rem;
+    position: relative;
+    max-height: 100%;
+    max-width: 100%;
+}
+
+.scroll {
+    max-height: 100%;
+    width: 100%;
+    position: relative;
+}
+
+.invalid-add {
+  color: red;
+}
+
+
+.ng-select.border-error ::ng-deep .ng-select-container {
+    border-color: red !important;
+}
+
+// .custom-nav {
+//   padding: 0.45rem 1.25rem !important;
+// }
+  
+/* Scrollbar CSS */
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  
+  /* Track */
+  ::-webkit-scrollbar-track {
+    background: #f1f1f1; 
+    border-radius: 10px;
+  }
+   
+  /* Handle */
+  ::-webkit-scrollbar-thumb {
+    background: rgb(196, 193, 193); 
+    border-radius: 10px;
+  }
+  
+  /* Handle on hover */
+  ::-webkit-scrollbar-thumb:hover {
+    background: #999; 
+  }
+
+  p::after {
+    content: "↨";               /* We are not forced to use a character, this is just handy for the example. Also notice this particular character is one and half the width of a regular character, as you can see this comment gets a tiny bit misaligned. Hence, changing the char can render differently, you have to take that into account for all browsers */
+    position: absolute;          /* Stick to the <hr> horizontal line */
+    margin: -1.1em 0 0 calc(100% - 0.8em); /* You might have to adjust that a little depending your font-size and padding used in your page. The value of 2.2em correspond to two times the page padding, plus a little more corresponding of half the character width, so the character goes right over the resize handle. */
+    font-size: large;         /* This set the size of the handle, and a nice alignment depends to it */
+    pointer-events: none !important; /* Click trough. The !important rule avoid some blinking on the 2nd hovering. (Test it!) */
+}
+
+.full-screen {
+  font-size: large; 
+  text-align: right; 
+  margin-right: 1.3rem; 
+  margin-top: -1.8rem; 
+  padding-bottom: 0.5rem; 
+  display: inline-block; 
+  position: relative;
+}
+
+::-webkit-resizer {
+  display: none;
+}
+
+::ng-deep ngb-modal-backdrop {
+  z-index: 99998 !important;
+  
+}
+::ng-deep ngb-modal-window{
+  z-index: 99999 !important;
+}

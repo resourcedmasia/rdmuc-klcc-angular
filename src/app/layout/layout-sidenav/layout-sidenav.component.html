@@ -28,8 +28,9 @@
     </sidenav-menu>
 
     <sidenav-menu icon="ion ion-md-today" text="Visualization" [active]="isMenuActive('/visualization')" [open]="isMenuOpen('/visualization')" *ngIf=this.appService.config.moduleVisualization>
-      <sidenav-router-link icon="ion ion-md-today" route="/visualization" [active]="isActive('/visualization')" *ngIf=this.appService.config.moduleVisualizationAdmin>Dashboard</sidenav-router-link>
+      <sidenav-router-link icon="ion ion-md-today" route="/visualization" [active]="isActive('/visualization')" *ngIf=this.appService.config.moduleVisualizationAdmin>Dashboard Admin</sidenav-router-link>
       <sidenav-router-link icon="ion ion-md-today" route="/visualization-user" [active]="isActive('/visualization-user')" *ngIf=this.appService.config.moduleVisualizationUser>Dashboard User</sidenav-router-link>
+      <sidenav-router-link icon="ion ion-md-today" route="/visualization-view" [active]="isActive('/visualization-view')" *ngIf=this.appService.config.moduleVisualizationView>Dashboard View</sidenav-router-link>
     </sidenav-menu>
 
     <sidenav-router-link icon="ion ion-ios-timer" route="/gp-timer" [active]="isActive('/gp-timer')" *ngIf=this.appService.config.moduleGPTimer>GP Timer</sidenav-router-link>

@@ -1,17 +1,50 @@
-import { Injectable } from "@angular/core";
+import { Injectable, OnInit } from "@angular/core";
 import { HttpClient } from "@angular/common/http";
 import { catchError, share, shareReplay } from "rxjs/operators";
 import { ToastrService } from "ngx-toastr";
 import { environment } from "../environments/environment";
+import { Location, LocationStrategy } from '@angular/common';
 
 @Injectable({
   providedIn: "root",
 })
+
+
 export class RestService {
-  constructor(private httpClient: HttpClient, private toastr: ToastrService) {}
+  private originUrl = window.location.origin;
+  private baseUrl;
+  private urlText = "../assets/url/ipconfig.txt"
+  private urlArr = [];
+  
+
+  constructor(private httpClient: HttpClient, 
+              private toastr: ToastrService) {
+                this.checkOriginUrl();
+              }
+
+
+  checkOriginUrl() {
+    // Localhost
+    if(this.originUrl.includes("http://10.1.128")) {
+      this.baseUrl = "http://10.1.128.62:8080/api/api.php";
+    }
+    // Wisma Genting Local Network
+    else if(this.originUrl.includes("http://10.10.10")) {
+      this.baseUrl = "http://10.10.10.204/api/api.php";
+    }
+    // RDM Network
+    else if(this.originUrl.includes("http://172.31.1")) {
+      this.baseUrl = "http://172.17.86.254/api/api.php";
+    }
+    // Proxy
+    else {
+      this.baseUrl = "http://wismagenting.uc.rdmsite.com/api/api.php";
+    }
+  }
 
   // API Endpoint
-  private baseUrl = environment.apiUrl;
+  // private baseUrl = this.originUrl+"8080/api/api.php";
+  // private baseUrl = environment.apiUrl;
 
   // Method exports
   postData(method, token = null, data = null) {
@@ -55,6 +88,16 @@ export class RestService {
           return err;
         })
       );
+  }
+
+  getIpConfig() {
+    return this.httpClient
+      .get(this.urlText, {responseType: 'text'})
+      .subscribe(async data => {
+        data = data.replace(/^\s+|\s+$/gm,'')
+        this.urlArr = data.split(",");
+        this.checkOriginUrl();
+      });
   }
 
   warningToast(msg) {

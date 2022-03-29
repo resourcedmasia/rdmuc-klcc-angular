@@ -1,0 +1,4 @@
+http://10.1.128.62:8080/api/api.php, 
+http://10.10.10.204/api/api.php,
+http://172.17.86.254/api/api.php,
+http://wismagenting.uc.rdmsite.com/api/api.php
