@@ -23,6 +23,7 @@ import { VerifyDeleteGraphModalComponent } from './verify-delete-graph-modal/ver
 import { SetGptimerModalComponent } from './set-gptimer-modal/set-gptimer-modal.component';
 import { ReadActiveAlarmComponent } from './read-active-alarm/read-active-alarm.component';
 import { CdkDragDrop, moveItemInArray } from "@angular/cdk/drag-drop";
+import { DetailGraphComponent } from '../visualization/detail-graph/detail-graph.component' ;
 
 
 

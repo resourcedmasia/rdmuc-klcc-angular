@@ -11,18 +11,14 @@ import ResizeObserver from 'resize-observer-polyfill';
 
 
 import { NgbModal, NgbModalOptions, NgbTabset } from '@ng-bootstrap/ng-bootstrap';
-import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
-import { MxgraphEditComponent } from '../mxgraph-edit/mxgraph-edit.component';
 import { DatatableComponent } from '@swimlane/ngx-datatable';
 import { Observable, Subscription, timer, fromEvent } from 'rxjs';
 import { deserialize } from 'chartist';
 import { ToastrService, ToastContainerDirective } from 'ngx-toastr';
 import { WriteVisualizationModalComponent } from '../visualization/write-visualization-modal/write-visualization-modal.component';
 import { ReadOnlyGptimerModalComponent } from '../visualization-user/read-only-gptimer-modal/read-only-gptimer-modal.component';
-import { VerifyUserModalComponent } from '../visualization/verify-user-modal/verify-user-modal.component';
-import { DeleteGraphModalComponent } from '../visualization/delete-graph-modal/delete-graph-modal.component';
-import { VerifyDeleteGraphModalComponent } from '../visualization/verify-delete-graph-modal/verify-delete-graph-modal.component';
 import { ReadActiveAlarmComponent } from '../visualization/read-active-alarm/read-active-alarm.component';
+import { DetailGraphComponent } from '../visualization/detail-graph/detail-graph.component' ;
 
 declare var mxUtils: any;
 declare var mxCodec: any;

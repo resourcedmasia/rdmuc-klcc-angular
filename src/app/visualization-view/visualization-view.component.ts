@@ -1,9 +1,9 @@
 import { HostListener,Component, OnDestroy, OnInit, ElementRef, ViewChild, ChangeDetectorRef, NgZone, ChangeDetectionStrategy } from '@angular/core';
-import {Router, NavigationEnd,ActivatedRoute} from '@angular/router';
+import {Router, ActivatedRoute} from '@angular/router';
 import { AppService } from '../app.service';
 import { RestService } from '../rest.service';
 import { AuthService } from '../auth.service';
-import { FormGroup, FormControl, Validators, FormsModule } from '@angular/forms';
+import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { Config } from '../../config/config';
 import { NgxSpinnerService } from "ngx-spinner";
 import { LayoutService } from '../layout/layout.service';
@@ -11,18 +11,13 @@ import ResizeObserver from 'resize-observer-polyfill';
 
 
 import { NgbModal, NgbModalOptions, NgbTabset } from '@ng-bootstrap/ng-bootstrap';
-import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
-import { MxgraphEditComponent } from '../mxgraph-edit/mxgraph-edit.component';
 import { DatatableComponent } from '@swimlane/ngx-datatable';
-import { Observable, Subscription, timer, fromEvent } from 'rxjs';
+import { Subscription, timer } from 'rxjs';
 import { deserialize } from 'chartist';
 import { ToastrService, ToastContainerDirective } from 'ngx-toastr';
-import { WriteVisualizationModalComponent } from '../visualization/write-visualization-modal/write-visualization-modal.component';
 import { ReadOnlyGptimerModalComponent } from '../visualization-user/read-only-gptimer-modal/read-only-gptimer-modal.component';
-import { VerifyUserModalComponent } from '../visualization/verify-user-modal/verify-user-modal.component';
-import { DeleteGraphModalComponent } from '../visualization/delete-graph-modal/delete-graph-modal.component';
-import { VerifyDeleteGraphModalComponent } from '../visualization/verify-delete-graph-modal/verify-delete-graph-modal.component';
 import { ReadActiveAlarmComponent } from '../visualization/read-active-alarm/read-active-alarm.component';
+import { DetailGraphComponent } from '../visualization/detail-graph/detail-graph.component' ;
 
 declare var mxUtils: any;
 declare var mxCodec: any;
@@ -99,6 +94,7 @@ export class VisualizationViewComponent implements OnInit, OnDestroy {
   tempNavLinkMap = {};
   gpTimerChannels = [];
   gpTimerChannelsDetail = [];
+  graphDetail = {};
 
 
   readTableData = [];
@@ -571,7 +567,7 @@ export class VisualizationViewComponent implements OnInit, OnDestroy {
         this.changeCellColour(this.cells)
 
         // GPTimer Overlay
-        // this.addCellOverlay(cells);
+        this.addCellOverlay(cells);
 
         // Get Active Alarm
         this.getActiveAlarm();
@@ -930,56 +926,42 @@ export class VisualizationViewComponent implements OnInit, OnDestroy {
         if(cells[j]=="" || cells[j]==null){
           //Skip
         }
-        else if(cells[j].id == this.linkMappingReadConfig[i].slave_cell_id && this.linkMappingReadConfig[i].gpt == "true") {
-          let id = this.linkMappingReadConfig[i].slave_cell_id;
-          var cell = this.graph.getModel().getCell(id);
-          for(let k = 0; k < this.gpTimerChannelsDetail.length; k++) {
-            if(this.gpTimerChannelsDetail[k].Details.OutputMask == this.linkMappingReadConfig[i].slave){
-              if(this.gpTimerChannelsDetail[k].Status == true) {
-                let status = "On"
-                this.graph.removeCellOverlays(cell);
-                var overlay = new mxCellOverlay(new mxImage('../../assets/img/greenClock.png',10, 10), 'GPTimer Status: '+status,mxConstants.ALIGN_RIGHT,mxConstants.ALIGN_RIGHT,new mxPoint(-6, -6),mxConstants.CURSOR_TERMINAL_HANDLE);
-                overlay.addListener(mxEvent.CLICK, function(sender, evt){
-                  thisContext.isHoverTooltip = false;
-                  thisContext.graph.getTooltipForCell = function(tmp){return "";}  
-                  let row = thisContext.gpTimerChannelsDetail[k];
-                  const options: NgbModalOptions = {
-                    backdropClass: '.app-session-modal-backdrop',
-                    windowClass: '.app-session-modal-window',
-                    centered: true,
-                    container: '#fullScreen'
-                  };
-                  const modalRef = modalService.open(ReadOnlyGptimerModalComponent,options);
-                  modalRef.componentInstance.row = row;
-                  modalRef.result.then((result) => {}).catch(err => {
-                    console.log(err)
-                  })
-                });
-                this.graph.addCellOverlay(cell, overlay);
-              }
-              else {
-                let status = "Off"
-                this.graph.removeCellOverlays(cell);
-                var overlay = new mxCellOverlay(new mxImage('../../assets/img/redClock.png',10, 10), 'GPTimer Status: '+status,mxConstants.ALIGN_RIGHT,mxConstants.ALIGN_RIGHT,new mxPoint(-6, -6),mxConstants.CURSOR_TERMINAL_HANDLE);
-                overlay.addListener(mxEvent.CLICK, function(sender, evt){
-                  thisContext.isHoverTooltip = false;
-                  thisContext.graph.getTooltipForCell = function(tmp){return "";} 
-                  let row = thisContext.gpTimerChannelsDetail[k];
-                  const options: NgbModalOptions = {
-                    backdropClass: '.app-session-modal-backdrop',
-                    windowClass: '.app-session-modal-window',
-                    centered: true,
-                    container: '#fullScreen'
-                  };
-                  const modalRef = modalService.open(ReadOnlyGptimerModalComponent,options);
-                  modalRef.componentInstance.row = row;
-                  modalRef.result.then((result) => {}).catch(err => {
-                    console.log(err)
-                  })
-                });
-                this.graph.addCellOverlay(cell, overlay);
-              }
-            }
+        else if(cells[j].id == this.linkMappingReadConfig[i].slave_cell_id) {
+
+            let id = this.linkMappingReadConfig[i].slave_cell_id;
+            var cell = this.graph.getModel().getCell(id);
+           
+          if(this.linkMappingReadConfig[i].slave && this.linkMappingReadConfig[i].slave_name && this.linkMappingReadConfig[i].slave_type !== "Parameter"){
+              this.graph.removeCellOverlays(cell);
+              var overlay = new mxCellOverlay(new mxImage('../../assets/img/analytic.png',13, 13), 'Show Graph',mxConstants.ALIGN_RIGHT,mxConstants.ALIGN_RIGHT,new mxPoint(-7, -7),mxConstants.CURSOR_TERMINAL_HANDLE);
+              overlay.addListener(mxEvent.CLICK, function(sender, evt){
+                for(let k = 0; k < (thisContext.getAllSlaveArray[thisContext.linkMappingReadConfig[i].slave].Items.Item).length; k++) {
+                  if(thisContext.getAllSlaveArray[thisContext.linkMappingReadConfig[i].slave].Items.Item[k].Name == thisContext.linkMappingReadConfig[i].slave_name){
+                    var units = thisContext.getAllSlaveArray[thisContext.linkMappingReadConfig[i].slave].Items.Item[k].Units;
+                  }
+                }
+                var graphDetail = {
+                  slave: thisContext.linkMappingReadConfig[i].slave,
+                  slave_name: thisContext.linkMappingReadConfig[i].slave_name,
+                  units: units,
+                }
+                thisContext.isHoverTooltip = false;
+                thisContext.graph.getTooltipForCell = function(tmp){return "";}  
+                let row = graphDetail;
+                const options: NgbModalOptions = {
+                  backdropClass: '.app-session-modal-backdrop',
+                  windowClass: '.app-session-modal-window',
+                  centered: true,
+                  container: '#fullScreen',
+                  size: 'lg'
+                };
+                const modalRef = modalService.open(DetailGraphComponent,options);
+                modalRef.componentInstance.row = row;
+                modalRef.result.then((result) => {}).catch(err => {
+                  console.log(err)
+                })
+              });
+              this.graph.addCellOverlay(cell, overlay);
           }
         }
         else {

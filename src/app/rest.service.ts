@@ -26,7 +26,7 @@ export class RestService {
   checkOriginUrl() {
     // Localhost
     if(this.originUrl.includes("http://10.1.128")) {
-      this.baseUrl = "http://10.1.128.62:8080/api/api.php";
+      this.baseUrl = "http://ecs08.rdmuc.com/api/api.php";
     }
     // Wisma Genting Local Network
     else if(this.originUrl.includes("http://10.10.10")) {

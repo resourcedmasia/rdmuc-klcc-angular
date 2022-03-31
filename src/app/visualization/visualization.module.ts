@@ -1,6 +1,7 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { DetailGraphComponent } from './detail-graph/detail-graph.component';
 
 
 @NgModule({
@@ -13,6 +14,7 @@ import { FormsModule } from '@angular/forms';
   ],
   entryComponents: [
     
-  ]
+  ],
+  declarations: [DetailGraphComponent]
 })
 export class VisualizationModule { }

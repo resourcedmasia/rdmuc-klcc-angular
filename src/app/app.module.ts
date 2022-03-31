@@ -73,6 +73,11 @@ import { ReadActiveAlarmComponent } from './visualization/read-active-alarm/read
 import { ToastrModule, ToastContainerModule } from 'ngx-toastr';
 import { DragDropModule } from '@angular/cdk/drag-drop';
 import { ColorPickerModule } from 'ngx-color-picker';
+import { GpTimerComponent } from './gp-timer/gp-timer.component';
+import { GuardTourComponent } from './guard-tour/guard-tour.component';
+import { AuditLogComponent } from './audit-log/audit-log.component';
+import { VisualizationViewComponent } from './visualization-view/visualization-view.component';
+import { DetailGraphComponent } from './visualization/detail-graph/detail-graph.component';
 
 
 
@@ -80,10 +85,7 @@ import { ColorPickerModule } from 'ngx-color-picker';
 //
 // Config File
 import { Config } from '../config/config';
-import { GpTimerComponent } from './gp-timer/gp-timer.component';
-import { GuardTourComponent } from './guard-tour/guard-tour.component';
-import { AuditLogComponent } from './audit-log/audit-log.component';
-import { VisualizationViewComponent } from './visualization-view/visualization-view.component';
+
 
 
 
@@ -123,6 +125,7 @@ import { VisualizationViewComponent } from './visualization-view/visualization-v
     ReadActiveAlarmComponent,
     GuardTourComponent,
     AuditLogComponent,
+    DetailGraphComponent
   ],
 
   imports: [
@@ -182,7 +185,8 @@ import { VisualizationViewComponent } from './visualization-view/visualization-v
     ReadOnlyGptimerModalComponent,
     SetGptimerModalComponent,
     AddScheduleModalComponent,
-    ReadActiveAlarmComponent
+    ReadActiveAlarmComponent,
+    DetailGraphComponent
   ]
 })
 export class AppModule { }
