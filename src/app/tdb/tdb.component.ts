@@ -49,7 +49,6 @@ export class TdbComponent implements OnInit {
   getTdb() {
     this.restService.postData("getDataBuilder", this.authService.getToken())
     .subscribe(data => {
-      // Success
       if (data["status"] == 200) {
         this.dataBuilder = data["data"].rows;
         this.isLoading = true;
