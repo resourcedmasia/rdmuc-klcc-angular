@@ -85,6 +85,7 @@ import { DetailGraphComponent } from './visualization/detail-graph/detail-graph.
 //
 // Config File
 import { Config } from '../config/config';
+import { TdbModule } from './tdb/tdb.module';
 
 
 
@@ -146,6 +147,7 @@ import { Config } from '../config/config';
     AlarmRulesModule,
     AlarmHistoricModule,
     UserManagementModule,
+    TdbModule,
     MxgraphEditModule,
     ReportGenerationModule,
     EnergyManagementModule,
