@@ -1,0 +1,37 @@
+<div class="card mb-4 p-3">
+  <h4 class="card-header">
+    <i class="ion ion-md-add-circle-outline"></i>&nbsp;&nbsp; The Data Builder
+  </h4>
+  <div class="filter">
+    <button (click)="openAddTdbModal()" class="btn btn-primary btn-filter">Add new IP</button>
+  </div>
+  <div class="scroll-table">
+    <ngx-spinner style="z-index: 1;" [fullScreen]="false" type="line-scale" size="small" bdColor="rgba(39,39,45,1)"></ngx-spinner>
+    <ng-container  *ngIf="this.dataBuilder.length > 0 && isLoading">
+      <table class="table table-bordered table-hover">
+        <thead>
+          <tr class="table-header">
+            <th>Id</th>
+            <th style="min-width: 120px;">TDB name</th>
+            <th style="min-width: 120px;">IP address</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let item of dataBuilder | paginate: config">
+            <td>{{item.id}}</td>
+            <td>{{item.tdb_name}}</td>
+            <td>{{item.ip_address}}</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="pagination">
+        <pagination-controls (pageChange)="pageChange($event)"></pagination-controls>
+      </div>
+    </ng-container>
+    <ng-container *ngIf="this.dataBuilder.length == 0">
+      <div class="no-data">
+        <h6>{{displayMessage}}</h6>
+      </div>
+    </ng-container>
+  </div>
+</div>
