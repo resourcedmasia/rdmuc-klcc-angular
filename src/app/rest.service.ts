@@ -28,18 +28,22 @@ export class RestService {
     if(this.originUrl.includes("http://10.1.128")) {
       this.baseUrl = "http://ecs08.rdmuc.com/api/api.php";
     }
-    // Wisma Genting Local Network
-    if(this.originUrl.includes("http://10.10.10")) {
-      this.baseUrl = "http://10.10.10.204/api/api.php";
+    else if (this.originUrl.includes("47.250.50.96") || this.originUrl.includes("ecs08.rdmuc.com")) {
+      this.baseUrl = "http://ecs08.rdmuc.com/api/api.php";
     }
-    // RDM Network
-    else if(this.originUrl.includes("http://172.31.1")) {
-      this.baseUrl = "http://172.17.86.254/api/api.php";
-    }
-    // Proxy
-    else {
-      this.baseUrl = "http://wismagenting.uc.rdmsite.com/api/api.php";
-    }
+
+    // // Wisma Genting Local Network
+    // if(this.originUrl.includes("http://10.10.10")) {
+    //   this.baseUrl = "http://10.10.10.204/api/api.php";
+    // }
+    // // RDM Network
+    // else if(this.originUrl.includes("http://172.31.1")) {
+    //   this.baseUrl = "http://172.17.86.254/api/api.php";
+    // }
+    // // Proxy
+    // else {
+    //   this.baseUrl = "http://wismagenting.uc.rdmsite.com/api/api.php";
+    // }
   }
 
   // API Endpoint
