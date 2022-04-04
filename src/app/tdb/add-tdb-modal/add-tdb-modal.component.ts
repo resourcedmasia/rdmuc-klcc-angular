@@ -39,10 +39,8 @@ export class AddTdbModalComponent implements OnInit {
   }
 
   createTdb() {
-        // Add new user
         this.restService.postData("addDataBuilder", this.authService.getToken(), {tdbName: this.createTdbForm.value.tdbName, ipAddress: this.createTdbForm.value.ipAddress })
         .subscribe(data => {
-          // Successful login
           if (data["status"] == 200) {
             this.valueChange.emit("getTdbEvent");
             this.createTdbForm.reset();
