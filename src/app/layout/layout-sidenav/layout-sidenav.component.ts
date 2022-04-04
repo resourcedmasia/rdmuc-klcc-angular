@@ -1,4 +1,4 @@
-import { Component, Input, ChangeDetectionStrategy, AfterViewInit, HostBinding } from '@angular/core';
+import { Component, Input, ChangeDetectionStrategy, AfterViewInit, HostBinding, Directive, ViewContainerRef, TemplateRef } from '@angular/core';
 import { Router } from '@angular/router';
 import { AppService } from '../../app.service';
 import { LayoutService } from '../layout.service';
@@ -13,6 +13,8 @@ import { environment } from '../../../environments/environment';
   styles: [':host { display: block; }'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
+
+
 export class LayoutSidenavComponent implements AfterViewInit {
   @Input() orientation = 'vertical';
 
@@ -22,6 +24,7 @@ export class LayoutSidenavComponent implements AfterViewInit {
 
 
   currentApplicationVersion: any;
+  userRole: any;
 
   constructor(private router: Router, public appService: AppService, private layoutService: LayoutService, public modalService: NgbModal, private restService: RestService, private authService: AuthService) {
     // Set host classes
@@ -29,12 +32,15 @@ export class LayoutSidenavComponent implements AfterViewInit {
     this.hostClassHorizontal = !this.hostClassVertical;
     this.hostClassFlex = this.hostClassHorizontal;
     this.currentApplicationVersion = environment.appVersion;
+    this.userRole = this.authService.getRole();
+    
   }
 
   ngAfterViewInit() {
     // Safari bugfix
     this.layoutService._redrawLayoutSidenav();
   }
+
 
   getClasses() {
     let bg = this.appService.layoutSidenavBg;

@@ -1,11 +1,12 @@
 import { Injectable } from '@angular/core';
 import { Title } from '@angular/platform-browser';
+import { AuthService } from './auth.service';
 
 
 @Injectable()
 export class AppService {
-  constructor(private titleService: Title, ) {
-
+  constructor(private titleService: Title, private authService: AuthService) {
+    const userRole = this.authService.getRole();
   }
 
   // Set page title
@@ -43,7 +44,11 @@ export class AppService {
       moduleGuardTour: true, // guard-tour module
       moduleAuditLog: true, // mxGraph / gptimer module
       //
-      moduleDataEntry: false // Human data entry module
+      moduleDataEntry: false, // Human data entry module
+  
+      role1:['superadmin'],
+      role2:['superadmin','administrator'],
+      role3:['user','superadmin','administrator'],
   
     }
     return config;

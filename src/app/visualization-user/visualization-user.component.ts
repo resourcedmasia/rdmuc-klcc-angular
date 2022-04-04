@@ -566,8 +566,8 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
         this.graph.addCells(cells);
         this.changeCellColour(this.cells)
 
-        // GPTimer Overlay
-        // this.addCellOverlay(cells);
+        // GraphDetail Overlay
+        this.addCellOverlay(cells);
 
         // Get Active Alarm
         this.getActiveAlarm();
@@ -1034,9 +1034,8 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
    
   }
 
-  /*Function to add GP Timer Overlay on Cells */
+  /*Function to add Overlay on Cells for GraphDetail*/
   addCellOverlay(cells){
-    console.log(this.linkMappingReadConfig)
     var modalService = this.modalService;
     var thisContext = this;
     for(let i = 0; i < this.linkMappingReadConfig.length; i++ ) {
@@ -1044,56 +1043,43 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
         if(cells[j]=="" || cells[j]==null){
           //Skip
         }
-        else if(cells[j].id == this.linkMappingReadConfig[i].slave_cell_id && this.linkMappingReadConfig[i].gpt == "true") {
-          let id = this.linkMappingReadConfig[i].slave_cell_id;
-          var cell = this.graph.getModel().getCell(id);
-          for(let k = 0; k < this.gpTimerChannelsDetail.length; k++) {
-            if(this.gpTimerChannelsDetail[k].Details.OutputMask == this.linkMappingReadConfig[i].slave){
-              if(this.gpTimerChannelsDetail[k].Status == true) {
-                let status = "On"
-                this.graph.removeCellOverlays(cell);
-                var overlay = new mxCellOverlay(new mxImage('../../assets/img/greenClock.png',10, 10), 'GPTimer Status: '+status,mxConstants.ALIGN_RIGHT,mxConstants.ALIGN_RIGHT,new mxPoint(-6, -6),mxConstants.CURSOR_TERMINAL_HANDLE);
-                overlay.addListener(mxEvent.CLICK, function(sender, evt){
-                  thisContext.isHoverTooltip = false;
-                  thisContext.graph.getTooltipForCell = function(tmp){return "";}  
-                  let row = thisContext.gpTimerChannelsDetail[k];
-                  const options: NgbModalOptions = {
-                    backdropClass: '.app-session-modal-backdrop',
-                    windowClass: '.app-session-modal-window',
-                    centered: true,
-                    container: '#fullScreen'
-                  };
-                  const modalRef = modalService.open(ReadOnlyGptimerModalComponent,options);
-                  modalRef.componentInstance.row = row;
-                  modalRef.result.then((result) => {}).catch(err => {
-                    console.log(err)
-                  })
-                });
-                this.graph.addCellOverlay(cell, overlay);
-              }
-              else {
-                let status = "Off"
-                this.graph.removeCellOverlays(cell);
-                var overlay = new mxCellOverlay(new mxImage('../../assets/img/redClock.png',10, 10), 'GPTimer Status: '+status,mxConstants.ALIGN_RIGHT,mxConstants.ALIGN_RIGHT,new mxPoint(-6, -6),mxConstants.CURSOR_TERMINAL_HANDLE);
-                overlay.addListener(mxEvent.CLICK, function(sender, evt){
-                  thisContext.isHoverTooltip = false;
-                  thisContext.graph.getTooltipForCell = function(tmp){return "";} 
-                  let row = thisContext.gpTimerChannelsDetail[k];
-                  const options: NgbModalOptions = {
-                    backdropClass: '.app-session-modal-backdrop',
-                    windowClass: '.app-session-modal-window',
-                    centered: true,
-                    container: '#fullScreen'
-                  };
-                  const modalRef = modalService.open(ReadOnlyGptimerModalComponent,options);
-                  modalRef.componentInstance.row = row;
-                  modalRef.result.then((result) => {}).catch(err => {
-                    console.log(err)
-                  })
-                });
-                this.graph.addCellOverlay(cell, overlay);
-              }
-            }
+        else if(cells[j].id == this.linkMappingReadConfig[i].slave_cell_id) {
+
+            let id = this.linkMappingReadConfig[i].slave_cell_id;
+            var cell = this.graph.getModel().getCell(id);
+            var cellStyle = cell.style;
+           
+          if(this.linkMappingReadConfig[i].slave && this.linkMappingReadConfig[i].slave_name && this.linkMappingReadConfig[i].slave_type !== "Parameter" && !cellStyle.includes("shape=image;")){
+              this.graph.removeCellOverlays(cell);
+              var overlay = new mxCellOverlay(new mxImage('../../assets/img/analytic.png',13, 13), 'Show Graph',mxConstants.ALIGN_RIGHT,mxConstants.ALIGN_RIGHT,new mxPoint(-7, -7),mxConstants.CURSOR_TERMINAL_HANDLE);
+              overlay.addListener(mxEvent.CLICK, function(sender, evt){
+                for(let k = 0; k < (thisContext.getAllSlaveArray[thisContext.linkMappingReadConfig[i].slave].Items.Item).length; k++) {
+                  if(thisContext.getAllSlaveArray[thisContext.linkMappingReadConfig[i].slave].Items.Item[k].Name == thisContext.linkMappingReadConfig[i].slave_name){
+                    var units = thisContext.getAllSlaveArray[thisContext.linkMappingReadConfig[i].slave].Items.Item[k].Units;
+                  }
+                }
+                var graphDetail = {
+                  slave: thisContext.linkMappingReadConfig[i].slave,
+                  slave_name: thisContext.linkMappingReadConfig[i].slave_name,
+                  units: units,
+                }
+                thisContext.isHoverTooltip = false;
+                thisContext.graph.getTooltipForCell = function(tmp){return "";}  
+                let row = graphDetail;
+                const options: NgbModalOptions = {
+                  backdropClass: '.app-session-modal-backdrop',
+                  windowClass: '.app-session-modal-window',
+                  centered: true,
+                  container: '#fullScreen',
+                  size: 'lg'
+                };
+                const modalRef = modalService.open(DetailGraphComponent,options);
+                modalRef.componentInstance.row = row;
+                modalRef.result.then((result) => {}).catch(err => {
+                  console.log(err)
+                })
+              });
+              this.graph.addCellOverlay(cell, overlay);
           }
         }
         else {
@@ -1101,7 +1087,6 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
         }
       }
     }
-        
   }
 
   /*Function: Change Fill Colour of Cell when met with specific value. Eg: On, Off */

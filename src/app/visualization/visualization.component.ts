@@ -9,7 +9,7 @@ import { NgxSpinnerService } from "ngx-spinner";
 import { LayoutService } from '../layout/layout.service';
 import ResizeObserver from 'resize-observer-polyfill';
 
-import { NgbModal, NgbTabset } from '@ng-bootstrap/ng-bootstrap';
+import { NgbModal, NgbModalOptions, NgbTabset } from '@ng-bootstrap/ng-bootstrap';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { MxgraphEditComponent } from '../mxgraph-edit/mxgraph-edit.component';
 import { DatatableComponent } from '@swimlane/ngx-datatable';
@@ -971,7 +971,7 @@ export class VisualizationComponent implements OnInit, OnDestroy {
 
         // this.changeCellColour(cells);
 
-        // GPTimer Overlay
+        // GraphDetail Overlay
         // this.addCellOverlay(cells);
 
         // Get Active Alarm
@@ -1553,70 +1553,52 @@ export class VisualizationComponent implements OnInit, OnDestroy {
    }
   }
 
-  /*Function to add GP Timer Overlay on Cells */
+  /*Function to add Overlay on Cells for GraphDetail*/
   addCellOverlay(cells){
+    console.log(this.linkMappingReadConfig)
     var modalService = this.modalService;
     var thisContext = this;
-    let graphData = {
-      Id: this.mxgraphData["Id"],
-      mxgraph_name: this.mxgraphData["mxgraph_name"],
-      mxgraph_code: this.mxgraphData["mxgraph_code"]
-    }
     for(let i = 0; i < this.linkMappingReadConfig.length; i++ ) {
       for(let j = 0; j < cells.length; j++){
         if(cells[j]=="" || cells[j]==null){
           //Skip
         }
-        else if(cells[j].id == this.linkMappingReadConfig[i].slave_cell_id && this.linkMappingReadConfig[i].gpt == "true") {
-          let id = this.linkMappingReadConfig[i].slave_cell_id;
-          var cell = this.graph.getModel().getCell(id);
-          for(let k = 0; k < this.gpTimerChannelsDetail.length; k++) {
-            if(this.gpTimerChannelsDetail[k].Details.OutputMask == this.linkMappingReadConfig[i].slave){
-              if(this.gpTimerChannelsDetail[k].Status == true) {
-                let status = "On"
-                this.graph.removeCellOverlays(cell);
-                var overlay = new mxCellOverlay(new mxImage('../../assets/img/greenClock.png',10, 10), 'GPTimer Status: '+status,mxConstants.ALIGN_RIGHT,mxConstants.ALIGN_RIGHT,new mxPoint(-6, -6),mxConstants.CURSOR_TERMINAL_HANDLE);
-                overlay.addListener(mxEvent.CLICK, function(sender, evt){
-                  let row = thisContext.gpTimerChannelsDetail[k];
-                  const modalRef = modalService.open(SetGptimerModalComponent);
-                  thisContext.isHoverTooltip = false;
-                  thisContext.graph.getTooltipForCell = function(tmp){return "";} 
-                  modalRef.componentInstance.row = row;
-                  modalRef.result.then(async (result) => {
-                    console.log(result)
-                    if(result == "success") {
-                      thisContext.successToast("Successfully saved changes.")
-                      thisContext.onSelectGraph(graphData);
-                    }
-                  }).catch(err => {
-                    console.log(err)
-                  })
-                });
-                this.graph.addCellOverlay(cell, overlay);
-              }
-              else {
-                let status = "Off"
-                this.graph.removeCellOverlays(cell);
-                var overlay = new mxCellOverlay(new mxImage('../../assets/img/redClock.png',10, 10), 'GPTimer Status: '+status,mxConstants.ALIGN_RIGHT,mxConstants.ALIGN_RIGHT,new mxPoint(-6, -6),mxConstants.CURSOR_TERMINAL_HANDLE);
-                overlay.addListener(mxEvent.CLICK, function(sender, evt){
-                  let row = thisContext.gpTimerChannelsDetail[k];
-                  const modalRef = modalService.open(SetGptimerModalComponent);
-                  thisContext.isHoverTooltip = false;
-                  thisContext.graph.getTooltipForCell = function(tmp){return "";} 
-                  modalRef.componentInstance.row = row;
-                  modalRef.result.then(async (result) => {
-                    console.log(result)
-                    if(result == "success") {
-                      thisContext.successToast("Successfully saved changes.");
-                      thisContext.onSelectGraph(graphData);
-                    }
-                  }).catch(err => {
-                    console.log(err)
-                  })
-                });
-                this.graph.addCellOverlay(cell, overlay);
-              }
-            }
+        else if(cells[j].id == this.linkMappingReadConfig[i].slave_cell_id) {
+
+            let id = this.linkMappingReadConfig[i].slave_cell_id;
+            var cell = this.graph.getModel().getCell(id);
+           
+          if(this.linkMappingReadConfig[i].slave && this.linkMappingReadConfig[i].slave_name && this.linkMappingReadConfig[i].slave_type !== "Parameter"){
+              this.graph.removeCellOverlays(cell);
+              var overlay = new mxCellOverlay(new mxImage('../../assets/img/analytic.png',13, 13), 'Show Graph',mxConstants.ALIGN_RIGHT,mxConstants.ALIGN_RIGHT,new mxPoint(-7, -7),mxConstants.CURSOR_TERMINAL_HANDLE);
+              overlay.addListener(mxEvent.CLICK, function(sender, evt){
+                for(let k = 0; k < (thisContext.getAllSlaveArray[thisContext.linkMappingReadConfig[i].slave].Items.Item).length; k++) {
+                  if(thisContext.getAllSlaveArray[thisContext.linkMappingReadConfig[i].slave].Items.Item[k].Name == thisContext.linkMappingReadConfig[i].slave_name){
+                    var units = thisContext.getAllSlaveArray[thisContext.linkMappingReadConfig[i].slave].Items.Item[k].Units;
+                  }
+                }
+                var graphDetail = {
+                  slave: thisContext.linkMappingReadConfig[i].slave,
+                  slave_name: thisContext.linkMappingReadConfig[i].slave_name,
+                  units: units,
+                }
+                thisContext.isHoverTooltip = false;
+                thisContext.graph.getTooltipForCell = function(tmp){return "";}  
+                let row = graphDetail;
+                const options: NgbModalOptions = {
+                  backdropClass: '.app-session-modal-backdrop',
+                  windowClass: '.app-session-modal-window',
+                  centered: true,
+                  container: '#fullScreen',
+                  size: 'lg'
+                };
+                const modalRef = modalService.open(DetailGraphComponent,options);
+                modalRef.componentInstance.row = row;
+                modalRef.result.then((result) => {}).catch(err => {
+                  console.log(err)
+                })
+              });
+              this.graph.addCellOverlay(cell, overlay);
           }
         }
         else {
@@ -1624,7 +1606,6 @@ export class VisualizationComponent implements OnInit, OnDestroy {
         }
       }
     }
-        
   }
 
   /* Function: Refresh component */

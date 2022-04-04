@@ -566,7 +566,7 @@ export class VisualizationViewComponent implements OnInit, OnDestroy {
         this.graph.addCells(cells);
         this.changeCellColour(this.cells)
 
-        // GPTimer Overlay
+        // GraphDetail Overlay
         this.addCellOverlay(cells);
 
         // Get Active Alarm
@@ -918,7 +918,6 @@ export class VisualizationViewComponent implements OnInit, OnDestroy {
 
   /*Function to add GP Timer Overlay on Cells */
   addCellOverlay(cells){
-    console.log(this.linkMappingReadConfig)
     var modalService = this.modalService;
     var thisContext = this;
     for(let i = 0; i < this.linkMappingReadConfig.length; i++ ) {
@@ -930,8 +929,9 @@ export class VisualizationViewComponent implements OnInit, OnDestroy {
 
             let id = this.linkMappingReadConfig[i].slave_cell_id;
             var cell = this.graph.getModel().getCell(id);
+            var cellStyle = cell.style;
            
-          if(this.linkMappingReadConfig[i].slave && this.linkMappingReadConfig[i].slave_name && this.linkMappingReadConfig[i].slave_type !== "Parameter"){
+          if(this.linkMappingReadConfig[i].slave && this.linkMappingReadConfig[i].slave_name && this.linkMappingReadConfig[i].slave_type !== "Parameter" && !cellStyle.includes("shape=image;")){
               this.graph.removeCellOverlays(cell);
               var overlay = new mxCellOverlay(new mxImage('../../assets/img/analytic.png',13, 13), 'Show Graph',mxConstants.ALIGN_RIGHT,mxConstants.ALIGN_RIGHT,new mxPoint(-7, -7),mxConstants.CURSOR_TERMINAL_HANDLE);
               overlay.addListener(mxEvent.CLICK, function(sender, evt){
@@ -969,7 +969,6 @@ export class VisualizationViewComponent implements OnInit, OnDestroy {
         }
       }
     }
-        
   }
 
   /*Function: Change Fill Colour of Cell when met with specific value. Eg: On, Off */

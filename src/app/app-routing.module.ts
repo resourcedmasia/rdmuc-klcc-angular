@@ -153,7 +153,7 @@ const routes: Routes = [
       { path: '', component: VisualizationComponent },
     ],
     data: {
-      role: ['superadmin','administrator']
+      role: ['superadmin']
     }
   },
 
@@ -172,7 +172,7 @@ const routes: Routes = [
       { path: '', component: VisualizationViewComponent },
     ],
     data: {
-      role: ['superadmin','administrator','user']
+      role: ['user','superadmin','administrator']
     }
   },
 
