@@ -5,6 +5,8 @@ import { NgxSpinnerService } from 'ngx-spinner';
 import { AuthService } from '../auth.service';
 import { RestService } from '../rest.service';
 import { AddTdbModalComponent } from './add-tdb-modal/add-tdb-modal.component';
+import { DeleteTdbModalComponent } from './delete-tdb-modal/delete-tdb-modal.component';
+import { UpdateTdbModalComponent } from './update-tdb-modal/update-tdb-modal.component';
 
 interface dataBuilder {
   id: string;
@@ -37,6 +39,8 @@ export class TdbComponent implements OnInit {
 
   config;
   addTdbModalRef;
+  deleteTdbModalRef;
+  modifyTdbModalRef;
   dataBuilder:dataBuilder[]=[];
   isLoading = false;
   displayMessage: string;
@@ -67,6 +71,40 @@ export class TdbComponent implements OnInit {
     this.addTdbModalRef.componentInstance.valueChange.subscribe(($e) => {
       this.getTdb();
     });
+  }
+
+  deleteData(id) {
+    const selectedDb = this.dataBuilder.filter((el => el.id === id));
+    this.deleteTdbModalRef = this.modalService.open(DeleteTdbModalComponent);  
+    this.deleteTdbModalRef.componentInstance.data = selectedDb;
+    this.deleteTdbModalRef.result.then((result) => {
+      if (result == "confirm") {
+        this.deleteTdb(id);
+      }
+    }).catch((error) => {
+      if (error == "confirm") {
+        this.deleteTdb(id);
+      };
+    });
+  }
+
+  deleteTdb(id) {
+    this.restService.postData("deleteDataBuilder", this.authService.getToken(), {id: id})
+    .subscribe(data => {
+      if (data["status"] == 200) {
+        this.getTdb();
+      }
+    });
+  }
+
+  modifyData(id) {
+    const selectedDb = this.dataBuilder.filter((el => el.id === id));
+    this.modifyTdbModalRef = this.modalService.open(UpdateTdbModalComponent);
+    this.modifyTdbModalRef.componentInstance.data = selectedDb;
+    this.modifyTdbModalRef.componentInstance.valueChange.subscribe(($e) => {
+      this.getTdb();
+    });
+
   }
 
 }
