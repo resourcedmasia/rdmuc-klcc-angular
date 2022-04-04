@@ -29,7 +29,7 @@ export class RestService {
       this.baseUrl = "http://ecs08.rdmuc.com/api/api.php";
     }
     // Wisma Genting Local Network
-    else if(this.originUrl.includes("http://10.10.10")) {
+    if(this.originUrl.includes("http://10.10.10")) {
       this.baseUrl = "http://10.10.10.204/api/api.php";
     }
     // RDM Network

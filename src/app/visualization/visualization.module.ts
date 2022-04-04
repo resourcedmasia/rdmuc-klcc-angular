@@ -13,8 +13,6 @@ import { DetailGraphComponent } from './detail-graph/detail-graph.component';
   	FormsModule,
   ],
   entryComponents: [
-    
   ],
-  declarations: [DetailGraphComponent]
 })
 export class VisualizationModule { }
