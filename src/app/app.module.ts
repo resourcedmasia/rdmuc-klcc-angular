@@ -86,6 +86,7 @@ import { ChartsModule } from 'ng2-charts';
 //
 // Config File
 import { Config } from '../config/config';
+import { TdbModule } from './tdb/tdb.module';
 
 
 
@@ -148,6 +149,7 @@ import { Config } from '../config/config';
     AlarmRulesModule,
     AlarmHistoricModule,
     UserManagementModule,
+    TdbModule,
     MxgraphEditModule,
     ReportGenerationModule,
     EnergyManagementModule,
