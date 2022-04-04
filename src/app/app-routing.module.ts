@@ -172,7 +172,7 @@ const routes: Routes = [
       { path: '', component: VisualizationViewComponent },
     ],
     data: {
-      role: ['user','superadmin','administrator']
+      role: ['user']
     }
   },
 

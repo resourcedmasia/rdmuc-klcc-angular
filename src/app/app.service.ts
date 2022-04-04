@@ -48,7 +48,7 @@ export class AppService {
   
       role1:['superadmin'],
       role2:['superadmin','administrator'],
-      role3:['user','superadmin','administrator'],
+      role3:['user'],
   
     }
     return config;
