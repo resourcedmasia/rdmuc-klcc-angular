@@ -54,7 +54,11 @@ export class TdbComponent implements OnInit {
     this.restService.postData("getDataBuilder", this.authService.getToken())
     .subscribe(data => {
       if (data["status"] == 200) {
-        this.dataBuilder = data["data"].rows;
+        let sortArr = [];
+        sortArr = data["data"].rows.sort(function (a, b) {
+          return a.id - b.id || a.user.localeCompare(b.user);
+        });
+        this.dataBuilder = sortArr;
         this.isLoading = true;
         setTimeout(() => {
           this.spinner.hide();
@@ -104,7 +108,6 @@ export class TdbComponent implements OnInit {
     this.modifyTdbModalRef.componentInstance.valueChange.subscribe(($e) => {
       this.getTdb();
     });
-
   }
 
 }
