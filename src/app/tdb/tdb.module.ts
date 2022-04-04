@@ -6,12 +6,14 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { NgxSpinnerModule } from 'ngx-spinner';
 import { NgxPaginationModule } from 'ngx-pagination';
 import { DeleteTdbModalComponent } from './delete-tdb-modal/delete-tdb-modal.component';
+import { UpdateTdbModalComponent } from './update-tdb-modal/update-tdb-modal.component';
 
 @NgModule({
   declarations: [
     AddTdbModalComponent,
     TdbComponent,
-    DeleteTdbModalComponent
+    DeleteTdbModalComponent,
+    UpdateTdbModalComponent
   ],
   imports: [
     CommonModule,
@@ -22,7 +24,8 @@ import { DeleteTdbModalComponent } from './delete-tdb-modal/delete-tdb-modal.com
   ],
   entryComponents: [
     AddTdbModalComponent,
-    DeleteTdbModalComponent
+    DeleteTdbModalComponent,
+    UpdateTdbModalComponent
   ]
 })
 export class TdbModule { }
