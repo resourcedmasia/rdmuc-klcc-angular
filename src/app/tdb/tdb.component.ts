@@ -64,6 +64,9 @@ export class TdbComponent implements OnInit {
 
   openAddTdbModal() {
     this.addTdbModalRef = this.modalService.open(AddTdbModalComponent, {size: 'lg'});  
+    this.addTdbModalRef.componentInstance.valueChange.subscribe(($e) => {
+      this.getTdb();
+    });
   }
 
 }
