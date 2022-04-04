@@ -1,6 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
+import { AuthService } from '../../auth.service';
+import { RestService } from '../../rest.service';
 
 @Component({
   selector: 'app-add-tdb-modal',
@@ -9,33 +11,68 @@ import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 })
 export class AddTdbModalComponent implements OnInit {
 
-  createTdbForm: FormGroup;
-  ipRegex = /^[0-9]*\.?[0-9]*$/;
+  @Output() valueChange = new EventEmitter();
 
+
+  isIpAddress = false;
+  triggerIp = false;
+  btnText = "Test Connection";
+  ipAddressText: string;
+
+  createTdbForm: FormGroup;
   constructor(
     public activeModal: NgbActiveModal,
-    private formBuilder: FormBuilder
+    private formBuilder: FormBuilder,
+    private restService: RestService,
+    private authService: AuthService
   ) { }
 
   ngOnInit() {
-    
     this.createForm();
-    console.log(this.createTdbForm.get('ipAddress').errors);
-
   }
 
   createForm() {
     this.createTdbForm = this.formBuilder.group({
       tdbName: ['', Validators.required],
-      ipAddress: ['', [Validators.pattern(this.ipRegex), Validators.required]]
+      ipAddress: ['', Validators.required]
     });
   }
 
   createTdb() {
-
+        // Add new user
+        this.restService.postData("addDataBuilder", this.authService.getToken(), {tdbName: this.createTdbForm.value.tdbName, ipAddress: this.createTdbForm.value.ipAddress })
+        .subscribe(data => {
+          // Successful login
+          if (data["status"] == 200) {
+            this.valueChange.emit("getTdbEvent");
+            this.createTdbForm.reset();
+          }
+        });
   }
 
   testIpConnection() {
+    this.triggerIp = true;
+    this.restService.postData("checkIpAddress", this.authService.getToken(), {ipAddress: this.createTdbForm.value.ipAddress})
+    .subscribe(data => {
+      setTimeout(()=>{                          
+        this.isIpAddress = data["data"].rows;
+        if (this.isIpAddress === false) {
+          this.triggerIp = false;
+          this.ipAddressText = "Invalid IP address, Please enter valid IP address";
+          this.changeText("Test Connection");
+          this.createTdbForm.reset();
+        } else {
+          this.ipAddressText = "Valid IP address";
+        }
+      }, 2000);      
+    });
+  }
 
+  changeText(value:string) {        
+    if (this.triggerIp) {
+      this.btnText ="Testing ..."
+    } else {
+      this.btnText = value;
+    }
   }
 }
