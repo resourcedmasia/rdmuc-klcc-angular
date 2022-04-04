@@ -15,6 +15,5 @@ import { DetailGraphComponent } from './detail-graph/detail-graph.component';
   entryComponents: [
     
   ],
-  declarations: [DetailGraphComponent]
 })
 export class VisualizationModule { }
