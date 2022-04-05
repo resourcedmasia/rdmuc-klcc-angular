@@ -49,7 +49,7 @@
   <div class="period">
     <h6 style="color: red;">Schedule </h6>
   </div>
-  <div class="schedule-button">
+  <div *ngIf="this.allowedRoles > -1" class="schedule-button">
     <button type="button" class="btn btn-primary" (click)="removeAll()">Remove All</button>
     <button type="button" class="btn btn-primary" (click)="removeSingle()">Remove</button>
     <button type="button" class="btn btn-primary" (click)="addSchedule()">Add Schedule</button>
@@ -61,15 +61,15 @@
     </div>
   </div>
   <div class="period">
-    <h6 style="color: red;">Period 1 </h6> <div class="row time-pick" ><ngb-timepicker [spinners]="true" [(ngModel)]="OnTime1" [minuteStep]="5" [disabled]="datePickerDisable" (ngModelChange)="pickerChange($event,'OnTime1')"></ngb-timepicker> <h2 class="dash"> - </h2> <ngb-timepicker  [spinners]="true" [(ngModel)]="OffTime1" [minuteStep]="5" [disabled]="datePickerDisable" (ngModelChange)="pickerChange($event,'OffTime1')"></ngb-timepicker></div>
+    <h6 style="color: red;">Period 1 </h6> <div class="row time-pick" ><ngb-timepicker [spinners]="this.allowedRoles > -1" [(ngModel)]="OnTime1" [minuteStep]="5" [disabled]="datePickerDisable || this.allowedRoles < 0" (ngModelChange)="pickerChange($event,'OnTime1')"></ngb-timepicker> <h2 class="dash"> - </h2> <ngb-timepicker  [spinners]="this.allowedRoles > -1" [(ngModel)]="OffTime1" [minuteStep]="5" [disabled]="datePickerDisable || this.allowedRoles < 0" (ngModelChange)="pickerChange($event,'OffTime1')"></ngb-timepicker></div>
   </div>
   <div class="period">
-    <h6 style="color: red;">Period 2 </h6> <div class="row time-pick" ><ngb-timepicker  [spinners]="true" [(ngModel)]="OnTime2" [minuteStep]="5" [disabled]="datePickerDisable" (ngModelChange)="pickerChange($event,'OnTime2')"></ngb-timepicker> <h2 class="dash"> - </h2> <ngb-timepicker  [spinners]="true" [(ngModel)]="OffTime2" [minuteStep]="5" [disabled]="datePickerDisable" (ngModelChange)="pickerChange($event,'OffTime2')"></ngb-timepicker></div>
+    <h6 style="color: red;">Period 2 </h6> <div class="row time-pick" ><ngb-timepicker  [spinners]="this.allowedRoles > -1" [(ngModel)]="OnTime2" [minuteStep]="5" [disabled]="datePickerDisable || this.allowedRoles < 0" (ngModelChange)="pickerChange($event,'OnTime2')"></ngb-timepicker> <h2 class="dash"> - </h2> <ngb-timepicker  [spinners]="this.allowedRoles > -1" [(ngModel)]="OffTime2" [minuteStep]="5" [disabled]="datePickerDisable || this.allowedRoles < 0" (ngModelChange)="pickerChange($event,'OffTime2')"></ngb-timepicker></div>
   </div>
   <!-- <div>Model: {{ model | json }}</div> -->
 </div>
 <div class="modal-footer">
-  <button type="button" class="btn btn-primary" (click)="setChannel()">Set Channel</button>
+  <button *ngIf="this.allowedRoles > -1" type="button" class="btn btn-primary" (click)="setChannel()">Set Channel</button>
   <button type="button" class="btn btn-default" (click)="closeModal()">Close</button>
 </div>
 

@@ -25,11 +25,11 @@ export class RestService {
 
   checkOriginUrl() {
     // Localhost
-    if(this.originUrl.includes("http://10.1.128")) {
-      this.baseUrl = "http://ecs08.rdmuc.com/api/api.php";
+    if(this.originUrl.includes("http://172.16.98/")) {
+      this.baseUrl = "http://172.16.98.200/api/api.php";
     }
-    else if (this.originUrl.includes("47.250.50.96") || this.originUrl.includes("ecs08.rdmuc.com")) {
-      this.baseUrl = "http://ecs08.rdmuc.com/api/api.php";
+    else {
+      this.baseUrl = "http://172.16.98.200/api/api.php";
     }
 
     // // Wisma Genting Local Network

@@ -7,6 +7,7 @@ import { NgSelectModule } from '@ng-select/ng-select';
 import { Router, NavigationEnd, ActivatedRoute } from '@angular/router';
 import { NgbCalendar, NgbDateParserFormatter, NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import { AddScheduleModalComponent } from '../add-schedule-modal/add-schedule-modal.component'; 
+import { AppService } from '../../app.service';
 
 const now = new Date();
 
@@ -36,6 +37,8 @@ export class SetGptimerModalComponent implements OnInit {
   OffTime1: any;
   OffTime2: any;
   datePickerDisable: boolean;
+  userRole: any;
+  allowedRoles: any;
   
 
   gptimerForm = new FormGroup({
@@ -57,7 +60,8 @@ export class SetGptimerModalComponent implements OnInit {
       private calendar: NgbCalendar,
       private parserFormatter: NgbDateParserFormatter,
       private modalService: NgbModal,
-      private _cdRef: ChangeDetectorRef
+      private _cdRef: ChangeDetectorRef,
+      private appService: AppService
     ) { 
       
     }
@@ -81,6 +85,8 @@ export class SetGptimerModalComponent implements OnInit {
     this.datePickerDisable = true;
     var status;
     var runOn;
+    this.userRole = this.authService.getRole();
+    this.allowedRoles = (this.appService.config.role2).indexOf(this.userRole);
 
     this.rowTemp = Object.assign({},this.row);
 
@@ -160,7 +166,7 @@ export class SetGptimerModalComponent implements OnInit {
   }
 
   removeSingleEvent() {
-    let date = this.model
+    let date = this.model;
     const d = new Date(date.year, date.month - 1, date.day);
     let dWeek = d.getDay();
 
