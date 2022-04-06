@@ -1000,6 +1000,18 @@ export class VisualizationViewComponent implements OnInit, OnDestroy {
         state.shape.apply(state);
         state.shape.redraw(); 
       }
+      else if (this.config.CELL_VALUE_TRIP.indexOf(cellValueTrimmed) > -1) {
+        // state.style = mxUtils.clone(state.style);
+        state.style[mxConstants.STYLE_FILLCOLOR] = this.config.cell_colour_TRIP;
+        state.shape.apply(state);
+        state.shape.redraw(); 
+      }
+      else if (this.config.CELL_VALUE_NORMAL.indexOf(cellValueTrimmed) > -1) {
+        // state.style = mxUtils.clone(state.style);
+        state.style[mxConstants.STYLE_FILLCOLOR] = this.config.cell_colour_NORMAL;
+        state.shape.apply(state);
+        state.shape.redraw(); 
+      }
       else {
         // Skip
       }

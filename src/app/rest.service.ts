@@ -25,7 +25,13 @@ export class RestService {
 
   checkOriginUrl() {
     // Localhost
-    if(this.originUrl.includes("http://172.16.98/")) {
+    //  if(this.originUrl.includes("10.1.128")) {
+    //   this.baseUrl = "http://10.1.128.95:8080/api/api.php";
+    // }
+    // else {
+    //   this.baseUrl = "http://10.1.128.95:8080/api/api.php";
+    // }
+    if(this.originUrl.includes("http://172.16.98")) {
       this.baseUrl = "http://172.16.98.200/api/api.php";
     }
     else {

@@ -44,13 +44,21 @@ export class Config {
     subscriptionInterval = 10 * 1000;
 
     /* MxGraph Cell */
-    CELL_VALUE_ON = ['On','ON'];
+    CELL_VALUE_ON = ['On','ON', 'AHU ON', 'AHU On', 'OF On', 'OF ON'];
 
-    CELL_VALUE_OFF = ['Off','OFF'];
+    CELL_VALUE_OFF = ['Off','OFF', 'AHU OFF', 'AHU Off', 'OF Off', 'OF OFF'];
+
+    CELL_VALUE_TRIP = ['AHU Trip', 'AHU TRIP', 'CLOG', 'Clog', 'OF TRIP', 'OF Trip'];
+
+    CELL_VALUE_NORMAL = ['Normal', 'NORMAL'];
 
     cell_colour_OFF = '#DBDBDB'; // Grey
 
-    cell_colour_ON = '#3dff54'; // Green
+    cell_colour_ON = '#3dff54'; // Green 
+
+    cell_colour_TRIP = "#f52525"; // Red
+
+    cell_colour_NORMAL = "#122aff"; // Blue
 
     /* MxGraph Flow Animation */
     FLOW_TYPE = ['flow_1','flow_2'];
