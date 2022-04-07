@@ -39,6 +39,7 @@ interface Details {
 }
 
 interface GPTimerDetail {
+  TdbName: string;
   Name: string;
   Index: number;
   Status: boolean;
@@ -77,14 +78,14 @@ export class GpTimerComponent implements OnInit {
       .postData("getCombineGPTimer", this.authService.getToken())
       .subscribe((data: any) => {
         if (data["status"] == 200) {
-          this.filterArray = data["data"].rows.filter(
-            (item) =>
-              item.Details.OutputMask !== "" && item.Details.OutputMask !== null
-          );
-          for (const item of this.filterArray) {            
+
+          this.filterArray = data["data"].rows;
+          
+          for (const item of this.filterArray) {                        
             let gpDetail = {};
             gpDetail["channel"] = item.Index;
             gpDetail["description"] = item.Name;
+            gpDetail["tdbName"] = item.TdbName;
             if (item.Status === false) {
               gpDetail["status"] = "Off";
             } else {
@@ -95,6 +96,7 @@ export class GpTimerComponent implements OnInit {
             gpDetail["outputMask"] = item.Details.OutputMask;
             this.gpTimerChannelsDetail.push(gpDetail);
           }
+          
           if (this.gpTimerChannelsDetail.length == 0) {
             this.displayMessage = "No Data To Display";
           }
@@ -109,9 +111,9 @@ export class GpTimerComponent implements OnInit {
       });
   }
 
-  assignGpTimer(channel: number) {
+  assignGpTimer(i: number) {    
     this.selectedGptimer = this.filterArray.filter(
-      (item) => item.Index === channel
+      (item, index) => index === i
     );
     let selected = JSON.parse(JSON.stringify(this.selectedGptimer[0]))
     const modalRef = this.modalService.open(SetGptimerModalComponent);
