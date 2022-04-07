@@ -88,7 +88,7 @@ export class SetGptimerModalComponent implements OnInit {
     this.userRole = this.authService.getRole();
     this.allowedRoles = (this.appService.config.role2).indexOf(this.userRole);
 
-    this.rowTemp = Object.assign({},this.row);
+    this.rowTemp = Object.assign({},this.row);    
 
     if(this.row.Status == false){
       status = "Off";
@@ -569,31 +569,55 @@ export class SetGptimerModalComponent implements OnInit {
   }
 
   async setChannel() {
-    await this.restService.postData("setGPTimerChannel", this.authService.getToken(), { 
-      Index: this.row.Details.Index,
-      Type: this.row.Details.Type,
-      Name: this.row.Details.Name,
-      OutputType: this.row.Details.OutputType,
-      OutputMask: this.row.Details.OutputMask,
-      OutputIndex: this.row.Details.OutputIndex,
-      InputType: this.row.Details.InputType,
-      InputController: this.row.Details.InputController,
-      InputIndex: this.row.Details.InputIndex,
-      MasterChannel: this.row.Details.MasterChannel,
-      Invert: this.row.Details.Invert,
-      Overridable: this.row.Details.Overridable,
-      GPEvent: this.GPEvent
-    })
-      .toPromise().then(data => {
-      // Successful 
-      if (data["status"] == 200 && data["data"]["rows"] !== false) {
-        this.activeModal.close("success")
-        this.router.navigate([this.router.url]);
-      }
-      else {
-        this.activeModal.close("fail")
-      }
-    });
+    const isTdb = Object.keys(this.row).includes('IpAddress');
+    const ipAdress = this.row.IpAddress.split('/')[2].split(':')[0];
+
+    if (isTdb) {
+      await this.restService.postData("setTdbGPTimerChannel", this.authService.getToken(), { 
+        Index: this.row.Details.Index,
+        Type: this.row.Details.Type,
+        Name: this.row.Details.Name,
+        MasterChannel: this.row.Details.MasterChannel,
+        IpAddress: ipAdress,
+        GPEvent: this.GPEvent
+      })
+        .toPromise().then(data => {
+        // Successful 
+        if (data["status"] == 200 && data["data"]["rows"] !== false) {
+          this.activeModal.close("success")
+          this.router.navigate([this.router.url]);
+        }
+        else {
+          this.activeModal.close("fail")
+        }
+      });
+    } else {
+      await this.restService.postData("setGPTimerChannel", this.authService.getToken(), { 
+        Index: this.row.Details.Index,
+        Type: this.row.Details.Type,
+        Name: this.row.Details.Name,
+        OutputType: this.row.Details.OutputType,
+        OutputMask: this.row.Details.OutputMask,
+        OutputIndex: this.row.Details.OutputIndex,
+        InputType: this.row.Details.InputType,
+        InputController: this.row.Details.InputController,
+        InputIndex: this.row.Details.InputIndex,
+        MasterChannel: this.row.Details.MasterChannel,
+        Invert: this.row.Details.Invert,
+        Overridable: this.row.Details.Overridable,
+        GPEvent: this.GPEvent
+      })
+        .toPromise().then(data => {
+        // Successful 
+        if (data["status"] == 200 && data["data"]["rows"] !== false) {
+          this.activeModal.close("success")
+          this.router.navigate([this.router.url]);
+        }
+        else {
+          this.activeModal.close("fail")
+        }
+      });
+    }
 }
 
 pickerChange(event,type) {

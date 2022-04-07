@@ -74,14 +74,14 @@ export class GpTimerComponent implements OnInit {
 
   getAllGpTimer() {
     this.restService
-      .postData("getAllGPTimerChannel", this.authService.getToken())
+      .postData("getCombineGPTimer", this.authService.getToken())
       .subscribe((data: any) => {
         if (data["status"] == 200) {
           this.filterArray = data["data"].rows.filter(
             (item) =>
               item.Details.OutputMask !== "" && item.Details.OutputMask !== null
           );
-          for (const item of this.filterArray) {
+          for (const item of this.filterArray) {            
             let gpDetail = {};
             gpDetail["channel"] = item.Index;
             gpDetail["description"] = item.Name;
@@ -126,11 +126,11 @@ export class GpTimerComponent implements OnInit {
             positionClass: "toast-bottom-right",
           });
           this.gpTimerChannelsDetail = [];
+          this.spinner.show();
           this.getAllGpTimer();
         }
       })
       .catch((err) => {
-        console.log(err)
         if (err !== 0) {
           this.toastr.warning("Error in saving changes.", "", {
             disableTimeOut: false,
@@ -138,7 +138,6 @@ export class GpTimerComponent implements OnInit {
             positionClass: "toast-bottom-right",
           });
         }
-        console.log(this.selectedGptimer[0])
       });
   }
 }
