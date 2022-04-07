@@ -570,9 +570,9 @@ export class SetGptimerModalComponent implements OnInit {
 
   async setChannel() {
     const isTdb = Object.keys(this.row).includes('IpAddress');
-    const ipAdress = this.row.IpAddress.split('/')[2].split(':')[0];
-
+   
     if (isTdb) {
+      const ipAdress = this.row.IpAddress.split('/')[2].split(':')[0];
       await this.restService.postData("setTdbGPTimerChannel", this.authService.getToken(), { 
         Index: this.row.Details.Index,
         Type: this.row.Details.Type,

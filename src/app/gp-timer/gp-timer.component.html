@@ -8,8 +8,9 @@
       <table class="table table-bordered table-hover">
         <thead>
           <tr class="table-header">
+            <th>Index</th>
             <th>Channel</th>
-            <th style="min-width: 100px;">Tdb Name</th>
+            <th style="min-width: 100px;">TDB Name</th>
             <th style="min-width: 220px;">Description</th>
             <th style="min-width: 100px;">Status</th>
             <th style="min-width: 120px;">Type</th>
@@ -20,6 +21,7 @@
         </thead>
         <tbody>
           <tr *ngFor="let item of gpTimerChannelsDetail; let i = index">
+            <td><b>{{i+1}}.</b></td>
             <td>{{item.channel}}</td>
             <td>{{item.tdbName}}</td>
             <td>{{item.description}}</td>
