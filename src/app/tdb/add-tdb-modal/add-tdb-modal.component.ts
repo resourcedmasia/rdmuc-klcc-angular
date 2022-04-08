@@ -39,7 +39,8 @@ export class AddTdbModalComponent implements OnInit {
   }
 
   createTdb() {
-        this.restService.postData("addDataBuilder", this.authService.getToken(), {tdbName: this.createTdbForm.value.tdbName, ipAddress: this.createTdbForm.value.ipAddress })
+        const ipAddress = this.createTdbForm.value.ipAddress.replace(/\s/g, '');
+        this.restService.postData("addDataBuilder", this.authService.getToken(), {tdbName: this.createTdbForm.value.tdbName, ipAddress: ipAddress })
         .subscribe(data => {
           if (data["status"] == 200) {
             this.valueChange.emit("getTdbEvent");
@@ -64,6 +65,14 @@ export class AddTdbModalComponent implements OnInit {
         }
       }, 2000);      
     });
+  }
+
+  onChanges(value: string): void {     
+    if (this.triggerIp && value.length > 0) {
+      this.isIpAddress = false;
+      this.btnText = "Test Connection";
+      this.ipAddressText = "Please retry test IP address";
+    }     
   }
 
   changeText(value:string) {        
