@@ -25,18 +25,18 @@ export class RestService {
 
   checkOriginUrl() {
     // Localhost
-    //  if(this.originUrl.includes("10.1.128")) {
-    //   this.baseUrl = "http://10.1.128.112:8080/api/api.php";
-    // }
-    // else {
-    //   this.baseUrl = "http://10.1.128.112:8080/api/api.php";
-    // }
-    if(this.originUrl.includes("http://172.16.98")) {
-      this.baseUrl = "http://172.16.98.200/api/api.php";
+     if(this.originUrl.includes("10.1.128")) {
+      this.baseUrl = "http://10.1.128.148:8080/api/api.php";
     }
     else {
-      this.baseUrl = "http://172.16.98.200/api/api.php";
+      this.baseUrl = "http://10.1.128.148:8080/api/api.php";
     }
+    // if(this.originUrl.includes("http://172.16.98")) {
+    //   this.baseUrl = "http://172.16.98.200/api/api.php";
+    // }
+    // else {
+    //   this.baseUrl = "http://172.16.98.200/api/api.php";
+    // }
 
     // // Wisma Genting Local Network
     // if(this.originUrl.includes("http://10.10.10")) {
