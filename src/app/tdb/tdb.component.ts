@@ -59,6 +59,9 @@ export class TdbComponent implements OnInit {
           return a.id - b.id || a.user.localeCompare(b.user);
         });
         this.dataBuilder = sortArr;
+        if (this.dataBuilder.length == 0) {
+          this.displayMessage = "No Data To Display";
+        }
         this.isLoading = true;
         setTimeout(() => {
           this.spinner.hide();
