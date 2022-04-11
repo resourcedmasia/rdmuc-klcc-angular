@@ -210,7 +210,7 @@ const routes: Routes = [
        { path: '', component: TdbComponent },
     ],
     data: {
-        role: ['superadmin','administrator','user']
+        role: ['superadmin']
       }
   },
 

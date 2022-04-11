@@ -38,7 +38,7 @@
 
     <sidenav-router-link icon="ion ion-md-add-circle-outline" route="/audit-log" [active]="isActive('/audit-log')" *ngIf=this.appService.config.moduleAuditLog>Audit Log</sidenav-router-link>
 
-    <sidenav-router-link icon="ion ion-ios-globe" route="/tdb" [active]="isActive('/tdb')" *ngIf=this.appService.config.moduleTdb>TDB IP</sidenav-router-link>
+    <sidenav-router-link icon="ion ion-ios-globe" route="/tdb" [active]="isActive('/tdb')" *ngIf="this.appService.config.moduleTdb && this.appService.config.role1.indexOf(this.userRole) > -1">TDB IP</sidenav-router-link>
 
     <sidenav-menu icon="ion ion-md-paper" text="EOD" [active]="isMenuActive('/eod')" [open]="isMenuOpen('/eod')" *ngIf=this.appService.config.moduleEOD>
       <sidenav-router-link icon="ion ion-md-paper" route="/eod/generate" [queryParams]="{ type: 'eod'}" [active]="isActive('/eod/generate?type=eod')">EOD Report</sidenav-router-link>

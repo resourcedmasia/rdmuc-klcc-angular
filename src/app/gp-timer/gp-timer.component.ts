@@ -79,31 +79,34 @@ export class GpTimerComponent implements OnInit {
       .subscribe((data: any) => {
         if (data["status"] == 200) {
 
-          this.filterArray = data["data"].rows;
-          
-          for (const item of this.filterArray) {                        
-            let gpDetail = {};
-            gpDetail["channel"] = item.Index;
-            gpDetail["description"] = item.Name;
-            gpDetail["tdbName"] = item.TdbName;
-            if (item.Status === false) {
-              gpDetail["status"] = "Off";
-            } else {
-              gpDetail["status"] = "On";
+          if (data["data"].rows !== null) {
+            this.filterArray = data["data"].rows;
+            for (const item of this.filterArray) {                        
+              let gpDetail = {};
+              gpDetail["channel"] = item.Index;
+              gpDetail["description"] = item.Name;
+              gpDetail["tdbName"] = item.TdbName;
+              if (item.Status === false) {
+                gpDetail["status"] = "Off";
+              } else {
+                gpDetail["status"] = "On";
+              }
+              gpDetail["type"] = item.Details.Type;
+              gpDetail["outputType"] = item.Details.OutputType;
+              gpDetail["outputMask"] = item.Details.OutputMask;
+              this.gpTimerChannelsDetail.push(gpDetail);
             }
-            gpDetail["type"] = item.Details.Type;
-            gpDetail["outputType"] = item.Details.OutputType;
-            gpDetail["outputMask"] = item.Details.OutputMask;
-            this.gpTimerChannelsDetail.push(gpDetail);
-          }
-          
-          if (this.gpTimerChannelsDetail.length == 0) {
+            if (this.gpTimerChannelsDetail.length == 0) {
+              this.displayMessage = "No Data To Display";
+            }
+            this.isLoading = true;
+            setTimeout(() => {
+              this.spinner.hide();
+            }, 1000);
+          } else {
+            this.spinner.hide();
             this.displayMessage = "No Data To Display";
           }
-          this.isLoading = true;
-          setTimeout(() => {
-            this.spinner.hide();
-          }, 1000);
         } else {
           this.spinner.hide();
           this.displayMessage = "No Data To Display";
