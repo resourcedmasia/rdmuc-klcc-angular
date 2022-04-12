@@ -48,6 +48,13 @@
   padding-top: 20px;
 }
 
+.filter {
+  display: flex;
+  justify-content: flex-start;
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
 .accordion {
   background-color: #eee;
   color: #444;
@@ -85,9 +92,3 @@
   transition: max-height 0.2s ease-out;
 }
 
-.filter {
-  display: flex;
-  justify-content: flex-start;
-  margin-top: 10px;
-  margin-bottom: 10px;
-}

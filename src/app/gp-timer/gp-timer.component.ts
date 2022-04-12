@@ -71,6 +71,8 @@ export class GpTimerComponent implements OnInit {
   searchText: string;
   disabledSearch = false;
   defaultData = [];
+  tdbArr: any;
+  dmArr: any;
 
   ngOnInit() {
     this.getAllGpTimer();
@@ -99,7 +101,7 @@ export class GpTimerComponent implements OnInit {
             gpDetail["outputMask"] = item.Details.OutputMask;
             this.gpTimerChannelsDetail.push(gpDetail);
           }
-          this.defaultData = this.gpTimerChannelsDetail;
+          this.defaultData = [...this.gpTimerChannelsDetail];
           if (!this.gpTimerChannelsDetail || this.gpTimerChannelsDetail.length == 0) {
             this.displayMessage = "No Data To Display";
           }
@@ -148,7 +150,8 @@ export class GpTimerComponent implements OnInit {
 
   filter() {
     if (this.searchText.length > 0) {
-      this.gpTimerChannelsDetail = this.gpTimerChannelsDetail.filter((data) =>  JSON.stringify(data).toLowerCase().indexOf(this.searchText.toLowerCase()) !== -1);
+      this.gpTimerChannelsDetail = this.defaultData.filter((data) =>  JSON.stringify(data).toLowerCase().indexOf(this.searchText.toLowerCase()) !== -1);
+      this.filterArray = this.filterArray.filter((data) =>  JSON.stringify(data).toLowerCase().indexOf(this.searchText.toLowerCase()) !== -1);
     }
   }
 
@@ -162,6 +165,7 @@ export class GpTimerComponent implements OnInit {
 
   clearFilter() {
     this.searchText = '';
-    this.gpTimerChannelsDetail = this.defaultData.filter((data) =>  JSON.stringify(data).toLowerCase().indexOf(this.searchText.toLowerCase()) !== -1);    
+    this.gpTimerChannelsDetail = this.defaultData.filter((data) =>  JSON.stringify(data).toLowerCase().indexOf(this.searchText.toLowerCase()) !== -1);  
+    this.filterArray = this.filterArray.filter((data) =>  JSON.stringify(data).toLowerCase().indexOf(this.searchText.toLowerCase()) !== -1);  
   }
 }
