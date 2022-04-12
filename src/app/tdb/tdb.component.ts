@@ -113,4 +113,8 @@ export class TdbComponent implements OnInit {
     });
   }
 
+  pageChange(newPage: number) {
+    this.router.navigate(['tdb'], { queryParams: { page: newPage } });
+   }
+
 }
