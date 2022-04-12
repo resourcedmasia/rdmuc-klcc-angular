@@ -3,10 +3,10 @@
     <i class="ion ion-ios-globe"></i>&nbsp;&nbsp; TDB IP
   </h4>
   <div class="filter">
+    <ngx-spinner style="z-index: 2;" [fullScreen]="false" type="line-scale" size="small" bdColor="rgba(39,39,45,1)"></ngx-spinner>
     <button (click)="openAddTdbModal()" class="btn btn-primary btn-filter">Add new IP</button>
   </div>
   <div class="scroll-table">
-    <ngx-spinner style="z-index: 1;" [fullScreen]="false" type="line-scale" size="small" bdColor="rgba(39,39,45,1)"></ngx-spinner>
     <ng-container  *ngIf="this.dataBuilder.length > 0 && isLoading">
       <table class="table table-bordered table-hover">
         <thead>

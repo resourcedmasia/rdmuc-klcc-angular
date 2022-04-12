@@ -6,7 +6,10 @@
     <i class="ion ion-md-analytics"></i>&nbsp;&nbsp; Graph Selection
     <i (click)="expand()" style="font-size: 13px; margin-top: 10px; cursor: pointer;" class="float-sm-right font-weight-light text-muted" [ngClass]="{'ion ion-ios-arrow-forward': !cardExpand , 'ion ion-ios-arrow-back': cardExpand}"></i>
   </h4>
-
+  <ngx-spinner [fullScreen]="false" type = "ball-beat" size="small" bdColor="rgba(39,39,45,1)">
+    <br>
+    <p style="color: white" > Loading... </p>
+  </ngx-spinner>
   <div class="card-body" style="padding-bottom: 0px !important;">
     <ng-select appendTo="body" placeholder="Select Graph" [clearable]="false" [items]="selectedMxGraph" bindLabel="mxgraph_name"
     [(ngModel)]="selectedGraph" (change)="onSelectGraph($event)">
@@ -137,7 +140,7 @@
               </tr>
             </thead>
             <tbody cdkDropList (cdkDropListDropped)="dropNav($event)">
-              <ngx-spinner [fullScreen]="false" type = "ball-beat" size="small" bdColor="rgba(39,39,45,0.8)">
+              <ngx-spinner [fullScreen]="false" type = "ball-beat" size="small" bdColor="rgba(39,39,45,1)">
                 <br>
                 <p style="color: white" > Loading... </p>
               </ngx-spinner>
@@ -204,7 +207,7 @@
                 </tr>
               </thead>
               <tbody cdkDropList (cdkDropListDropped)="dropFlow($event)">
-                <ngx-spinner [fullScreen]="false" type = "ball-beat" size="small" bdColor="rgba(39,39,45,0.8)">
+                <ngx-spinner [fullScreen]="false" type = "ball-beat" size="small" bdColor="rgba(39,39,45,1)">
                   <br>
                   <p style="color: white" > Loading... </p>
                 </ngx-spinner>
@@ -347,45 +350,5 @@
 
   </ngb-tabset>  
 </div>
-
-  <!-- <div class="card mb-4">
-    <h4 class="card-header">
-      <i class="ion ion-md-save"></i>&nbsp;&nbsp;<span class="text-muted font-weight-light">Write Configuration</span>
-    </h4>
-
-    <div class="card-body">
-      <div class="form-row">
-        <div class="col-md mb-4">
-          <ng-select placeholder="Select Slave" [clearable]="false" [items]="writeSlaveType" bindLabel="type"
-            [(ngModel)]="selectedValue" (change)="writeSlaveChange($event)">
-          </ng-select>
-        </div>
-        <div class="col-md mb-4" *ngIf="writeName">
-          <ng-select placeholder="Select Name" [clearable]="false" [items]="writeTableData['Item']" bindLabel="Name"
-            [(ngModel)]="selectedAssetType" (change)="writeChanged($event)">
-          </ng-select>
-        </div>
-
-
-        <div class="col-md mb-4" *ngIf="writeCode">
-          <form [formGroup]="cellForm">
-            <div class="form-group">
-
-              <input type="text" formControlName="cell_code" class="form-control" [ngModel]="selectedWriteCellId"
-                placeholder="mxGraph cell ID">
-
-            </div>
-          </form>
-        </div>
-
-        <div class="col-md mb-4">
-          <button type="button" class="btn btn-primary" (click)="writeConfigSave()">+ Write Config</button>
-        </div>
-
-
-
-      </div>
-    </div>
-  </div> -->
 
 
