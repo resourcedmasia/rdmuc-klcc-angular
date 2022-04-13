@@ -20,26 +20,26 @@
         <thead>
           <tr class="table-header">
             <th>Index</th>
-            <th>Channel</th>
-            <th style="min-width: 100px;">TDB Name</th>
+            <th *ngIf="this.appService.config.role1.indexOf(this.userRole) > -1" >Channel</th>
+            <th *ngIf="this.appService.config.role1.indexOf(this.userRole) > -1" style="min-width: 100px;">TDB Name</th>
             <th style="min-width: 220px;">Description</th>
             <th style="min-width: 100px;">Status</th>
-            <th style="min-width: 120px;">Type</th>
-            <th style="min-width: 120px;">Output Type</th>
-            <th style="min-width: 120px;">Mask</th>
+            <th *ngIf="this.appService.config.role1.indexOf(this.userRole) > -1" style="min-width: 120px;">Type</th>
+            <th *ngIf="this.appService.config.role1.indexOf(this.userRole) > -1" style="min-width: 120px;">Output Type</th>
+            <th *ngIf="this.appService.config.role1.indexOf(this.userRole) > -1" style="min-width: 120px;">Mask</th>
             <th>Action</th>
           </tr>
         </thead>
         <tbody>
           <tr *ngFor="let item of gpTimerChannelsDetail; let i = index">
             <td><b>{{i+1}}.</b></td>
-            <td>{{item.channel}}</td>
-            <td>{{item.tdbName}}</td>
+            <td *ngIf="this.appService.config.role1.indexOf(this.userRole) > -1">{{item.channel}}</td>
+            <td *ngIf="this.appService.config.role1.indexOf(this.userRole) > -1">{{item.tdbName}}</td>
             <td>{{item.description}}</td>
             <td>{{item.status}}</td>
-            <td>{{item.type}}</td>
-            <td>{{item.outputType}}</td>
-            <td>{{item.outputMask}}</td>
+            <td *ngIf="this.appService.config.role1.indexOf(this.userRole) > -1">{{item.type}}</td>
+            <td *ngIf="this.appService.config.role1.indexOf(this.userRole) > -1">{{item.outputType}}</td>
+            <td *ngIf="this.appService.config.role1.indexOf(this.userRole) > -1">{{item.outputMask}}</td>
             <td>
               <button type="button" class="btn btn-primary" (click)="assignGpTimer(i)">View</button>
             </td>

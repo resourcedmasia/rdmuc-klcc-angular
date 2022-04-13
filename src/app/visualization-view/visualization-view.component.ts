@@ -482,7 +482,7 @@ export class VisualizationViewComponent implements OnInit, OnDestroy {
           
           for (let i = 0; i < result.length; i++) {
               this.navigationLink=[...this.navigationLink,result[i]];
-              await this.restService.postData("getMxGraphCodeByID", this.authService.getToken(), {
+              await this.restService.postData("getMxGraphCodeNavLink", this.authService.getToken(), {
                 id: result[i].target_mxgraph_id
               }).toPromise().then(async data => {
                 // Success

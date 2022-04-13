@@ -6,7 +6,7 @@
     <i class="ion ion-md-analytics"></i>&nbsp;&nbsp; Graph Selection
     <i (click)="expand()" style="font-size: 13px; margin-top: 10px; cursor: pointer;" class="float-sm-right font-weight-light text-muted" [ngClass]="{'ion ion-ios-arrow-forward': !cardExpand , 'ion ion-ios-arrow-back': cardExpand}"></i>
   </h4>
-  <ngx-spinner [fullScreen]="false" type = "ball-beat" size="small" bdColor="rgba(39,39,45,1)">
+  <ngx-spinner [fullScreen]="false" type = "line-scale" size="small" bdColor="rgba(39,39,45,1)">
     <br>
     <p style="color: white" > Loading... </p>
   </ngx-spinner>
@@ -140,7 +140,7 @@
               </tr>
             </thead>
             <tbody cdkDropList (cdkDropListDropped)="dropNav($event)">
-              <ngx-spinner [fullScreen]="false" type = "ball-beat" size="small" bdColor="rgba(39,39,45,1)">
+              <ngx-spinner [fullScreen]="false" type = "line-scale" size="small" bdColor="rgba(39,39,45,1)">
                 <br>
                 <p style="color: white" > Loading... </p>
               </ngx-spinner>
@@ -207,7 +207,7 @@
                 </tr>
               </thead>
               <tbody cdkDropList (cdkDropListDropped)="dropFlow($event)">
-                <ngx-spinner [fullScreen]="false" type = "ball-beat" size="small" bdColor="rgba(39,39,45,1)">
+                <ngx-spinner [fullScreen]="false" type = "line-scale" size="small" bdColor="rgba(39,39,45,1)">
                   <br>
                   <p style="color: white" > Loading... </p>
                 </ngx-spinner>

@@ -886,7 +886,7 @@ export class VisualizationComponent implements OnInit, OnDestroy {
               }
               
               console.log(result)
-              await this.restService.postData("getMxGraphCodeByID", this.authService.getToken(), {
+              await this.restService.postData("getMxGraphCodeNavLink", this.authService.getToken(), {
                 id: result[i].target_mxgraph_id
               }).toPromise().then(async data => {
                 // Success

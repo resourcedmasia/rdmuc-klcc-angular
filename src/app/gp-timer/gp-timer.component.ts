@@ -5,6 +5,7 @@ import { ToastrService } from "ngx-toastr";
 import { AuthService } from "../auth.service";
 import { RestService } from "../rest.service";
 import { SetGptimerModalComponent } from "../visualization/set-gptimer-modal/set-gptimer-modal.component";
+import { AppService } from '../app.service';
 
 interface GPEvent {
   Type: string;
@@ -57,7 +58,8 @@ export class GpTimerComponent implements OnInit {
     private authService: AuthService,
     private modalService: NgbModal,
     private toastr: ToastrService,
-    private spinner: NgxSpinnerService
+    private spinner: NgxSpinnerService,
+    public appService: AppService
   ) {
     this.toastr.overlayContainer = undefined;
     this.spinner.show();
@@ -73,8 +75,10 @@ export class GpTimerComponent implements OnInit {
   defaultData = [];
   tdbArr: any;
   dmArr: any;
+  userRole: any;
 
   ngOnInit() {
+    this.userRole = this.authService.getRole();
     this.getAllGpTimer();
   }
 
