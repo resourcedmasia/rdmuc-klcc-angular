@@ -38,7 +38,7 @@ export class RestService {
       this.baseUrl = "http://172.16.98.200/api/api.php";
     }
 
-    // // Wisma Genting Local Network
+    // // // Wisma Genting Local Network
     // if(this.originUrl.includes("http://10.10.10")) {
     //   this.baseUrl = "http://10.10.10.204/api/api.php";
     // }

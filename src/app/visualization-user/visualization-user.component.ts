@@ -473,30 +473,32 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
       }
     });
 
-    // Retrieve Navigation Link by Graph ID
+    /// Retrieve Navigation Link by Graph ID
     await this.restService.postData("getNavLink", this.authService.getToken(), {
       mxgraph_id: event.Id
     }).toPromise().then(async data => {
       if (data["status"] == 200) {
-          let result= data["data"].rows;
-          
-          for (let i = 0; i < result.length; i++) {
-              this.navigationLink=[...this.navigationLink,result[i]];
-              await this.restService.postData("getMxGraphCodeNavLink", this.authService.getToken(), {
-                id: result[i].target_mxgraph_id
-              }).toPromise().then(async data => {
-                // Success
-                if (data["status"] == 200) {
-                  let mxgraphData = data["data"].rows[0];
-                  let targetMxGraphName = {
-                    mxgraph_name: mxgraphData["mxgraph_name"],
+          let result = data["data"].rows;
+          let tempArrId = result.map(e => e.target_mxgraph_id);
+          this.restService.postData("getMxGraphCodeNavLink", this.authService.getToken(), {
+              arrId: tempArrId
+          }).subscribe((data: any) => {
+              if (data["status"] == 200) {
+                  let response = data["data"].rows;
+                  for (let i = 0; i < result.length; i++) {
+                      this.navigationLink = [...this.navigationLink, result[i]];
                   }
-                  // this.graphContainer.nativeElement.style.display = "none";
-                  this.navigationLink[i] = Object.assign(this.navigationLink[i],targetMxGraphName)
-                }
-              }); 
-      }
-     }
+                  let responseArr = response.map(({
+                      Id,
+                      mxgraph_name
+                  }) => ({
+                      target_mxgraph_id: Id,
+                      mxgraph_name: mxgraph_name
+                  }));
+                  this.navigationLink = [...this.navigationLink.map((item, i) => Object.assign({}, item, responseArr[i]))];  
+              }
+          });
+       }
     });
 
         // Retrieve Flow Link by Graph ID

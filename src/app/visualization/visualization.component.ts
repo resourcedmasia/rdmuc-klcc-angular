@@ -866,41 +866,83 @@ export class VisualizationComponent implements OnInit, OnDestroy {
     });
 
     // Retrieve Navigation Link by Graph ID
+    // await this.restService.postData("getNavLink", this.authService.getToken(), {
+    //   mxgraph_id: event.Id
+    // }).toPromise().then(async data => {
+    //   if (data["status"] == 200) {
+    //       let result= data["data"].rows;
+          
+    //       for (let i = 0; i < result.length; i++) {
+    //           this.navigationLink=[...this.navigationLink,result[i]];
+    //           if((this.navigationLink[i].cell_id).includes("-")){
+    //             var tempCellId = this.navigationLink[i].cell_id;
+    //             tempCellId = tempCellId.split("-");
+    //             tempCellId = tempCellId[1];
+    //             this.navigationLink[i].split_cell_id = tempCellId;
+    //           }
+    //           else {
+    //             var tempCellId = this.navigationLink[i].cell_id;
+    //             this.navigationLink[i].split_cell_id = tempCellId;
+    //           }
+              
+    //           console.log(result)
+    //           await this.restService.postData("getMxGraphCodeNavLink", this.authService.getToken(), {
+    //             id: result[i].target_mxgraph_id
+    //           }).toPromise().then(async data => {
+    //             // Success
+    //             if (data["status"] == 200) {
+    //               let mxgraphData = data["data"].rows[0];
+    //               let targetMxGraphName = {
+    //                 mxgraph_name: mxgraphData["mxgraph_name"],
+    //               }
+    //               this.navigationLink[i] = Object.assign(this.navigationLink[i],targetMxGraphName)
+    //             }
+    //           }); 
+    //   }
+    //  }
+    // });
+
+
+    /// Retrieve Navigation Link by Graph ID
     await this.restService.postData("getNavLink", this.authService.getToken(), {
       mxgraph_id: event.Id
     }).toPromise().then(async data => {
       if (data["status"] == 200) {
-          let result= data["data"].rows;
-          
-          for (let i = 0; i < result.length; i++) {
-              this.navigationLink=[...this.navigationLink,result[i]];
-              if((this.navigationLink[i].cell_id).includes("-")){
-                var tempCellId = this.navigationLink[i].cell_id;
-                tempCellId = tempCellId.split("-");
-                tempCellId = tempCellId[1];
-                this.navigationLink[i].split_cell_id = tempCellId;
-              }
-              else {
-                var tempCellId = this.navigationLink[i].cell_id;
-                this.navigationLink[i].split_cell_id = tempCellId;
-              }
-              
-              console.log(result)
-              await this.restService.postData("getMxGraphCodeNavLink", this.authService.getToken(), {
-                id: result[i].target_mxgraph_id
-              }).toPromise().then(async data => {
-                // Success
-                if (data["status"] == 200) {
-                  let mxgraphData = data["data"].rows[0];
-                  let targetMxGraphName = {
-                    mxgraph_name: mxgraphData["mxgraph_name"],
+          let result = data["data"].rows;
+          let tempArrId = result.map(e => e.target_mxgraph_id);
+          this.restService.postData("getMxGraphCodeNavLink", this.authService.getToken(), {
+              arrId: tempArrId
+          }).subscribe((data: any) => {
+              if (data["status"] == 200) {
+                  let response = data["data"].rows;
+                  for (let i = 0; i < result.length; i++) {
+                      this.navigationLink = [...this.navigationLink, result[i]];
+                      if((this.navigationLink[i].cell_id).includes("-")){
+                        var tempCellId = this.navigationLink[i].cell_id;
+                        tempCellId = tempCellId.split("-");
+                        tempCellId = tempCellId[1];
+                        this.navigationLink[i].split_cell_id = tempCellId;
+                      }
+                      else {
+                        var tempCellId = this.navigationLink[i].cell_id;
+                        this.navigationLink[i].split_cell_id = tempCellId;
+                      }
                   }
-                  this.navigationLink[i] = Object.assign(this.navigationLink[i],targetMxGraphName)
-                }
-              }); 
+                  let responseArr = response.map(({
+                      Id,
+                      mxgraph_name
+                  }) => ({
+                      target_mxgraph_id: Id,
+                      mxgraph_name: mxgraph_name
+                  }));
+                  this.navigationLink = [...this.navigationLink.map((item, i) => Object.assign({}, item, responseArr[i]))];  
+              }
+          });
       }
-     }
     });
+
+
+
 
     // Retrieve Flow Link by Graph ID
     await this.restService.postData("getFlowLink", this.authService.getToken(), {
