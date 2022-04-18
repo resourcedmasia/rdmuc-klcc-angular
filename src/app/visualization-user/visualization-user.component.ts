@@ -278,6 +278,7 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
     this.centerGraph();
     // Disable loading indicator on table
     this.spinner.hide();
+    this._cdRef.detectChanges();
   }
 
   ngAfterViewInit() {
@@ -459,7 +460,7 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
     
 
     // Retrieve Link Mapping by Graph ID
-    await this.restService.postData("readLinkMapping", this.authService.getToken(), {
+    this.restService.postData("readLinkMapping", this.authService.getToken(), {
       id: event.Id
     }).toPromise().then(data => {
       if (data["status"] == 200) {
@@ -474,7 +475,7 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
     });
 
     /// Retrieve Navigation Link by Graph ID
-    await this.restService.postData("getNavLink", this.authService.getToken(), {
+    this.restService.postData("getNavLink", this.authService.getToken(), {
       mxgraph_id: event.Id
     }).toPromise().then(async data => {
       if (data["status"] == 200) {
@@ -555,18 +556,21 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
         }
 
         this.cells = cells;
-     
+
+        // this.graph.refresh();
+
         // Iterate read config field and change value of cells
-        await this.generateCells(cells) 
-
-     
-        // Stops loading indicator  
-        this.loadingIndicator = false;    
-
-        this.graph.refresh();
-
+        await this.generateCells(cells);
+        
         this.graph.addCells(cells);
-        this.changeCellColour(this.cells)
+        
+        // Stops loading indicator  
+        this.loadingIndicator = false; 
+        // Stops loading spinner in Table
+        this.spinner.hide();
+        this._cdRef.detectChanges(); 
+
+        this.changeCellColour(this.cells);
 
         // GraphDetail Overlay
         this.addCellOverlay(cells);
@@ -581,20 +585,15 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
         this.addClickListener();
 
         this.centerGraph();
-        // Stops loading spinner in Table
-        this.spinner.hide().then(()=>{
-          // Start 5 seconds interval subscription
-          if (this.subscription) {
-          // If already subscribed, unsubbed to the previous sub
-            this.subscription.unsubscribe();
-            this.sub(cells);
-          } else {
-            this.sub(cells);
-          }
-        });
-        
-        
-
+       
+        // Start 5 seconds interval subscription
+        if (this.subscription) {
+        // If already subscribed, unsubbed to the previous sub
+          this.subscription.unsubscribe();
+          this.sub(cells);
+        } else {
+          this.sub(cells);
+        }
       }
     });
     
@@ -620,7 +619,7 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
         }
 
         if(cells[i] == null || cells[i] == "" || cells[i] == undefined || state == null || state == "") {
-          // Skip Cells
+          continue;
         }
         else if(cells[i] !== null && state.style.shape == "connector") {
           for(let j = 0; j < this.flowLink.length; j++) {
@@ -1051,7 +1050,7 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
             var cell = this.graph.getModel().getCell(id);
             var cellStyle = cell.style;
            
-          if(this.linkMappingReadConfig[i].slave && this.linkMappingReadConfig[i].slave_name && this.linkMappingReadConfig[i].slave_type !== "Parameter" && !cellStyle.includes("shape=image;")){
+          if(this.linkMappingReadConfig[i].slave && this.linkMappingReadConfig[i].slave_name && this.linkMappingReadConfig[i].gpt == "true" && this.linkMappingReadConfig[i].slave_type !== "Parameter" && !cellStyle.includes("shape=image;")){
               this.graph.removeCellOverlays(cell);
               var overlay = new mxCellOverlay(new mxImage('../../assets/img/analytic.png',13, 13), 'Show Graph',mxConstants.ALIGN_RIGHT,mxConstants.ALIGN_RIGHT,new mxPoint(-7, -7),mxConstants.CURSOR_TERMINAL_HANDLE);
               overlay.addListener(mxEvent.CLICK, function(sender, evt){
@@ -1213,11 +1212,13 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
                     for (let k = 0; k < (cells.length); k++) {
                       if (cells[k] == null) {
                         // Skip cell if null
+                        continue;
                       }
                       else if (cells[k].id == this.linkMappingReadConfig[i].slave_cell_id){
                         let cellStyle = cells[k].style;
                         if(cellStyle.includes("image=data:image/gif") || cellStyle.includes("image=data:image")) {
                           // Skip
+                          continue;
                         }
                         else{
                           // Sets the cell value using the mapped ID

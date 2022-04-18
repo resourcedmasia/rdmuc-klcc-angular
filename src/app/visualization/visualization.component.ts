@@ -310,6 +310,7 @@ export class VisualizationComponent implements OnInit, OnDestroy {
     },0)
     // Disable loading indicator on table
     this.spinner.hide();
+    this._cdRef.detectChanges();
   }
   
 
@@ -1038,6 +1039,7 @@ export class VisualizationComponent implements OnInit, OnDestroy {
           this.sub(cells);
         }
         });
+        this._cdRef.detectChanges();
         
 
       }
