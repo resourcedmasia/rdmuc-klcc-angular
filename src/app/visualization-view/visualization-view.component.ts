@@ -340,6 +340,36 @@ export class VisualizationViewComponent implements OnInit, OnDestroy {
         let $responseArray = [];
         $responseArray = data["data"]["rows"];
         this.getAllActiveAlarms = $responseArray;
+
+        let result = JSON.parse(localStorage.getItem('alarm'));
+        if (result == null) {
+            let datas = {
+                firstOpen: false,
+                firstClose: false,
+                alarm: $responseArray
+            }
+            localStorage.setItem('alarm', JSON.stringify(datas));
+            this.triggerAlarmOnload($responseArray);
+        } else if (result.firstOpen === true && result.firstClose === true) {
+            if ($responseArray.length != result.alarm.length) {
+                const isArrChanged = $responseArray.filter(({
+                    serial: id1
+                }) => !result.alarm.some(({
+                    serial: id2
+                }) => id2 === id1));
+                if (isArrChanged.length > 0 || $responseArray.length < result.alarm.length) {
+                    let datas = {
+                        firstOpen: false,
+                        firstClose: false,
+                        alarm: $responseArray
+                    }
+                    localStorage.setItem('alarm', JSON.stringify(datas));
+                    setTimeout(() => {
+                        this.triggerAlarmOnload($responseArray);
+                    }, 3000);
+                }
+            }
+        }
      
         if ($responseArray.length > 0) {
           let temp = this.graph.getModel().getCell("alarm-id");
@@ -382,6 +412,33 @@ export class VisualizationViewComponent implements OnInit, OnDestroy {
         }
       }
    });
+  }
+
+  triggerAlarmOnload(array: any) {
+    let result = JSON.parse(localStorage.getItem('alarm'));
+    if (result.firstOpen === false) {
+        let modalService = this.modalService;
+        let row = array;
+        const options: NgbModalOptions = {
+            backdropClass: '.app-session-modal-backdrop',
+            windowClass: '.app-session-modal-window',
+            centered: true,
+            container: '#fullScreen',
+            backdrop: 'static'
+        };
+        const modalRef = modalService.open(ReadActiveAlarmComponent, options);
+        modalRef.componentInstance.row = row;
+        modalRef.result.then((result) => {
+            if (result === undefined) {
+                let datas = {
+                    firstOpen: true,
+                    firstClose: true,
+                    alarm: array
+                }
+                localStorage.setItem('alarm', JSON.stringify(datas))
+            }
+        });
+    }
   }
 
   ngOnDestroy() {
@@ -575,6 +632,7 @@ export class VisualizationViewComponent implements OnInit, OnDestroy {
           let elt = doc.documentElement.firstChild;
           let cells = [];
           this.cells = [];
+          localStorage.removeItem('alarm');
 
         while (elt != null) {
             cells.push(codec.decodeCell(elt));
