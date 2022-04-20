@@ -973,7 +973,8 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
               if(slave && slave_name){
                 thisContext.graph.getTooltipForCell = function(cell)
                 {
-                  return slave + " - " + slave_name;
+                  // return slave + " - " + slave_name;
+                  return slave_name;
                 }  
               }
             }
@@ -993,7 +994,8 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
               if(slave && slave_name){
                 thisContext.graph.getTooltipForCell = function(cell)
                 {
-                  return slave + " - " + slave_name;
+                  // return slave + " - " + slave_name;
+                  return slave_name;
                 }  
               }
             }
@@ -1140,6 +1142,7 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
                   }
                 }
                 var graphDetail = {
+                  slave_description: thisContext.getAllSlaveArray[thisContext.linkMappingReadConfig[i].slave].Description,
                   slave: thisContext.linkMappingReadConfig[i].slave,
                   slave_name: thisContext.linkMappingReadConfig[i].slave_name,
                   units: units,
@@ -1157,7 +1160,7 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
                 const modalRef = modalService.open(DetailGraphComponent,options);
                 modalRef.componentInstance.row = row;
                 modalRef.result.then((result) => {}).catch(err => {
-                  console.log(err)
+
                 })
               });
               this.graph.addCellOverlay(cell, overlay);

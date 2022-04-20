@@ -905,7 +905,7 @@ export class VisualizationViewComponent implements OnInit, OnDestroy {
               if(slave && slave_name){
                 thisContext.graph.getTooltipForCell = function(cell)
                 {
-                  return slave + " - " + slave_name;
+                  return slave_name;
                 }  
               }
             }
@@ -925,7 +925,7 @@ export class VisualizationViewComponent implements OnInit, OnDestroy {
               if(slave && slave_name){
                 thisContext.graph.getTooltipForCell = function(cell)
                 {
-                  return slave + " - " + slave_name;
+                  return slave_name;
                 }  
               }
             }
@@ -1021,6 +1021,7 @@ export class VisualizationViewComponent implements OnInit, OnDestroy {
                   }
                 }
                 var graphDetail = {
+                  slave_description: thisContext.getAllSlaveArray[thisContext.linkMappingReadConfig[i].slave].Description,
                   slave: thisContext.linkMappingReadConfig[i].slave,
                   slave_name: thisContext.linkMappingReadConfig[i].slave_name,
                   units: units,

@@ -26,6 +26,10 @@ interface GraphLog {
   styleUrls: ["./audit-log.component.scss"],
 })
 export class AuditLogComponent implements OnInit {
+  currentDate: any;
+  htmlDate: any;
+
+
   constructor(
     private restService: RestService,
     private authService: AuthService,
@@ -62,6 +66,12 @@ export class AuditLogComponent implements OnInit {
 
   ngOnInit() {    
     this.getAllGraphLog();
+    this.currentDate = new Date();
+    var d = this.currentDate;
+    var day = d.getDate();
+    var month = d.getMonth()+1;
+    var year = d.getFullYear();
+    this.htmlDate = day+"/"+month+"/"+year
   }
 
   getAllGraphLog() {
@@ -197,4 +207,26 @@ export class AuditLogComponent implements OnInit {
   pageChange(newPage: number) {
 		this.router.navigate(['audit-log'], { queryParams: { page: newPage } });
 	}
+
+  print(): void {
+    let printContents, popupWin;
+    printContents = document.getElementById('audit-table').innerHTML;
+    popupWin = window.open('', '_blank', 'top=0,left=0,height=auto,width=auto');
+    popupWin.document.open();
+    popupWin.document.write(`
+    <html>
+      <head>
+        <title>Audit Log</title>
+        <style type="text/css">
+          table th, table td { 
+          border-style: groove;
+        }
+        </style>
+      </head>
+      <body onload="window.print();window.close()">${printContents}</body>
+    </html>`
+    );
+    popupWin.document.close();
+  }
+
 }

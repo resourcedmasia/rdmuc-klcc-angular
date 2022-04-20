@@ -11,10 +11,11 @@
       <ng-select appendTo="body" placeholder="Action" [clearable]="false" [items]="actionDropdown" [(ngModel)]="selectedAction" (change)="onSelectAction($event)"></ng-select>
     </div>
     <div style="margin-left: 10px;">
-      <ng-select appendTo="body" placeholder="MXGraph Name" [clearable]="false" [items]="graphDropdown" [(ngModel)]="selectedGraph" (change)="onSelectGraph($event)"></ng-select>
+      <ng-select appendTo="body" placeholder="Graph Name" [clearable]="false" [items]="graphDropdown" [(ngModel)]="selectedGraph" (change)="onSelectGraph($event)"></ng-select>
     </div>
     <input class="input-date" #selectedDate (change)="selectDateFn($event)" [(ngModel)]="dateValue" type="date" placeholder="Date">
     <button (click)="clearFilter()" class="btn btn-primary btn-filter">Clear</button>
+    <button name="Print" type="button" class="btn btn-default print" (click)="print()"><i class="ion ion-md-print"></i></button>
   </div>
   <div class="scroll-table">
     <ng-container *ngIf="this.filterLogDetail.length > 0 && isLoading">
@@ -22,9 +23,10 @@
         <thead>
           <tr class="table-header">
             <th>Id</th>
-            <th style="min-width: 120px;">User</th>
+            <th>User</th>
             <th style="min-width: 120px;">Controller</th>
-            <th style="min-width: 120px;">Action</th>
+            <th>Slave</th>
+            <th>Action</th>
             <th style="min-width: 120px;">Mxgraph Name</th>
             <th style="min-width: 120px;">Date & Time</th>
             <th>Action</th>
@@ -35,6 +37,7 @@
             <td>{{item.id}}</td>
             <td>{{item.user}}</td>
             <td>{{item.controller}}</td>
+            <td>{{item.slave}}</td>
             <td>{{item.action}}</td>
             <td>{{item.mxgraph_name}}</td>
             <td>{{item.time_stamp}}</td>
@@ -84,14 +87,49 @@
         <span class="header-text">Change Value:</span>{{selectedLog.change_value}}
       </li>
       <li class="list-group-item">
-        <span class="header-text">MXGraph Id:</span>{{selectedLog.mxgraph_id}}
+        <span class="header-text">Graph Id:</span>{{selectedLog.mxgraph_id}}
       </li>
       <li class="list-group-item">
-        <span class="header-text">MXGraph Name:</span>{{selectedLog.mxgraph_name}}
+        <span class="header-text">Graph Name:</span>{{selectedLog.mxgraph_name}}
       </li>
       <li class="list-group-item">
         <span class="header-text">Date & Time:</span>{{selectedLog.time_stamp}}
       </li>
     </ul>
+  </div>
+</div>
+
+<!---------------------------------------------- Audit Log Printable Table -------------------------------------->
+
+<div style="display: none;">
+  <div id="audit-table" class="scroll">
+    <table class="table table-bordered table-hover">
+      <thead>
+        <tr class="table-header">
+          <th>Id</th>
+          <th>User</th>
+          <th>Controller</th>
+          <th style="min-width: 120px;">Slave</th>
+          <th>Action</th>
+          <th>Previous Value</th>
+          <th>Change Value</th>
+          <th>Mxgraph Name</th>
+          <th>Date & Time</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let item of filterLogDetail"> 
+          <td>{{item.id}}</td>
+          <td>{{item.user}}</td>
+          <td>{{item.controller}}</td>
+          <td>{{item.slave}}</td>
+          <td>{{item.action}}</td>
+          <td>{{item.previous_value}}</td>
+          <td>{{item.change_value}}</td>
+          <td>{{item.mxgraph_name}}</td>
+          <td>{{item.time_stamp}}</td>
+        </tr>
+      </tbody>
+    </table>
   </div>
 </div>
