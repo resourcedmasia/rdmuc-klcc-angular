@@ -9,8 +9,13 @@ import { LayoutService } from '../layout.service';
 export class Layout2Component implements AfterViewInit, OnDestroy {
   // Prevent "blink" effect
   public initialized = false;
+  public screenWidth: any;
+  public screenHeight: any;
 
-  constructor(private layoutService: LayoutService) {}
+  constructor(private layoutService: LayoutService) {
+    this.screenWidth = window.innerWidth +'px';
+    this.screenHeight = window.innerHeight + 'px';
+  }
 
   ngAfterViewInit() {
     setTimeout(() => {
@@ -26,6 +31,10 @@ export class Layout2Component implements AfterViewInit, OnDestroy {
     setTimeout(() => {
       this.layoutService.destroy();
     });
+  }
+
+  styleObject(): Object {
+    return {'max-height': this.screenHeight,'max-width': this.screenWidth}
   }
 
   closeSidenav() {

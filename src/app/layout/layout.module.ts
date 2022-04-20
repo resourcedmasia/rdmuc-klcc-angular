@@ -24,6 +24,10 @@ import { LayoutNavbarComponent } from './layout-navbar/layout-navbar.component';
 import { LayoutSidenavComponent } from './layout-sidenav/layout-sidenav.component';
 import { LayoutFooterComponent } from './layout-footer/layout-footer.component';
 
+import { PerfectScrollbarModule } from 'ngx-perfect-scrollbar';
+import { PERFECT_SCROLLBAR_CONFIG } from 'ngx-perfect-scrollbar';
+import { PerfectScrollbarConfigInterface } from 'ngx-perfect-scrollbar';
+
 
 // *******************************************************************************
 // Libs
@@ -43,6 +47,10 @@ import { AvatarModule } from 'ngx-avatar';
 // *******************************************************************************
 //
 
+const DEFAULT_PERFECT_SCROLLBAR_CONFIG: PerfectScrollbarConfigInterface = {
+  suppressScrollX: true
+};
+
 @NgModule({
   imports: [
     CommonModule,
@@ -50,6 +58,7 @@ import { AvatarModule } from 'ngx-avatar';
     NgbModule,
     SidenavModule,
     AvatarModule,
+    PerfectScrollbarModule
   ],
   declarations: [
     Layout1Component,
@@ -67,7 +76,11 @@ import { AvatarModule } from 'ngx-avatar';
     LayoutFooterComponent
   ],
   providers: [
-    LayoutService
+    LayoutService,
+    {
+      provide: PERFECT_SCROLLBAR_CONFIG,
+      useValue: DEFAULT_PERFECT_SCROLLBAR_CONFIG
+    }
   ]
 })
 export class LayoutModule { }
