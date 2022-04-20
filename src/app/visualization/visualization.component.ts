@@ -24,6 +24,7 @@ import { SetGptimerModalComponent } from './set-gptimer-modal/set-gptimer-modal.
 import { ReadActiveAlarmComponent } from './read-active-alarm/read-active-alarm.component';
 import { CdkDragDrop, moveItemInArray } from "@angular/cdk/drag-drop";
 import { DetailGraphComponent } from '../visualization/detail-graph/detail-graph.component' ;
+import { LZStringService } from 'ng-lz-string';
 
 
 
@@ -190,7 +191,8 @@ export class VisualizationComponent implements OnInit, OnDestroy {
               private spinner: NgxSpinnerService,
               private layoutService: LayoutService,
               private _cdRef: ChangeDetectorRef,
-              private ngZone: NgZone
+              private ngZone: NgZone,
+              private LZString: LZStringService
               ) {
     
     this.appService.pageTitle = 'Visualization Dashboard';
@@ -862,47 +864,8 @@ export class VisualizationComponent implements OnInit, OnDestroy {
           for (let i = 0; i < linkMapping.length; i++) {
             this.linkMappingReadConfig=[...this.linkMappingReadConfig,linkMapping[i]];
           }
-          console.log("******",this.linkMappingReadConfig)
       }
     });
-
-    // Retrieve Navigation Link by Graph ID
-    // await this.restService.postData("getNavLink", this.authService.getToken(), {
-    //   mxgraph_id: event.Id
-    // }).toPromise().then(async data => {
-    //   if (data["status"] == 200) {
-    //       let result= data["data"].rows;
-          
-    //       for (let i = 0; i < result.length; i++) {
-    //           this.navigationLink=[...this.navigationLink,result[i]];
-    //           if((this.navigationLink[i].cell_id).includes("-")){
-    //             var tempCellId = this.navigationLink[i].cell_id;
-    //             tempCellId = tempCellId.split("-");
-    //             tempCellId = tempCellId[1];
-    //             this.navigationLink[i].split_cell_id = tempCellId;
-    //           }
-    //           else {
-    //             var tempCellId = this.navigationLink[i].cell_id;
-    //             this.navigationLink[i].split_cell_id = tempCellId;
-    //           }
-              
-    //           console.log(result)
-    //           await this.restService.postData("getMxGraphCodeNavLink", this.authService.getToken(), {
-    //             id: result[i].target_mxgraph_id
-    //           }).toPromise().then(async data => {
-    //             // Success
-    //             if (data["status"] == 200) {
-    //               let mxgraphData = data["data"].rows[0];
-    //               let targetMxGraphName = {
-    //                 mxgraph_name: mxgraphData["mxgraph_name"],
-    //               }
-    //               this.navigationLink[i] = Object.assign(this.navigationLink[i],targetMxGraphName)
-    //             }
-    //           }); 
-    //   }
-    //  }
-    // });
-
 
     /// Retrieve Navigation Link by Graph ID
     await this.restService.postData("getNavLink", this.authService.getToken(), {
@@ -916,7 +879,8 @@ export class VisualizationComponent implements OnInit, OnDestroy {
           }).subscribe((data: any) => {
               if (data["status"] == 200) {
                   let response = data["data"].rows;
-                  for (let i = 0; i < result.length; i++) {
+                  if(response !== null && response !== undefined) {
+                    for (let i = 0; i < result.length; i++) {
                       this.navigationLink = [...this.navigationLink, result[i]];
                       if((this.navigationLink[i].cell_id).includes("-")){
                         var tempCellId = this.navigationLink[i].cell_id;
@@ -937,13 +901,11 @@ export class VisualizationComponent implements OnInit, OnDestroy {
                       mxgraph_name: mxgraph_name
                   }));
                   this.navigationLink = [...this.navigationLink.map((item, i) => Object.assign({}, item, responseArr[i]))];  
+                  }
               }
           });
       }
     });
-
-
-
 
     // Retrieve Flow Link by Graph ID
     await this.restService.postData("getFlowLink", this.authService.getToken(), {
@@ -976,17 +938,41 @@ export class VisualizationComponent implements OnInit, OnDestroy {
     // Clear the existing graph
     this.graph.getModel().clear();
 
-    // Retrieve graph XML by ID
-    await this.restService.postData("getMxGraphCodeByID", this.authService.getToken(), {
-      id: event.Id
-    }).toPromise().then(async data => {
-      // Success
-      if (data["status"] == 200) {
-        let mxgraphData = data["data"].rows[0];
-        this.mxgraphData = data["data"].rows[0];
+    var graphStorage = localStorage.getItem(this.appService.config.siteName+"/graph/"+event.Id);
+    if(graphStorage && graphStorage !== undefined){
+      graphStorage = this.LZString.decompress(graphStorage);
+      var parsedGraph = JSON.parse(graphStorage);
+      let doc = mxUtils.parseXml(parsedGraph.mxgraph_code);
+          this.buildGraph(doc,event);
+    }
+    else{
+      // Retrieve graph XML by ID
+      await this.restService.postData("getMxGraphCodeByID", this.authService.getToken(), {
+        id: event.Id
+      }).toPromise().then(async data => {
+        this.mxgraphData = [];
+        let mxgraphData;
+        // Success
+        if (data["status"] == 200) {
+          mxgraphData = data["data"].rows[0];
+          this.mxgraphData = data["data"].rows[0];
+          try{
+            localStorage.setItem(this.appService.config.siteName+"/graph/"+event.Id,this.LZString.compress(JSON.stringify(mxgraphData)));
+            let doc = mxUtils.parseXml(mxgraphData["mxgraph_code"]);
+            this.buildGraph(doc,event); 
+          }
+          catch {
+            let doc = mxUtils.parseXml(mxgraphData["mxgraph_code"]);
+            this.buildGraph(doc,event); 
+          } 
+        }
+      });
+   }
+  
+  }
 
-        let doc = mxUtils.parseXml(mxgraphData["mxgraph_code"]);
-        let codec = new mxCodec(doc);
+  async buildGraph(doc,event) {
+    let codec = new mxCodec(doc);
         let elt = doc.documentElement.firstChild;
         let cells = [];
 
@@ -1007,9 +993,6 @@ export class VisualizationComponent implements OnInit, OnDestroy {
         this.graph.addCells(cells);  
         this.graph.refresh();
 
-       
-        
-       
         this.animateState(cells);
 
         // this.changeCellColour(cells);
@@ -1025,8 +1008,7 @@ export class VisualizationComponent implements OnInit, OnDestroy {
 
         this.config.asyncLocalStorage.setItem('mxgraph_id', event.Id);
         this.addClickListener();
-
-        
+      
         this.centerGraph();
         // Stops loading spinner in Table
         this.spinner.hide().then(()=> {
@@ -1040,11 +1022,6 @@ export class VisualizationComponent implements OnInit, OnDestroy {
         }
         });
         this._cdRef.detectChanges();
-        
-
-      }
-    });
-  
   }
 
   getActiveAlarm() {
@@ -1753,7 +1730,9 @@ export class VisualizationComponent implements OnInit, OnDestroy {
               }
           }
         }
-        await this.restService.postData("getSlave", this.authService.getToken(), typeArray).toPromise().then(data => { 
+        const types = typeArray.map(o => o.type);
+        var filteredTypeArray = typeArray.filter(({type}, index) => !types.includes(type, index + 1));
+        await this.restService.postData("getSlave", this.authService.getToken(), filteredTypeArray).toPromise().then(data => { 
 
           // Success
         if (data !== null) {
@@ -2720,8 +2699,9 @@ export class VisualizationComponent implements OnInit, OnDestroy {
                       modalRef.componentInstance.row = rowArray;
                       modalRef.result.then((result) => {
                         if(result){
-                            this.successToast("Successfully deleted Graph.")
-                            window.location.reload();
+                          localStorage.removeItem(this.appService.config.siteName+"/graph/"+this.editGraphForm.value.mxgraph_id);
+                          this.successToast("Successfully deleted Graph.")
+                          window.location.reload();
                         }
                       }).catch((error)=>{
                         console.log(error)

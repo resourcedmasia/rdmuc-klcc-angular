@@ -19,6 +19,9 @@ import { WriteVisualizationModalComponent } from '../visualization/write-visuali
 import { ReadOnlyGptimerModalComponent } from '../visualization-user/read-only-gptimer-modal/read-only-gptimer-modal.component';
 import { ReadActiveAlarmComponent } from '../visualization/read-active-alarm/read-active-alarm.component';
 import { DetailGraphComponent } from '../visualization/detail-graph/detail-graph.component' ;
+import { LZStringService } from 'ng-lz-string';
+
+
 
 declare var mxUtils: any;
 declare var mxCodec: any;
@@ -170,6 +173,7 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
               private layoutService: LayoutService,
               private _cdRef: ChangeDetectorRef,
               private zone: NgZone,
+              private LZString: LZStringService
               ) {
     
     this.appService.pageTitle = 'Visualization Dashboard';
@@ -460,7 +464,7 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
     
 
     // Retrieve Link Mapping by Graph ID
-    this.restService.postData("readLinkMapping", this.authService.getToken(), {
+    await this.restService.postData("readLinkMapping", this.authService.getToken(), {
       id: event.Id
     }).toPromise().then(data => {
       if (data["status"] == 200) {
@@ -475,7 +479,7 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
     });
 
     /// Retrieve Navigation Link by Graph ID
-    this.restService.postData("getNavLink", this.authService.getToken(), {
+    await this.restService.postData("getNavLink", this.authService.getToken(), {
       mxgraph_id: event.Id
     }).toPromise().then(async data => {
       if (data["status"] == 200) {
@@ -486,17 +490,19 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
           }).subscribe((data: any) => {
               if (data["status"] == 200) {
                   let response = data["data"].rows;
-                  for (let i = 0; i < result.length; i++) {
+                  if(response !== null && response !== undefined) {
+                    for (let i = 0; i < result.length; i++) {
                       this.navigationLink = [...this.navigationLink, result[i]];
+                    }
+                    let responseArr = response.map(({
+                        Id,
+                        mxgraph_name
+                    }) => ({
+                        target_mxgraph_id: Id,
+                        mxgraph_name: mxgraph_name
+                    }));
+                    this.navigationLink = [...this.navigationLink.map((item, i) => Object.assign({}, item, responseArr[i]))];  
                   }
-                  let responseArr = response.map(({
-                      Id,
-                      mxgraph_name
-                  }) => ({
-                      target_mxgraph_id: Id,
-                      mxgraph_name: mxgraph_name
-                  }));
-                  this.navigationLink = [...this.navigationLink.map((item, i) => Object.assign({}, item, responseArr[i]))];  
               }
           });
        }
@@ -533,71 +539,87 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
     // Clear the existing graph
     this.graph.getModel().clear();
 
-    // Retrieve graph XML by ID
-    await this.restService.postData("getMxGraphCodeByID", this.authService.getToken(), {
-      id: event.Id
-    }).toPromise().then(async data => {
-      this.mxgraphData = [];
-      let mxgraphData = [];
-      // Success
-      if (data["status"] == 200) {
-        mxgraphData = data["data"].rows[0];
-        this.mxgraphData = data["data"].rows[0];
-        let doc = mxUtils.parseXml(mxgraphData["mxgraph_code"]);
-        let codec = new mxCodec(doc);
-        let elt = doc.documentElement.firstChild;
-        let cells = [];
-        this.cells = [];
-
-
-       while (elt != null) {
-          cells.push(codec.decodeCell(elt));
-          elt = elt.nextSibling;
+    var graphStorage = localStorage.getItem(this.appService.config.siteName+"/graph/"+event.Id);
+    if(graphStorage && graphStorage !== undefined){
+      graphStorage = this.LZString.decompress(graphStorage);
+      var parsedGraph = JSON.parse(graphStorage);
+      let doc = mxUtils.parseXml(parsedGraph.mxgraph_code);
+          this.buildGraph(doc,event);
+    }
+    else{
+      // Retrieve graph XML by ID
+      await this.restService.postData("getMxGraphCodeByID", this.authService.getToken(), {
+        id: event.Id
+      }).toPromise().then(async data => {
+        this.mxgraphData = [];
+        let mxgraphData;
+        // Success
+        if (data["status"] == 200) {
+          mxgraphData = data["data"].rows[0];
+          this.mxgraphData = data["data"].rows[0];
+          try{
+            localStorage.setItem(this.appService.config.siteName+"/graph/"+event.Id,this.LZString.compress(JSON.stringify(mxgraphData)));
+            let doc = mxUtils.parseXml(mxgraphData["mxgraph_code"]);
+            this.buildGraph(doc,event); 
+          }
+          catch {
+            let doc = mxUtils.parseXml(mxgraphData["mxgraph_code"]);
+            this.buildGraph(doc,event); 
+          } 
         }
+      });
+   }
 
-        this.cells = cells;
+  }
 
-        // this.graph.refresh();
+  async buildGraph(doc,event) {
+    let codec = new mxCodec(doc);
+          let elt = doc.documentElement.firstChild;
+          let cells = [];
+          this.cells = [];
 
-        // Iterate read config field and change value of cells
-        await this.generateCells(cells);
+        while (elt != null) {
+            cells.push(codec.decodeCell(elt));
+            elt = elt.nextSibling;
+          }
+
+          this.cells = cells;
+
+          // Iterate read config field and change value of cells
+          await this.generateCells(cells);
+          
+          this.graph.addCells(cells);
+          
+          // Stops loading indicator  
+          this.loadingIndicator = false; 
+          // Stops loading spinner in Table
+          this.spinner.hide();
+          this._cdRef.detectChanges(); 
+
+          this.changeCellColour(this.cells);
+
+          // GraphDetail Overlay
+          this.addCellOverlay(cells);
+
+          // Get Active Alarm
+          this.getActiveAlarm();
+
+          // Disable mxGraph editing
+          this.graph.setEnabled(false);
+
+          this.config.asyncLocalStorage.setItem('mxgraph_id', event.Id);
+          this.addClickListener();
+
+          this.centerGraph();
         
-        this.graph.addCells(cells);
-        
-        // Stops loading indicator  
-        this.loadingIndicator = false; 
-        // Stops loading spinner in Table
-        this.spinner.hide();
-        this._cdRef.detectChanges(); 
-
-        this.changeCellColour(this.cells);
-
-        // GraphDetail Overlay
-        this.addCellOverlay(cells);
-
-        // Get Active Alarm
-        this.getActiveAlarm();
-
-        // Disable mxGraph editing
-        this.graph.setEnabled(false);
-
-        this.config.asyncLocalStorage.setItem('mxgraph_id', event.Id);
-        this.addClickListener();
-
-        this.centerGraph();
-       
-        // Start 5 seconds interval subscription
-        if (this.subscription) {
-        // If already subscribed, unsubbed to the previous sub
-          this.subscription.unsubscribe();
-          this.sub(cells);
-        } else {
-          this.sub(cells);
-        }
-      }
-    });
-    
-
+          // Start 5 seconds interval subscription
+          if (this.subscription) {
+          // If already subscribed, unsubbed to the previous sub
+            this.subscription.unsubscribe();
+            this.sub(cells);
+          } else {
+            this.sub(cells);
+          }
   }
 
   /* Function: Change the opacity of Image if value == 'On','Off' */
@@ -1248,7 +1270,9 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
              
           }
         }
-        await this.restService.postData("getSlave", this.authService.getToken(), typeArray).toPromise().then(data => {
+        const types = typeArray.map(o => o.type);
+        var filteredTypeArray = typeArray.filter(({type}, index) => !types.includes(type, index + 1));
+        await this.restService.postData("getSlave", this.authService.getToken(), filteredTypeArray).toPromise().then(data => {
         if (data !== null) {  
           // Success
           if (data["data"]["rows"] !== null) {
