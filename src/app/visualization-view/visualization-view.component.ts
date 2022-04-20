@@ -18,6 +18,7 @@ import { ToastrService, ToastContainerDirective } from 'ngx-toastr';
 import { ReadOnlyGptimerModalComponent } from '../visualization-user/read-only-gptimer-modal/read-only-gptimer-modal.component';
 import { ReadActiveAlarmComponent } from '../visualization/read-active-alarm/read-active-alarm.component';
 import { DetailGraphComponent } from '../visualization/detail-graph/detail-graph.component' ;
+import { LZStringService } from 'ng-lz-string';
 
 declare var mxUtils: any;
 declare var mxCodec: any;
@@ -170,6 +171,7 @@ export class VisualizationViewComponent implements OnInit, OnDestroy {
               private layoutService: LayoutService,
               private _cdRef: ChangeDetectorRef,
               private zone: NgZone,
+              private LZString: LZStringService
               ) {
     
     this.appService.pageTitle = 'Visualization Dashboard';
@@ -278,6 +280,7 @@ export class VisualizationViewComponent implements OnInit, OnDestroy {
     this.centerGraph();
     // Disable loading indicator on table
     this.spinner.hide();
+    this._cdRef.detectChanges();
   }
 
   ngAfterViewInit() {
@@ -516,7 +519,7 @@ export class VisualizationViewComponent implements OnInit, OnDestroy {
     
 
     // Retrieve Link Mapping by Graph ID
-    await this.restService.postData("readLinkMapping", this.authService.getToken(), {
+    this.restService.postData("readLinkMapping", this.authService.getToken(), {
       id: event.Id
     }).toPromise().then(data => {
       if (data["status"] == 200) {
@@ -531,7 +534,7 @@ export class VisualizationViewComponent implements OnInit, OnDestroy {
     });
 
     /// Retrieve Navigation Link by Graph ID
-    await this.restService.postData("getNavLink", this.authService.getToken(), {
+    this.restService.postData("getNavLink", this.authService.getToken(), {
     mxgraph_id: event.Id
     }).toPromise().then(async data => {
     if (data["status"] == 200) {
@@ -541,9 +544,10 @@ export class VisualizationViewComponent implements OnInit, OnDestroy {
             arrId: tempArrId
         }).subscribe((data: any) => {
             if (data["status"] == 200) {
-                let response = data["data"].rows;
+              let response = data["data"].rows;
+              if(response !== null && response !== undefined) {
                 for (let i = 0; i < result.length; i++) {
-                    this.navigationLink = [...this.navigationLink, result[i]];
+                  this.navigationLink = [...this.navigationLink, result[i]];
                 }
                 let responseArr = response.map(({
                     Id,
@@ -553,6 +557,7 @@ export class VisualizationViewComponent implements OnInit, OnDestroy {
                     mxgraph_name: mxgraph_name
                 }));
                 this.navigationLink = [...this.navigationLink.map((item, i) => Object.assign({}, item, responseArr[i]))];  
+              } 
             }
         });
       }
@@ -589,58 +594,80 @@ export class VisualizationViewComponent implements OnInit, OnDestroy {
     // Clear the existing graph
     this.graph.getModel().clear();
 
-    // Retrieve graph XML by ID
-    await this.restService.postData("getMxGraphCodeByID", this.authService.getToken(), {
-      id: event.Id
-    }).toPromise().then(async data => {
-      this.mxgraphData = [];
-      let mxgraphData = [];
-      // Success
-      if (data["status"] == 200) {
-        mxgraphData = data["data"].rows[0];
-        this.mxgraphData = data["data"].rows[0];
-        let doc = mxUtils.parseXml(mxgraphData["mxgraph_code"]);
-        let codec = new mxCodec(doc);
-        let elt = doc.documentElement.firstChild;
-        let cells = [];
-        this.cells = [];
-        localStorage.removeItem('alarm');
-
-
-       while (elt != null) {
-          cells.push(codec.decodeCell(elt));
-          elt = elt.nextSibling;
+    var graphStorage = localStorage.getItem(this.appService.config.siteName+"/graph/"+event.Id);
+    if(graphStorage && graphStorage !== undefined){
+      graphStorage = this.LZString.decompress(graphStorage);
+      var parsedGraph = JSON.parse(graphStorage);
+      let doc = mxUtils.parseXml(parsedGraph.mxgraph_code);
+          this.buildGraph(doc,event);
+    }
+    else{
+      // Retrieve graph XML by ID
+      await this.restService.postData("getMxGraphCodeByID", this.authService.getToken(), {
+        id: event.Id
+      }).toPromise().then(async data => {
+        this.mxgraphData = [];
+        let mxgraphData;
+        // Success
+        if (data["status"] == 200) {
+          mxgraphData = data["data"].rows[0];
+          this.mxgraphData = data["data"].rows[0];
+          try{
+            localStorage.setItem(this.appService.config.siteName+"/graph/"+event.Id,this.LZString.compress(JSON.stringify(mxgraphData)));
+            let doc = mxUtils.parseXml(mxgraphData["mxgraph_code"]);
+            this.buildGraph(doc,event); 
+          }
+          catch {
+            let doc = mxUtils.parseXml(mxgraphData["mxgraph_code"]);
+            this.buildGraph(doc,event); 
+          } 
         }
+      });
+   }
+    
+  }
 
-        this.cells = cells;
-     
-        // Iterate read config field and change value of cells
-        await this.generateCells(cells) 
+  async buildGraph(doc,event) {
+    let codec = new mxCodec(doc);
+          let elt = doc.documentElement.firstChild;
+          let cells = [];
+          this.cells = [];
+          localStorage.removeItem('alarm');
 
-     
-        // Stops loading indicator  
-        this.loadingIndicator = false;    
+        while (elt != null) {
+            cells.push(codec.decodeCell(elt));
+            elt = elt.nextSibling;
+          }
 
-        this.graph.refresh();
+          this.cells = cells;
 
-        this.graph.addCells(cells);
-        this.changeCellColour(this.cells)
+          // Iterate read config field and change value of cells
+          await this.generateCells(cells);
+          
+          this.graph.addCells(cells);
+          
+          // Stops loading indicator  
+          this.loadingIndicator = false; 
+          // Stops loading spinner in Table
+          this.spinner.hide();
+          this._cdRef.detectChanges(); 
 
-        // GraphDetail Overlay
-        this.addCellOverlay(cells);
+          this.changeCellColour(this.cells);
 
-        // Get Active Alarm
-        this.getActiveAlarm();
+          // GraphDetail Overlay
+          this.addCellOverlay(cells);
 
-        // Disable mxGraph editing
-        this.graph.setEnabled(false);
+          // Get Active Alarm
+          this.getActiveAlarm();
 
-        this.config.asyncLocalStorage.setItem('mxgraph_id', event.Id);
-        this.addClickListener();
+          // Disable mxGraph editing
+          this.graph.setEnabled(false);
 
-        this.centerGraph();
-        // Stops loading spinner in Table
-        this.spinner.hide().then(()=>{
+          this.config.asyncLocalStorage.setItem('mxgraph_id', event.Id);
+          this.addClickListener();
+
+          this.centerGraph();
+        
           // Start 5 seconds interval subscription
           if (this.subscription) {
           // If already subscribed, unsubbed to the previous sub
@@ -649,14 +676,6 @@ export class VisualizationViewComponent implements OnInit, OnDestroy {
           } else {
             this.sub(cells);
           }
-        });
-        
-        
-
-      }
-    });
-    
-
   }
 
   /* Function: Change the opacity of Image if value == 'On','Off' */
@@ -679,6 +698,7 @@ export class VisualizationViewComponent implements OnInit, OnDestroy {
 
         if(cells[i] == null || cells[i] == "" || cells[i] == undefined || state == null || state == "") {
           // Skip Cells
+          continue;
         }
         else if(cells[i] !== null && state.style.shape == "connector") {
           for(let j = 0; j < this.flowLink.length; j++) {
@@ -885,7 +905,7 @@ export class VisualizationViewComponent implements OnInit, OnDestroy {
               if(slave && slave_name){
                 thisContext.graph.getTooltipForCell = function(cell)
                 {
-                  return slave + " - " + slave_name;
+                  return slave_name;
                 }  
               }
             }
@@ -905,7 +925,7 @@ export class VisualizationViewComponent implements OnInit, OnDestroy {
               if(slave && slave_name){
                 thisContext.graph.getTooltipForCell = function(cell)
                 {
-                  return slave + " - " + slave_name;
+                  return slave_name;
                 }  
               }
             }
@@ -991,7 +1011,7 @@ export class VisualizationViewComponent implements OnInit, OnDestroy {
             var cell = this.graph.getModel().getCell(id);
             var cellStyle = cell.style;
            
-          if(this.linkMappingReadConfig[i].slave && this.linkMappingReadConfig[i].slave_name && this.linkMappingReadConfig[i].slave_type !== "Parameter" && !cellStyle.includes("shape=image;")){
+          if(this.linkMappingReadConfig[i].slave && this.linkMappingReadConfig[i].slave_name && this.linkMappingReadConfig[i].gpt == "true" && this.linkMappingReadConfig[i].slave_type !== "Parameter" && !cellStyle.includes("shape=image;")){
               this.graph.removeCellOverlays(cell);
               var overlay = new mxCellOverlay(new mxImage('../../assets/img/analytic.png',13, 13), 'Show Graph',mxConstants.ALIGN_RIGHT,mxConstants.ALIGN_RIGHT,new mxPoint(-7, -7),mxConstants.CURSOR_TERMINAL_HANDLE);
               overlay.addListener(mxEvent.CLICK, function(sender, evt){
@@ -1001,6 +1021,7 @@ export class VisualizationViewComponent implements OnInit, OnDestroy {
                   }
                 }
                 var graphDetail = {
+                  slave_description: thisContext.getAllSlaveArray[thisContext.linkMappingReadConfig[i].slave].Description,
                   slave: thisContext.linkMappingReadConfig[i].slave,
                   slave_name: thisContext.linkMappingReadConfig[i].slave_name,
                   units: units,
@@ -1187,6 +1208,8 @@ export class VisualizationViewComponent implements OnInit, OnDestroy {
              
           }
         }
+        const types = typeArray.map(o => o.type);
+        var filteredTypeArray = typeArray.filter(({type}, index) => !types.includes(type, index + 1));
         await this.restService.postData("getSlave", this.authService.getToken(), typeArray).toPromise().then(data => {
         if (data !== null) {  
           // Success

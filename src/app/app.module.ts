@@ -79,6 +79,7 @@ import { AuditLogComponent } from './audit-log/audit-log.component';
 import { VisualizationViewComponent } from './visualization-view/visualization-view.component';
 import { DetailGraphComponent } from './visualization/detail-graph/detail-graph.component';
 import { ChartsModule } from 'ng2-charts';
+import { LZStringModule, LZStringService } from 'ng-lz-string';
 
 
 
@@ -169,13 +170,15 @@ import { TdbModule } from './tdb/tdb.module';
     }),
     ToastContainerModule,
     ColorPickerModule,
-    NgxPaginationModule
+    NgxPaginationModule,
+    LZStringModule
   ],
   providers: [
     Title,
     AppService,
     RestService,
     Config,
+    LZStringService
   ],
 
   bootstrap: [
