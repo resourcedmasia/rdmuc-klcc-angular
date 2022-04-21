@@ -197,7 +197,7 @@ const routes: Routes = [
 
   // audit log
   {
-    path: 'audit-log', component: Layout2Component, canActivate: [AuthGuard], runGuardsAndResolvers: 'always', children: [
+    path: 'graph-log', component: Layout2Component, canActivate: [AuthGuard], runGuardsAndResolvers: 'always', children: [
       { path: '', component: AuditLogComponent },
     ],
     data: {

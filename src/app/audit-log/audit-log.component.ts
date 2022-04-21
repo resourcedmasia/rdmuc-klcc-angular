@@ -216,7 +216,7 @@ export class AuditLogComponent implements OnInit {
     popupWin.document.write(`
     <html>
       <head>
-        <title>Audit Log</title>
+        <title>Graph Log</title>
         <style type="text/css">
           table th, table td { 
           border-style: groove;
