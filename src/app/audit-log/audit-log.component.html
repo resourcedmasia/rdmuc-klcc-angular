@@ -1,19 +1,19 @@
 <div *ngIf="!isHideDetail" class="card mb-4 p-3">
   <h4 class="card-header">
-    <i class="ion ion-md-add-circle-outline"></i>&nbsp;&nbsp; Audit Log
+    <i class="ion ion-md-add-circle-outline"></i>&nbsp;&nbsp; Graph Log
   </h4>
   <div class="filter">
     <ngx-spinner style="z-index: 2;" [fullScreen]="false" type="line-scale" size="small" bdColor="rgba(39,39,45,1)"></ngx-spinner>
-    <div>
+    <div style="width: 180px;">
       <ng-select appendTo="body" placeholder="Controller" [clearable]="false" [items]="controllerDropdown" [(ngModel)]="selectedController" (change)="onSelectController($event)"></ng-select>
     </div>
-    <div style="margin-left: 10px;">
+    <div style="margin-left: 10px;width: 180px">
       <ng-select appendTo="body" placeholder="Action" [clearable]="false" [items]="actionDropdown" [(ngModel)]="selectedAction" (change)="onSelectAction($event)"></ng-select>
     </div>
-    <div style="margin-left: 10px;">
+    <div style="margin-left: 10px;width: 180px">
       <ng-select appendTo="body" placeholder="Graph Name" [clearable]="false" [items]="graphDropdown" [(ngModel)]="selectedGraph" (change)="onSelectGraph($event)"></ng-select>
     </div>
-    <input class="input-date" #selectedDate (change)="selectDateFn($event)" [(ngModel)]="dateValue" type="date" placeholder="Date">
+    <input style="width: 180px" class="input-date" #selectedDate (change)="selectDateFn($event)" [(ngModel)]="dateValue" type="date" placeholder="Date">
     <button (click)="clearFilter()" class="btn btn-primary btn-filter">Clear</button>
     <button name="Print" type="button" class="btn btn-default print" (click)="print()"><i class="ion ion-md-print"></i></button>
   </div>
@@ -60,7 +60,7 @@
 </div>
 <div *ngIf="isHideDetail" class="card mb-4 p-3">
   <h4 class="card-header">
-    <i class="ion ion-md-add-circle-outline"></i>&nbsp;&nbsp; Audit Log Details
+    <i class="ion ion-md-add-circle-outline"></i>&nbsp;&nbsp; Graph Log Details
   </h4>
   <div>
     <button class="btn btn-primary header-btn" (click)="redirectBackUrl()">Back</button>

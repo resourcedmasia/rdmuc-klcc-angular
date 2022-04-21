@@ -37,6 +37,7 @@ import { GpTimerComponent } from './gp-timer/gp-timer.component';
 import { GuardTourComponent } from './guard-tour/guard-tour.component';
 import { AuditLogComponent } from './audit-log/audit-log.component';
 import { TdbComponent } from './tdb/tdb.component';
+import { LoginLogComponent } from './login-log/login-log.component';
 
 // *******************************************************************************
 // Routes
@@ -196,12 +197,20 @@ const routes: Routes = [
 
   // audit log
   {
-    path: 'audit-log', component: Layout2Component, canActivate: [AuthGuard], runGuardsAndResolvers: 'always', children: [
+    path: 'graph-log', component: Layout2Component, canActivate: [AuthGuard], runGuardsAndResolvers: 'always', children: [
       { path: '', component: AuditLogComponent },
     ],
     data: {
         role: ['superadmin','administrator','user']
       }
+  },
+
+  // login log
+  {
+    path: 'login-log', component: Layout2Component, canActivate: [AuthGuard], runGuardsAndResolvers: 'always', children: [
+      { path: '', component: LoginLogComponent },
+    ],
+    data: { role: ['superadmin','administrator','user'] }
   },
 
     // audit log
