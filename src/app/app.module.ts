@@ -88,6 +88,7 @@ import { LZStringModule, LZStringService } from 'ng-lz-string';
 // Config File
 import { Config } from '../config/config';
 import { TdbModule } from './tdb/tdb.module';
+import { LoginLogComponent } from './login-log/login-log.component';
 
 
 
@@ -128,7 +129,8 @@ import { TdbModule } from './tdb/tdb.module';
     ReadActiveAlarmComponent,
     GuardTourComponent,
     AuditLogComponent,
-    DetailGraphComponent
+    DetailGraphComponent,
+    LoginLogComponent
   ],
 
   imports: [

@@ -46,6 +46,7 @@ export class AppService {
       moduleGPTimer: true, // gptimer module
       moduleGuardTour: true, // guard-tour module
       moduleAuditLog: true, // mxGraph / gptimer module
+      moduleLoginLog: true, // mxGraph / login log
       moduleTdb: false, // mxGraph / gptimer module
       //
       moduleDataEntry: false, // Human data entry module

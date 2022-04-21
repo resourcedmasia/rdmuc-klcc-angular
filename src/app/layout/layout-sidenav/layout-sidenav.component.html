@@ -36,7 +36,10 @@
     <sidenav-router-link icon="ion ion-ios-timer" route="/gp-timer" [active]="isActive('/gp-timer')" *ngIf=this.appService.config.moduleGPTimer>GP Timer</sidenav-router-link>
     <sidenav-router-link icon="ion ion-ios-eye" route="/guard-tour" [active]="isActive('/guard-tour')" *ngIf=this.appService.config.moduleGuardTour>Security</sidenav-router-link>
 
-    <sidenav-router-link icon="ion ion-md-add-circle-outline" route="/audit-log" [active]="isActive('/audit-log')" *ngIf=this.appService.config.moduleAuditLog>Audit Log</sidenav-router-link>
+    <sidenav-menu icon="ion ion-md-add-circle-outline" text="Activity Log" [active]="isActive('/login-log')||isActive('/audit-log')" [open]="isMenuOpen('/login-log')||isMenuOpen('/audit-log')">
+      <sidenav-router-link icon="ion ion-md-add-circle-outline" route="/audit-log" [active]="isActive('/audit-log')" *ngIf=this.appService.config.moduleAuditLog>Audit Log</sidenav-router-link>
+      <sidenav-router-link icon="ion ion-md-add-circle-outline" route="/login-log" [active]="isActive('/login-log')" *ngIf=this.appService.config.moduleLoginLog>Login Log</sidenav-router-link>
+    </sidenav-menu>
 
     <sidenav-router-link icon="ion ion-ios-globe" route="/tdb" [active]="isActive('/tdb')" *ngIf="this.appService.config.moduleTdb && this.appService.config.role1.indexOf(this.userRole) > -1">TDB IP</sidenav-router-link>
 
