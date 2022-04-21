@@ -357,7 +357,7 @@ export class VisualizationViewComponent implements OnInit, OnDestroy {
                 }) => !result.alarm.some(({
                     serial: id2
                 }) => id2 === id1));
-                if (isArrChanged.length > 0 || $responseArray.length < result.alarm.length) {
+                if (isArrChanged.length > 0 ) {
                     let datas = {
                         firstOpen: false,
                         firstClose: false,
@@ -632,7 +632,6 @@ export class VisualizationViewComponent implements OnInit, OnDestroy {
           let elt = doc.documentElement.firstChild;
           let cells = [];
           this.cells = [];
-          localStorage.removeItem('alarm');
 
         while (elt != null) {
             cells.push(codec.decodeCell(elt));

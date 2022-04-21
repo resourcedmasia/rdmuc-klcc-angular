@@ -6,9 +6,14 @@
       <app-layout-navbar></app-layout-navbar>
 
       <div class="layout-content">
+      <perfect-scrollbar  [ngStyle]="styleObject()">
+
         <div class="container-fluid router-transitions flex-grow-1 container-p-y">
           <router-outlet></router-outlet>
         </div>
+
+      </perfect-scrollbar>
+
 
         <app-layout-footer></app-layout-footer>
       </div>
