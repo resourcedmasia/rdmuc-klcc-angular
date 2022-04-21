@@ -1,15 +1,7 @@
-<!-- <div class="ui-bordered px-4 pt-4 mb-4">
-  <div class="form-row">
-    <div class="col-md-4 mb-4">
-      <ng-select placeholder="Select Month" [items]="monthRange" [(ngModel)]="selectedMonth" [clearable]="false" (change)="onMonthChange($event)"></ng-select>
-    </div>
-  </div>
-</div> -->
-
-
 <div class="card col-md-12 px-2">
   <div class="card-header">
     <p class="ion ion-md-analytics"></p>&nbsp;&nbsp;&nbsp;{{this.row.slave_description}} - <strong>{{this.row.slave_name}}</strong>
+    <input style="float: right;" class="input-date" #selectedDate (change)="selectDateFn($event)" [(ngModel)]="dateValue" id="date" type="date">
   </div>
   <div class="card-body">
     <div>
@@ -17,5 +9,33 @@
         <div id="chartdiv1" style="width: 100%; height: 500px;"></div>
       </div>
     </div>
+  </div>
+</div>
+<div class="modal-footer">
+  <button name="Print" type="button" class="btn btn-primary print" (click)="print()"><i class="ion ion-md-print"></i></button>
+  <button type="button" class="btn btn-default" (click)="closeModal()">Close</button>
+</div>
+
+
+<!---------------------------------------------- Detail Graph Printable Table -------------------------------------->
+
+<div style="display: none;">
+  <div id="graph-table" class="scroll">
+    <table class="table table-bordered table-hover">
+      <thead>
+        <tr class="table-header">
+          <th>Id</th>
+          <th>Value</th>
+          <th>Date & Time</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let item of chartTable; let i = index;"> 
+          <td>{{i + 1}}</td>
+          <td style="min-width: 80px;  text-align: center;" >{{item.value}}</td>
+          <td style="min-width: 120px;" >{{item.formattedDate}}</td>
+        </tr>
+      </tbody>
+    </table>
   </div>
 </div>
