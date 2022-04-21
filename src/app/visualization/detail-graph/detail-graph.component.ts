@@ -221,7 +221,7 @@ export class DetailGraphComponent implements AfterViewInit {
     var changedDate = event.target.value;
     var epochDate = Date.parse(changedDate);
     console.log(epochDate);
-    this.row.timestamp = (epochDate / 1000)-29700;
+    this.row.timestamp = (epochDate / 1000)-28800;
     this.generateDailyDateChart();
   } 
 
