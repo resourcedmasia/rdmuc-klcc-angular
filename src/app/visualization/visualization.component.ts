@@ -255,6 +255,10 @@ export class VisualizationComponent implements OnInit, OnDestroy {
     this.isUploadedFile = false;
     this.alarmSound = false;
     this.stopAlarmAudio();
+
+    // IndexDB
+    this.makeDatabase();
+    this.connectToDatabase();
     
 
     // Retrieve stored mxGraphs from database and populate dropdown selection

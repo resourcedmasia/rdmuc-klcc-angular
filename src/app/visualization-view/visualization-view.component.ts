@@ -223,6 +223,10 @@ export class VisualizationViewComponent implements OnInit, OnDestroy {
     this.stopAlarmAudio();
     this.fullScreenEvent();
 
+    // IndexDB
+    this.makeDatabase();
+    this.connectToDatabase();
+
     // Retrieve stored mxGraphs from database and populate dropdown selection
     this.getMxGraphList();
     this.getMxGraphFloor();
