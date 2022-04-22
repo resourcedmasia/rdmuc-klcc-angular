@@ -90,6 +90,15 @@ import { Config } from '../config/config';
 import { TdbModule } from './tdb/tdb.module';
 import { LoginLogComponent } from './login-log/login-log.component';
 
+import { PerfectScrollbarModule } from 'ngx-perfect-scrollbar';
+import { PERFECT_SCROLLBAR_CONFIG } from 'ngx-perfect-scrollbar';
+import { PerfectScrollbarConfigInterface } from 'ngx-perfect-scrollbar';
+
+
+const DEFAULT_PERFECT_SCROLLBAR_CONFIG: PerfectScrollbarConfigInterface = {
+  suppressScrollX: true
+};
+
 
 
 
@@ -173,14 +182,19 @@ import { LoginLogComponent } from './login-log/login-log.component';
     ToastContainerModule,
     ColorPickerModule,
     NgxPaginationModule,
-    LZStringModule
+    LZStringModule,
+    PerfectScrollbarModule
   ],
   providers: [
     Title,
     AppService,
     RestService,
     Config,
-    LZStringService
+    LZStringService,
+    {
+      provide: PERFECT_SCROLLBAR_CONFIG,
+      useValue: DEFAULT_PERFECT_SCROLLBAR_CONFIG
+    }
   ],
 
   bootstrap: [
