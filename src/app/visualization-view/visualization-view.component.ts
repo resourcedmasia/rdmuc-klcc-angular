@@ -19,6 +19,8 @@ import { ReadOnlyGptimerModalComponent } from '../visualization-user/read-only-g
 import { ReadActiveAlarmComponent } from '../visualization/read-active-alarm/read-active-alarm.component';
 import { DetailGraphComponent } from '../visualization/detail-graph/detail-graph.component' ;
 import { LZStringService } from 'ng-lz-string';
+import Dexie from 'dexie';
+import { Graph } from '../../db/graph';
 
 declare var mxUtils: any;
 declare var mxCodec: any;
@@ -136,6 +138,10 @@ export class VisualizationViewComponent implements OnInit, OnDestroy {
   isMouseHover: any;
   audio: any;
   alarmSound: any;
+
+  db: any;
+  newGraph: Graph = new Graph("", "");
+  rowStorage: Graph[] = [];
   
 
 
@@ -523,10 +529,9 @@ export class VisualizationViewComponent implements OnInit, OnDestroy {
     // Clear the existing graph
     this.graph.getModel().clear();
 
-    var graphStorage = localStorage.getItem(this.appService.config.siteName+"/graph/"+event.Id);
+    var graphStorage = await this.db.graph.get(this.appService.config.siteName+"/graph/"+event.Id);
     if(graphStorage && graphStorage !== undefined){
-      graphStorage = this.LZString.decompress(graphStorage);
-      var parsedGraph = JSON.parse(graphStorage);
+      var parsedGraph = JSON.parse(graphStorage.code);
       let doc = mxUtils.parseXml(parsedGraph.mxgraph_code);
           this.buildGraph(doc,event);
     }
@@ -542,9 +547,13 @@ export class VisualizationViewComponent implements OnInit, OnDestroy {
           mxgraphData = data["data"].rows[0];
           this.mxgraphData = data["data"].rows[0];
           try{
-            localStorage.setItem(this.appService.config.siteName+"/graph/"+event.Id,this.LZString.compress(JSON.stringify(mxgraphData)));
+            var graphStorage = {
+              name: this.appService.config.siteName+"/graph/"+event.Id,
+              code: JSON.stringify(mxgraphData)
+            }
+            this.addRow(graphStorage);
             let doc = mxUtils.parseXml(mxgraphData["mxgraph_code"]);
-            this.buildGraph(doc,event); 
+            this.buildGraph(doc,event);  
           }
           catch {
             let doc = mxUtils.parseXml(mxgraphData["mxgraph_code"]);
@@ -641,6 +650,8 @@ export class VisualizationViewComponent implements OnInit, OnDestroy {
           this.cells = cells;
 
           this.graph.addCells(cells);
+
+          this.graph.fit();
 
           // Stops loading indicator  
           this.loadingIndicator = false; 
@@ -1659,6 +1670,39 @@ stopAlarmAudio(){
     this.alarmSound = false;
   }
 }
+
+makeDatabase(): void {
+  this.db = new Dexie('GraphDatabase');
+  this.db.version(1).stores({
+    graph: 'name, code'
+  });
+  this.loadRows();
+}
+
+connectToDatabase(): void {
+  this.db.open().catch((error) => {
+    alert("Error during connecting to database : " + error);
+  });
+}
+
+clearRows(): void {
+  this.db.graph.clear().then(result => console.log(result));
+  this.loadRows();
+}
+
+loadRows(): void {
+  this.db.graph.toArray().then(p => this.rows = p);
+}
+
+addRow(graph: Graph): void {
+  this.db.graph.add({
+    name: graph.name,
+    code: graph.code
+  });
+
+  this.loadRows();
+}
+
 
 }
 
