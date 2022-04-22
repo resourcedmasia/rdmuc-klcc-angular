@@ -369,7 +369,14 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
                     setTimeout(() => {
                         this.triggerAlarmOnload($responseArray);
                     }, 3000);
+                } else if ($responseArray.length < result.alarm.length) {
+                  let datas = {
+                    firstOpen: true,
+                    firstClose: true,
+                    alarm: $responseArray
                 }
+                localStorage.setItem('alarm', JSON.stringify(datas));
+              }
             }
         }
         
@@ -418,7 +425,7 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
 
   triggerAlarmOnload(array: any) {
     let result = JSON.parse(localStorage.getItem('alarm'));
-    if (result.firstOpen === false) {
+    if (result !== null && result.firstOpen === false) {
         let modalService = this.modalService;
         let row = array;
         const options: NgbModalOptions = {
