@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter, ViewChild } from '@angular/core';
 import { NgbActiveModal, NgbModalOptions } from '@ng-bootstrap/ng-bootstrap';
 
 @Component({
@@ -11,18 +11,22 @@ export class ReadActiveAlarmComponent implements OnInit {
   @Output() valueChange = new EventEmitter();
   htmlDate: any;
   currentDate: any;
+  public screenWidth: any;
 
   constructor(
     public activeModal: NgbActiveModal,
-  ) { }
+  ) {
+    this.screenWidth = window.innerWidth +'px';
+  }
 
   ngOnInit() {
+    
     this.currentDate = new Date();
     var d = this.currentDate;
     var day = d.getDate();
     var month = d.getMonth()+1;
     var year = d.getFullYear();
-    this.htmlDate = day+"/"+month+"/"+year
+    this.htmlDate = day+"/"+month+"/"+year;
   }
 
   closeModal() {
@@ -32,6 +36,10 @@ export class ReadActiveAlarmComponent implements OnInit {
   convertDate(dt) {
     let cdt = new Date(dt);
     return cdt.toLocaleString("en-MY");
+  }
+
+  styleObject(): Object {
+    return {'max-height': '600px','max-width': this.screenWidth}
   }
 
   print(): void {
