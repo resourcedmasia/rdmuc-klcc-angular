@@ -1,4 +1,5 @@
-<div class="modal-header">
+<perfect-scrollbar [ngStyle]="styleObject()">
+<div ngbAutoFocus class="modal-header">
   <h5 class="modal-title">
     <!-- <i class="ion ion-md-alert text-danger"></i>&nbsp;Active Alarms<br> -->
     <p style="margin-bottom: 0;"><img src="../../../assets/img/warning.gif" style="width: 1.5rem; height: 1.5rem;">&nbsp;{{row.length}}&nbsp;Active Alarms </p>
@@ -32,6 +33,7 @@
     </table>
   </div>
 </div>
+</perfect-scrollbar>
 <div class="modal-footer">
   <button name="Print" type="button" class="btn btn-primary print" (click)="print()"><i class="ion ion-md-print"></i></button>
   <button type="button" class="btn btn-default" (click)="closeModal()">Close</button>
