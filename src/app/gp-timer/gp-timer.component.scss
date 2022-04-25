@@ -92,3 +92,6 @@
   transition: max-height 0.2s ease-out;
 }
 
+.btn-primary:disabled {
+  cursor: not-allowed;
+}
