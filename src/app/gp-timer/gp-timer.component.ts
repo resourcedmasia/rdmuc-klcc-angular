@@ -6,6 +6,7 @@ import { AuthService } from "../auth.service";
 import { RestService } from "../rest.service";
 import { SetGptimerModalComponent } from "../visualization/set-gptimer-modal/set-gptimer-modal.component";
 import { AppService } from '../app.service';
+import { SetGptimerComponent } from "./set-gptimer/set-gptimer.component";
 
 interface GPEvent {
   Type: string;
@@ -122,7 +123,7 @@ export class GpTimerComponent implements OnInit {
       (item, index) => index === i
     );
     let selected = JSON.parse(JSON.stringify(this.selectedGptimer[0]));    
-    const modalRef = this.modalService.open(SetGptimerModalComponent);
+    const modalRef = this.modalService.open(SetGptimerComponent);
     modalRef.componentInstance.row = selected;
     modalRef.result
       .then(async (result) => {

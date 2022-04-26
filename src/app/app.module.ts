@@ -74,6 +74,7 @@ import { ToastrModule, ToastContainerModule } from 'ngx-toastr';
 import { DragDropModule } from '@angular/cdk/drag-drop';
 import { ColorPickerModule } from 'ngx-color-picker';
 import { GpTimerComponent } from './gp-timer/gp-timer.component';
+import { SetGptimerComponent } from './gp-timer/set-gptimer/set-gptimer.component';
 import { GuardTourComponent } from './guard-tour/guard-tour.component';
 import { AuditLogComponent } from './audit-log/audit-log.component';
 import { VisualizationViewComponent } from './visualization-view/visualization-view.component';
@@ -94,6 +95,7 @@ import { LoginLogComponent } from './login-log/login-log.component';
 import { PerfectScrollbarModule } from 'ngx-perfect-scrollbar';
 import { PERFECT_SCROLLBAR_CONFIG } from 'ngx-perfect-scrollbar';
 import { PerfectScrollbarConfigInterface } from 'ngx-perfect-scrollbar';
+
 
 
 const DEFAULT_PERFECT_SCROLLBAR_CONFIG: PerfectScrollbarConfigInterface = {
@@ -141,7 +143,8 @@ const DEFAULT_PERFECT_SCROLLBAR_CONFIG: PerfectScrollbarConfigInterface = {
     AuditLogComponent,
     DetailGraphComponent,
     LoginLogComponent,
-    GpTimerModalComponent
+    GpTimerModalComponent,
+    SetGptimerComponent
   ],
 
   imports: [
@@ -212,7 +215,8 @@ const DEFAULT_PERFECT_SCROLLBAR_CONFIG: PerfectScrollbarConfigInterface = {
     AddScheduleModalComponent,
     ReadActiveAlarmComponent,
     DetailGraphComponent,
-    GpTimerModalComponent
+    GpTimerModalComponent,
+    SetGptimerComponent
   ]
 })
 export class AppModule { }

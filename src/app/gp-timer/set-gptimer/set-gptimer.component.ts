@@ -6,18 +6,18 @@ import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { NgSelectModule } from '@ng-select/ng-select';
 import { Router, NavigationEnd, ActivatedRoute } from '@angular/router';
 import { NgbCalendar, NgbDateParserFormatter, NgbModal} from '@ng-bootstrap/ng-bootstrap';
-import { AddScheduleModalComponent } from '../add-schedule-modal/add-schedule-modal.component'; 
+import { AddScheduleModalComponent } from '../../visualization/add-schedule-modal/add-schedule-modal.component';
 import { AppService } from '../../app.service';
 
 const now = new Date();
 
 
 @Component({
-  selector: 'app-set-gptimer-modal',
-  templateUrl: './set-gptimer-modal.component.html',
-  styleUrls: ['./set-gptimer-modal.component.scss']
+  selector: 'app-set-gptimer',
+  templateUrl: './set-gptimer.component.html',
+  styleUrls: ['./set-gptimer.component.scss']
 })
-export class SetGptimerModalComponent implements OnInit {
+export class SetGptimerComponent implements OnInit {
   @Input() row: any;
   // @Output() valueChange = new EventEmitter();
 
@@ -521,8 +521,7 @@ export class SetGptimerModalComponent implements OnInit {
     const modalRef = this.modalService.open(AddScheduleModalComponent, {  
       backdrop: 'static', 
       size:'lg', 
-      centered:true,
-      container: '#fullScreen'
+      centered:true
     });
     let row = this.model
     let GPEvent = this.GPEvent

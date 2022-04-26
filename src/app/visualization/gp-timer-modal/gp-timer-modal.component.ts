@@ -1,5 +1,5 @@
 import { Component, OnInit } from "@angular/core";
-import { NgbActiveModal, NgbModal, NgbModalOptions } from "@ng-bootstrap/ng-bootstrap";
+import { NgbModal, NgbModalOptions } from "@ng-bootstrap/ng-bootstrap";
 import { NgxSpinnerService } from "ngx-spinner";
 import { ToastrService } from "ngx-toastr";
 import { AuthService } from "../../auth.service";
@@ -48,7 +48,7 @@ interface GPTimerDetail {
 }
 
 @Component({
-  selector: "app-gp-timer",
+  selector: "app-gp-timer-modal",
   templateUrl: "./gp-timer-modal.component.html",
   styleUrls: ["./gp-timer-modal.component.scss"],
 })
@@ -59,8 +59,7 @@ export class GpTimerModalComponent implements OnInit {
     private modalService: NgbModal,
     private toastr: ToastrService,
     private spinner: NgxSpinnerService,
-    public appService: AppService,
-    public activeModal: NgbActiveModal,
+    public appService: AppService
   ) {
     this.toastr.overlayContainer = undefined;
     this.spinner.show();
@@ -70,13 +69,13 @@ export class GpTimerModalComponent implements OnInit {
   filterArray: GPTimerDetail[];
   selectedGptimer;
   isLoading = false;
-  displayMessage: string;
   searchText: string;
   disabledSearch = false;
   defaultData = [];
   tdbArr: any;
   dmArr: any;
   userRole: any;
+  defaultFilterArr = [];
 
   ngOnInit() {
     this.userRole = this.authService.getRole();
@@ -90,6 +89,7 @@ export class GpTimerModalComponent implements OnInit {
         if (data["status"] == 200) {
 
           this.filterArray = data["data"].rows;
+          this.defaultFilterArr = [...this.filterArray];
           
           for (const item of this.filterArray) {                        
             let gpDetail = {};
@@ -107,25 +107,21 @@ export class GpTimerModalComponent implements OnInit {
             this.gpTimerChannelsDetail.push(gpDetail);
           }
           this.defaultData = [...this.gpTimerChannelsDetail];
-          if (!this.gpTimerChannelsDetail || this.gpTimerChannelsDetail.length == 0) {
-            this.displayMessage = "No Data To Display";
-          }
           this.isLoading = true;
           setTimeout(() => {
             this.spinner.hide();
           }, 1000);
         } else {
           this.spinner.hide();
-          this.displayMessage = "No Data To Display";
         }
       });
   }
 
-  assignGpTimer(i: number) {    
+  assignGpTimer(i: number) {        
     this.selectedGptimer = this.filterArray.filter(
       (item, index) => index === i
     );
-    let selected = JSON.parse(JSON.stringify(this.selectedGptimer[0]))
+    let selected = JSON.parse(JSON.stringify(this.selectedGptimer[0]));    
     const options: NgbModalOptions = {
       backdropClass: '.app-session-modal-backdrop',
       windowClass: '.app-session-modal-window',
@@ -161,13 +157,17 @@ export class GpTimerModalComponent implements OnInit {
   }
 
   filter() {
+    this.searchText = this.searchText.replace(/\s/g, '');
     if (this.searchText.length > 0) {
       this.gpTimerChannelsDetail = this.defaultData.filter((data) =>  JSON.stringify(data).toLowerCase().indexOf(this.searchText.toLowerCase()) !== -1);
       this.filterArray = this.filterArray.filter((data) =>  JSON.stringify(data).toLowerCase().indexOf(this.searchText.toLowerCase()) !== -1);
+      if (this.filterArray.length === 0) {
+        this.filterArray = this.defaultFilterArr;
+      }
     }
   }
 
-  onChanges(value: string): void {     
+  onChanges(value: string): void {         
     if (value.length > 0) {
       this.disabledSearch = true;
     }  else if (value.length == 0) {
@@ -176,14 +176,9 @@ export class GpTimerModalComponent implements OnInit {
   }
 
   clearFilter() {
+    this.disabledSearch = false;
     this.searchText = '';
     this.gpTimerChannelsDetail = this.defaultData.filter((data) =>  JSON.stringify(data).toLowerCase().indexOf(this.searchText.toLowerCase()) !== -1);  
     this.filterArray = this.filterArray.filter((data) =>  JSON.stringify(data).toLowerCase().indexOf(this.searchText.toLowerCase()) !== -1);  
   }
-
-  closeModal() {
-    this.activeModal.close();
-    this.spinner.hide();
-  }
-
 }
