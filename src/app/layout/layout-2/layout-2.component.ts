@@ -14,7 +14,7 @@ export class Layout2Component implements AfterViewInit, OnDestroy {
 
   constructor(private layoutService: LayoutService) {
     this.screenWidth = window.innerWidth +'px';
-    this.screenHeight = window.innerHeight + 'px';
+    this.screenHeight = window.innerHeight +'px';
   }
 
   ngAfterViewInit() {

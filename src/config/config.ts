@@ -48,7 +48,7 @@ export class Config {
 
     CELL_VALUE_OFF = ['Off','OFF', 'AHU OFF', 'AHU Off', 'OF Off', 'OF OFF'];
 
-    CELL_VALUE_TRIP = ['AHU Trip', 'AHU TRIP', 'CLOG', 'Clog', 'OF TRIP', 'OF Trip'];
+    CELL_VALUE_TRIP = ['AHU Trip', 'AHU TRIP', 'CLOG', 'Clog', 'OF TRIP', 'OF Trip', 'DIRTY', 'Dirty'];
 
     CELL_VALUE_NORMAL = ['Normal', 'NORMAL'];
 
@@ -58,7 +58,7 @@ export class Config {
 
     cell_colour_TRIP = "#f52525"; // Red
 
-    cell_colour_NORMAL = "#122aff"; // Blue
+    cell_colour_NORMAL = "#1275ff"; // Blue
 
     /* MxGraph Flow Animation */
     FLOW_TYPE = ['flow_1','flow_2'];

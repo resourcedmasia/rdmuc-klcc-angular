@@ -25,6 +25,8 @@ import { ReadActiveAlarmComponent } from './read-active-alarm/read-active-alarm.
 import { CdkDragDrop, moveItemInArray } from "@angular/cdk/drag-drop";
 import { DetailGraphComponent } from '../visualization/detail-graph/detail-graph.component' ;
 import { LZStringService } from 'ng-lz-string';
+import Dexie from 'dexie';
+import { Graph } from '../../db/graph';
 
 
 
@@ -154,7 +156,11 @@ export class VisualizationComponent implements OnInit, OnDestroy {
   fileUploadEvent: any;
   isDisabledCenter = false;
   landingId: number;
-  audio: any;;
+  audio: any;
+
+  db: any;
+  newGraph: Graph = new Graph("", "");
+  rowStorage: Graph[] = [];
 
 
   // Add / Edit Graph Configuration Form
@@ -249,6 +255,10 @@ export class VisualizationComponent implements OnInit, OnDestroy {
     this.isUploadedFile = false;
     this.alarmSound = false;
     this.stopAlarmAudio();
+
+    // IndexDB
+    this.makeDatabase();
+    this.connectToDatabase();
     
 
     // Retrieve stored mxGraphs from database and populate dropdown selection
@@ -851,97 +861,15 @@ export class VisualizationComponent implements OnInit, OnDestroy {
 
     this.temp_mxgraph_name = event.mxgraph_name;
     
-
-    // Retrieve Link Mapping by Graph ID
-    await this.restService.postData("readLinkMapping", this.authService.getToken(), {
-      id: event.Id
-    }).toPromise().then(data => {
-      if (data["status"] == 200) {
-    
-          let linkMapping = data["data"].rows;          
-          
-          // Push Link Mapping to populate Read Configuration fields
-          for (let i = 0; i < linkMapping.length; i++) {
-            this.linkMappingReadConfig=[...this.linkMappingReadConfig,linkMapping[i]];
-          }
-      }
-    });
-
-    /// Retrieve Navigation Link by Graph ID
-    await this.restService.postData("getNavLink", this.authService.getToken(), {
-      mxgraph_id: event.Id
-    }).toPromise().then(async data => {
-      if (data["status"] == 200) {
-          let result = data["data"].rows;
-          let tempArrId = result.map(e => e.target_mxgraph_id);
-          this.restService.postData("getMxGraphCodeNavLink", this.authService.getToken(), {
-              arrId: tempArrId
-          }).subscribe((data: any) => {
-              if (data["status"] == 200) {
-                  let response = data["data"].rows;
-                  if(response !== null && response !== undefined) {
-                    for (let i = 0; i < result.length; i++) {
-                      this.navigationLink = [...this.navigationLink, result[i]];
-                      if((this.navigationLink[i].cell_id).includes("-")){
-                        var tempCellId = this.navigationLink[i].cell_id;
-                        tempCellId = tempCellId.split("-");
-                        tempCellId = tempCellId[1];
-                        this.navigationLink[i].split_cell_id = tempCellId;
-                      }
-                      else {
-                        var tempCellId = this.navigationLink[i].cell_id;
-                        this.navigationLink[i].split_cell_id = tempCellId;
-                      }
-                  }
-                  let responseArr = response.map(({
-                      Id,
-                      mxgraph_name
-                  }) => ({
-                      target_mxgraph_id: Id,
-                      mxgraph_name: mxgraph_name
-                  }));
-                  this.navigationLink = [...this.navigationLink.map((item, i) => Object.assign({}, item, responseArr[i]))];  
-                  }
-              }
-          });
-      }
-    });
-
-    // Retrieve Flow Link by Graph ID
-    await this.restService.postData("getFlowLink", this.authService.getToken(), {
-      mxgraph_id: event.Id
-    }).toPromise().then(data => {
-      if (data["status"] == 200) {
-    
-          let flowLink = data["data"].rows;
-          
-          // Push flowLink into array
-          for (let i = 0; i < flowLink.length; i++) {
-            this.flowLink=[...this.flowLink,flowLink[i]];
-            if((this.flowLink[i].cell_id).includes("-")){
-              var tempCellId = this.flowLink[i].cell_id;
-              tempCellId = tempCellId.split("-");
-              tempCellId = tempCellId[1];
-              this.flowLink[i].split_cell_id = tempCellId;
-            }
-            else {
-              var tempCellId = this.flowLink[i].cell_id;
-              this.flowLink[i].split_cell_id = tempCellId;
-            }
-          }
-      }
-    });
-    
     //Get GPTimerChannel
     // await this.getGPTimerChannels();
 
     // Clear the existing graph
     this.graph.getModel().clear();
 
-    var graphStorage = localStorage.getItem(this.appService.config.siteName+"/graph/"+event.Id);
+    var graphStorage = await this.db.graph.get(this.appService.config.siteName+"/graph/"+event.Id);
     if(graphStorage && graphStorage !== undefined){
-      graphStorage = this.LZString.decompress(graphStorage);
-      var parsedGraph = JSON.parse(graphStorage);
+      var parsedGraph = JSON.parse(graphStorage.code);
       let doc = mxUtils.parseXml(parsedGraph.mxgraph_code);
           this.buildGraph(doc,event);
     }
@@ -957,7 +885,11 @@ export class VisualizationComponent implements OnInit, OnDestroy {
           mxgraphData = data["data"].rows[0];
           this.mxgraphData = data["data"].rows[0];
           try{
-            localStorage.setItem(this.appService.config.siteName+"/graph/"+event.Id,this.LZString.compress(JSON.stringify(mxgraphData)));
+            var graphStorage = {
+              name: this.appService.config.siteName+"/graph/"+event.Id,
+              code: JSON.stringify(mxgraphData)
+            }
+            this.addRow(graphStorage);
             let doc = mxUtils.parseXml(mxgraphData["mxgraph_code"]);
             this.buildGraph(doc,event); 
           }
@@ -969,6 +901,88 @@ export class VisualizationComponent implements OnInit, OnDestroy {
       });
    }
   
+  }
+
+  async initializeGraphData(event) {
+        /// Retrieve Navigation Link by Graph ID
+        await this.restService.postData("getNavLink", this.authService.getToken(), {
+          mxgraph_id: event.Id
+        }).toPromise().then(async data => {
+          if (data["status"] == 200) {
+              let result = data["data"].rows;
+              let tempArrId = result.map(e => e.target_mxgraph_id);
+              this.restService.postData("getMxGraphCodeNavLink", this.authService.getToken(), {
+                  arrId: tempArrId
+              }).subscribe((data: any) => {
+                  if (data["status"] == 200) {
+                      let response = data["data"].rows;
+                      if(response !== null && response !== undefined) {
+                        for (let i = 0; i < result.length; i++) {
+                          this.navigationLink = [...this.navigationLink, result[i]];
+                          if((this.navigationLink[i].cell_id).includes("-")){
+                            var tempCellId = this.navigationLink[i].cell_id;
+                            tempCellId = tempCellId.split("-");
+                            tempCellId = tempCellId[1];
+                            this.navigationLink[i].split_cell_id = tempCellId;
+                          }
+                          else {
+                            var tempCellId = this.navigationLink[i].cell_id;
+                            this.navigationLink[i].split_cell_id = tempCellId;
+                          }
+                      }
+                      let responseArr = response.map(({
+                          Id,
+                          mxgraph_name
+                      }) => ({
+                          target_mxgraph_id: Id,
+                          mxgraph_name: mxgraph_name
+                      }));
+                      this.navigationLink = [...this.navigationLink.map((item, i) => Object.assign({}, item, responseArr[i]))];  
+                      }
+                  }
+              });
+          }
+        });
+    
+        // Retrieve Flow Link by Graph ID
+        await this.restService.postData("getFlowLink", this.authService.getToken(), {
+          mxgraph_id: event.Id
+        }).toPromise().then(data => {
+          if (data["status"] == 200) {
+        
+              let flowLink = data["data"].rows;
+              
+              // Push flowLink into array
+              for (let i = 0; i < flowLink.length; i++) {
+                this.flowLink=[...this.flowLink,flowLink[i]];
+                if((this.flowLink[i].cell_id).includes("-")){
+                  var tempCellId = this.flowLink[i].cell_id;
+                  tempCellId = tempCellId.split("-");
+                  tempCellId = tempCellId[1];
+                  this.flowLink[i].split_cell_id = tempCellId;
+                }
+                else {
+                  var tempCellId = this.flowLink[i].cell_id;
+                  this.flowLink[i].split_cell_id = tempCellId;
+                }
+              }
+          }
+        });
+
+        // Retrieve Link Mapping by Graph ID
+        await this.restService.postData("readLinkMapping", this.authService.getToken(), {
+          id: event.Id
+        }).toPromise().then(data => {
+          if (data["status"] == 200) {
+        
+              let linkMapping = data["data"].rows;          
+              
+              // Push Link Mapping to populate Read Configuration fields
+              for (let i = 0; i < linkMapping.length; i++) {
+                this.linkMappingReadConfig=[...this.linkMappingReadConfig,linkMapping[i]];
+              }
+          }
+        });
   }
 
   async buildGraph(doc,event) {
@@ -985,13 +999,16 @@ export class VisualizationComponent implements OnInit, OnDestroy {
         }
         
         this.cells = cells;
+
+        this.graph.addCells(cells); 
+
+        // Stops loading indicator  
+        this.loadingIndicator = false;  
+
+        await this.initializeGraphData(event);
      
         // Iterate read config field and change value of cells
         await this.generateCells(cells) 
-        // Stops loading indicator  
-        this.loadingIndicator = false;  
-        this.graph.addCells(cells);  
-        this.graph.refresh();
 
         this.animateState(cells);
 
@@ -2861,6 +2878,39 @@ export class VisualizationComponent implements OnInit, OnDestroy {
       this.alarmSound = false;
     }
   }
+
+  makeDatabase(): void {
+    this.db = new Dexie('GraphDatabase');
+    this.db.version(1).stores({
+      graph: 'name, code'
+    });
+    this.loadRows();
+  }
+  
+  connectToDatabase(): void {
+    this.db.open().catch((error) => {
+      alert("Error during connecting to database : " + error);
+    });
+  }
+  
+  clearRows(): void {
+    this.db.graph.clear().then(result => console.log(result));
+    this.loadRows();
+  }
+  
+  loadRows(): void {
+    this.db.graph.toArray().then(p => this.rows = p);
+  }
+  
+  addRow(graph: Graph): void {
+    this.db.graph.add({
+      name: graph.name,
+      code: graph.code
+    });
+  
+    this.loadRows();
+  }
+  
 
 }
 

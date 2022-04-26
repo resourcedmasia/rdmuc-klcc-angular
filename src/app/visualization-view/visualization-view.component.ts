@@ -19,6 +19,9 @@ import { ReadOnlyGptimerModalComponent } from '../visualization-user/read-only-g
 import { ReadActiveAlarmComponent } from '../visualization/read-active-alarm/read-active-alarm.component';
 import { DetailGraphComponent } from '../visualization/detail-graph/detail-graph.component' ;
 import { LZStringService } from 'ng-lz-string';
+import Dexie from 'dexie';
+import { Graph } from '../../db/graph';
+import { GpTimerModalComponent } from '../visualization/gp-timer-modal/gp-timer-modal.component';
 
 declare var mxUtils: any;
 declare var mxCodec: any;
@@ -136,6 +139,10 @@ export class VisualizationViewComponent implements OnInit, OnDestroy {
   isMouseHover: any;
   audio: any;
   alarmSound: any;
+
+  db: any;
+  newGraph: Graph = new Graph("", "");
+  rowStorage: Graph[] = [];
   
 
 
@@ -216,6 +223,10 @@ export class VisualizationViewComponent implements OnInit, OnDestroy {
     this.alarmSound = false;
     this.stopAlarmAudio();
     this.fullScreenEvent();
+
+    // IndexDB
+    this.makeDatabase();
+    this.connectToDatabase();
 
     // Retrieve stored mxGraphs from database and populate dropdown selection
     this.getMxGraphList();
@@ -331,6 +342,15 @@ export class VisualizationViewComponent implements OnInit, OnDestroy {
 
     this.changeCellColour(this.cells);
     this.animateState(this.cells);
+  }
+
+  gpTimer() {
+    let parent = this.graph.getDefaultParent();
+    var custom1 = new Object();
+    custom1[mxConstants.STYLE_SHAPE] = 'image';
+    custom1[mxConstants.STYLE_IMAGE] = '../../assets/img/clock.png';
+    this.graph.getStylesheet().putCellStyle('customstyle1', custom1);
+    this.graph.insertVertex(parent,"gptimer",null,10,8,58,58,'customstyle1',false)
   }
 
   getActiveAlarm() {
@@ -524,24 +544,51 @@ export class VisualizationViewComponent implements OnInit, OnDestroy {
 
     this.temp_mxgraph_name = event.mxgraph_name;
     
+    //Get GPTimerChannel
+    // await this.getGPTimerChannels();
 
-    // Retrieve Link Mapping by Graph ID
-    this.restService.postData("readLinkMapping", this.authService.getToken(), {
-      id: event.Id
-    }).toPromise().then(data => {
-      if (data["status"] == 200) {
-    
-          let linkMapping = data["data"].rows;
-          
-          // Push Link Mapping to populate Read Configuration fields
-          for (let i = 0; i < linkMapping.length; i++) {
-            this.linkMappingReadConfig=[...this.linkMappingReadConfig,linkMapping[i]];
+    // Clear the existing graph
+    this.graph.getModel().clear();
+
+    var graphStorage = await this.db.graph.get(this.appService.config.siteName+"/graph/"+event.Id);
+    if(graphStorage && graphStorage !== undefined){
+      var parsedGraph = JSON.parse(graphStorage.code);
+      let doc = mxUtils.parseXml(parsedGraph.mxgraph_code);
+          this.buildGraph(doc,event);
+    }
+    else{
+      // Retrieve graph XML by ID
+      await this.restService.postData("getMxGraphCodeByID", this.authService.getToken(), {
+        id: event.Id
+      }).toPromise().then(async data => {
+        this.mxgraphData = [];
+        let mxgraphData;
+        // Success
+        if (data["status"] == 200) {
+          mxgraphData = data["data"].rows[0];
+          this.mxgraphData = data["data"].rows[0];
+          try{
+            var graphStorage = {
+              name: this.appService.config.siteName+"/graph/"+event.Id,
+              code: JSON.stringify(mxgraphData)
+            }
+            this.addRow(graphStorage);
+            let doc = mxUtils.parseXml(mxgraphData["mxgraph_code"]);
+            this.buildGraph(doc,event);  
           }
-      }
-    });
+          catch {
+            let doc = mxUtils.parseXml(mxgraphData["mxgraph_code"]);
+            this.buildGraph(doc,event); 
+          } 
+        }
+      });
+   }
+    
+  }
 
+  async initializeGraphData(event) {
     /// Retrieve Navigation Link by Graph ID
-    this.restService.postData("getNavLink", this.authService.getToken(), {
+    await this.restService.postData("getNavLink", this.authService.getToken(), {
     mxgraph_id: event.Id
     }).toPromise().then(async data => {
     if (data["status"] == 200) {
@@ -594,44 +641,20 @@ export class VisualizationViewComponent implements OnInit, OnDestroy {
               }
           }
         });
-    
-    //Get GPTimerChannel
-    // await this.getGPTimerChannels();
-
-    // Clear the existing graph
-    this.graph.getModel().clear();
-
-    var graphStorage = localStorage.getItem(this.appService.config.siteName+"/graph/"+event.Id);
-    if(graphStorage && graphStorage !== undefined){
-      graphStorage = this.LZString.decompress(graphStorage);
-      var parsedGraph = JSON.parse(graphStorage);
-      let doc = mxUtils.parseXml(parsedGraph.mxgraph_code);
-          this.buildGraph(doc,event);
-    }
-    else{
-      // Retrieve graph XML by ID
-      await this.restService.postData("getMxGraphCodeByID", this.authService.getToken(), {
-        id: event.Id
-      }).toPromise().then(async data => {
-        this.mxgraphData = [];
-        let mxgraphData;
-        // Success
-        if (data["status"] == 200) {
-          mxgraphData = data["data"].rows[0];
-          this.mxgraphData = data["data"].rows[0];
-          try{
-            localStorage.setItem(this.appService.config.siteName+"/graph/"+event.Id,this.LZString.compress(JSON.stringify(mxgraphData)));
-            let doc = mxUtils.parseXml(mxgraphData["mxgraph_code"]);
-            this.buildGraph(doc,event); 
+        // Retrieve Link Mapping by Graph ID
+        await this.restService.postData("readLinkMapping", this.authService.getToken(), {
+          id: event.Id
+        }).toPromise().then(data => {
+          if (data["status"] == 200) {
+        
+              let linkMapping = data["data"].rows;
+              
+              // Push Link Mapping to populate Read Configuration fields
+              for (let i = 0; i < linkMapping.length; i++) {
+                this.linkMappingReadConfig=[...this.linkMappingReadConfig,linkMapping[i]];
+              }
           }
-          catch {
-            let doc = mxUtils.parseXml(mxgraphData["mxgraph_code"]);
-            this.buildGraph(doc,event); 
-          } 
-        }
-      });
-   }
-    
+        })
   }
 
   async buildGraph(doc,event) {
@@ -647,15 +670,19 @@ export class VisualizationViewComponent implements OnInit, OnDestroy {
 
           this.cells = cells;
 
-          // Iterate read config field and change value of cells
-          await this.generateCells(cells);
-          
           this.graph.addCells(cells);
-          
+
+          this.graph.fit();
+
           // Stops loading indicator  
           this.loadingIndicator = false; 
           // Stops loading spinner in Table
           this.spinner.hide();
+
+          await this.initializeGraphData(event);
+          // Iterate read config field and change value of cells
+          await this.generateCells(cells);
+          
           this._cdRef.detectChanges(); 
 
           this.changeCellColour(this.cells);
@@ -663,14 +690,14 @@ export class VisualizationViewComponent implements OnInit, OnDestroy {
           // GraphDetail Overlay
           this.addCellOverlay(cells);
 
-          // Get Active Alarm
-          this.getActiveAlarm();
-
           // Disable mxGraph editing
           this.graph.setEnabled(false);
 
           this.config.asyncLocalStorage.setItem('mxgraph_id', event.Id);
           this.addClickListener();
+
+          // Get Active Alarm
+          this.getActiveAlarm();
 
           this.centerGraph();
         
@@ -882,6 +909,9 @@ export class VisualizationViewComponent implements OnInit, OnDestroy {
                     if(tmp.cell.id == "alarm-id") {
                       this.dragEnter(me.getEvent(), this.currentState, "Alarm", tmp, null, null);
                     }
+                    if(tmp.cell.id == "gptimer") {
+                      this.dragEnter(me.getEvent(), this.currentState, "Timer", tmp, null, null);
+                    }
                     for(let i = 0; i < tempNavArray.length; i++) {
                       if (tempNavArray[i].cell_id == tmp.cell.id) {
                         this.dragEnter(me.getEvent(), this.currentState, "Link", tmp, null, null);
@@ -921,6 +951,14 @@ export class VisualizationViewComponent implements OnInit, OnDestroy {
               thisContext.graph.getTooltipForCell = function(cell)
                 {
                   return thisContext.getAllActiveAlarms.length + ' Active Alarms.';
+                } 
+            }
+            else if (parameter == "Timer" && cellStyle == "image") {
+              thisContext.currentState = this.currentState
+              this.currentState.setCursor('pointer');
+              thisContext.graph.getTooltipForCell = function(cell)
+                {
+                  return 'GPTimer Channels.';
                 } 
             }
             else if (parameter == "Link" && cellStyle == "image") {
@@ -994,6 +1032,22 @@ export class VisualizationViewComponent implements OnInit, OnDestroy {
           };
           const modalRef = modalService.open(ReadActiveAlarmComponent, options);
           modalRef.componentInstance.row = row;
+        }
+
+        if(cellId == "gptimer") {
+          let row = thisContext.getAllActiveAlarms;
+          const options: NgbModalOptions = {
+            backdropClass: '.app-session-modal-backdrop',
+            windowClass: '.app-session-modal-window',
+            centered: true,
+            container: '#fullScreen',
+            size: 'lg',
+          };
+          const modalRef = modalService.open(GpTimerModalComponent, options);
+          modalRef.componentInstance.row = row;
+          modalRef.result.then((result) => {}).catch(err => {
+            thisContext.spinner.hide();
+          })
         }
    
       }
@@ -1664,6 +1718,39 @@ stopAlarmAudio(){
     this.alarmSound = false;
   }
 }
+
+makeDatabase(): void {
+  this.db = new Dexie('GraphDatabase');
+  this.db.version(1).stores({
+    graph: 'name, code'
+  });
+  this.loadRows();
+}
+
+connectToDatabase(): void {
+  this.db.open().catch((error) => {
+    alert("Error during connecting to database : " + error);
+  });
+}
+
+clearRows(): void {
+  this.db.graph.clear().then(result => console.log(result));
+  this.loadRows();
+}
+
+loadRows(): void {
+  this.db.graph.toArray().then(p => this.rows = p);
+}
+
+addRow(graph: Graph): void {
+  this.db.graph.add({
+    name: graph.name,
+    code: graph.code
+  });
+
+  this.loadRows();
+}
+
 
 }
 

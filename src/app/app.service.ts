@@ -25,11 +25,11 @@ export class AppService {
   get config() {
     let config = {
       // Site parameters
-      // siteName: "Public Bank ITTC",
-      // dmURL: "http://172.16.98.111/", // RDM Data Manager URL
+      siteName: "Public Bank ITTC",
+      dmURL: "http://172.16.98.111/", // RDM Data Manager URL
 
-      siteName: "Wisma Genting",
-      dmURL: "http://wismagenting.sites.rdmsite.com/", // RDM Data Manager URL
+      // siteName: "Wisma Genting",
+      // dmURL: "http://wismagenting.sites.rdmsite.com/", // RDM Data Manager URL
   
       // Module config
       moduleWorkOrder: false, // Work Order module
@@ -44,11 +44,10 @@ export class AppService {
       moduleVisualizationUser: true, // mxGraph / visualization module / User 
       moduleVisualizationView: true, // mxGraph / visualization module / View
       moduleGPTimer: true, // gptimer module
-      moduleGuardTour: true, // guard-tour module
+      moduleGuardTour: false, // guard-tour module
       moduleAuditLog: true, // mxGraph / gptimer module
+      moduleTdb: true, // mxGraph / gptimer module
       moduleLoginLog: true, // mxGraph / login log
-      moduleTdb: false, // mxGraph / gptimer module
-      //
       moduleDataEntry: false, // Human data entry module
   
       role1:['superadmin'],

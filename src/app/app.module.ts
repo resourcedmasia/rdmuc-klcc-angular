@@ -78,6 +78,7 @@ import { GuardTourComponent } from './guard-tour/guard-tour.component';
 import { AuditLogComponent } from './audit-log/audit-log.component';
 import { VisualizationViewComponent } from './visualization-view/visualization-view.component';
 import { DetailGraphComponent } from './visualization/detail-graph/detail-graph.component';
+import { GpTimerModalComponent } from './visualization/gp-timer-modal/gp-timer-modal.component';
 import { ChartsModule } from 'ng2-charts';
 import { LZStringModule, LZStringService } from 'ng-lz-string';
 
@@ -139,7 +140,8 @@ const DEFAULT_PERFECT_SCROLLBAR_CONFIG: PerfectScrollbarConfigInterface = {
     GuardTourComponent,
     AuditLogComponent,
     DetailGraphComponent,
-    LoginLogComponent
+    LoginLogComponent,
+    GpTimerModalComponent
   ],
 
   imports: [
@@ -209,7 +211,8 @@ const DEFAULT_PERFECT_SCROLLBAR_CONFIG: PerfectScrollbarConfigInterface = {
     SetGptimerModalComponent,
     AddScheduleModalComponent,
     ReadActiveAlarmComponent,
-    DetailGraphComponent
+    DetailGraphComponent,
+    GpTimerModalComponent
   ]
 })
 export class AppModule { }
