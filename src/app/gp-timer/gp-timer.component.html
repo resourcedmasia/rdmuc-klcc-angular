@@ -44,13 +44,12 @@
               <button type="button" class="btn btn-primary" (click)="assignGpTimer(i)">View</button>
             </td>
           </tr>
-
         </tbody>
       </table>
     </ng-container>
-    <ng-container *ngIf="this.gpTimerChannelsDetail.length == 0">
+    <ng-container  *ngIf="this.gpTimerChannelsDetail.length == 0 ||  this.filterArray.length == 0">
       <div class="no-data">
-        <h6>{{displayMessage}}</h6>
+        <h6>No Data To Display</h6>
       </div>
     </ng-container>
   </div>

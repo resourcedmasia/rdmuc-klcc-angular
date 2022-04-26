@@ -69,13 +69,13 @@ export class GpTimerComponent implements OnInit {
   filterArray: GPTimerDetail[];
   selectedGptimer;
   isLoading = false;
-  displayMessage: string;
   searchText: string;
   disabledSearch = false;
   defaultData = [];
   tdbArr: any;
   dmArr: any;
   userRole: any;
+  defaultFilterArr = [];
 
   ngOnInit() {
     this.userRole = this.authService.getRole();
@@ -89,6 +89,7 @@ export class GpTimerComponent implements OnInit {
         if (data["status"] == 200) {
 
           this.filterArray = data["data"].rows;
+          this.defaultFilterArr = [...this.filterArray];
           
           for (const item of this.filterArray) {                        
             let gpDetail = {};
@@ -106,25 +107,21 @@ export class GpTimerComponent implements OnInit {
             this.gpTimerChannelsDetail.push(gpDetail);
           }
           this.defaultData = [...this.gpTimerChannelsDetail];
-          if (!this.gpTimerChannelsDetail || this.gpTimerChannelsDetail.length == 0) {
-            this.displayMessage = "No Data To Display";
-          }
           this.isLoading = true;
           setTimeout(() => {
             this.spinner.hide();
           }, 1000);
         } else {
           this.spinner.hide();
-          this.displayMessage = "No Data To Display";
         }
       });
   }
 
-  assignGpTimer(i: number) {    
+  assignGpTimer(i: number) {        
     this.selectedGptimer = this.filterArray.filter(
       (item, index) => index === i
     );
-    let selected = JSON.parse(JSON.stringify(this.selectedGptimer[0]))
+    let selected = JSON.parse(JSON.stringify(this.selectedGptimer[0]));    
     const modalRef = this.modalService.open(SetGptimerModalComponent);
     modalRef.componentInstance.row = selected;
     modalRef.result
@@ -153,13 +150,17 @@ export class GpTimerComponent implements OnInit {
   }
 
   filter() {
+    this.searchText = this.searchText.replace(/\s/g, '');
     if (this.searchText.length > 0) {
       this.gpTimerChannelsDetail = this.defaultData.filter((data) =>  JSON.stringify(data).toLowerCase().indexOf(this.searchText.toLowerCase()) !== -1);
       this.filterArray = this.filterArray.filter((data) =>  JSON.stringify(data).toLowerCase().indexOf(this.searchText.toLowerCase()) !== -1);
+      if (this.filterArray.length === 0) {
+        this.filterArray = this.defaultFilterArr;
+      }
     }
   }
 
-  onChanges(value: string): void {     
+  onChanges(value: string): void {         
     if (value.length > 0) {
       this.disabledSearch = true;
     }  else if (value.length == 0) {
@@ -168,6 +169,7 @@ export class GpTimerComponent implements OnInit {
   }
 
   clearFilter() {
+    this.disabledSearch = false;
     this.searchText = '';
     this.gpTimerChannelsDetail = this.defaultData.filter((data) =>  JSON.stringify(data).toLowerCase().indexOf(this.searchText.toLowerCase()) !== -1);  
     this.filterArray = this.filterArray.filter((data) =>  JSON.stringify(data).toLowerCase().indexOf(this.searchText.toLowerCase()) !== -1);  
