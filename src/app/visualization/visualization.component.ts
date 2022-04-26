@@ -256,9 +256,6 @@ export class VisualizationComponent implements OnInit, OnDestroy {
     this.alarmSound = false;
     this.stopAlarmAudio();
 
-    // IndexDB
-    this.makeDatabase();
-    this.connectToDatabase();
     
 
     // Retrieve stored mxGraphs from database and populate dropdown selection
@@ -867,13 +864,6 @@ export class VisualizationComponent implements OnInit, OnDestroy {
     // Clear the existing graph
     this.graph.getModel().clear();
 
-    var graphStorage = await this.db.graph.get(this.appService.config.siteName+"/graph/"+event.Id);
-    if(graphStorage && graphStorage !== undefined){
-      var parsedGraph = JSON.parse(graphStorage.code);
-      let doc = mxUtils.parseXml(parsedGraph.mxgraph_code);
-          this.buildGraph(doc,event);
-    }
-    else{
       // Retrieve graph XML by ID
       await this.restService.postData("getMxGraphCodeByID", this.authService.getToken(), {
         id: event.Id
@@ -884,22 +874,11 @@ export class VisualizationComponent implements OnInit, OnDestroy {
         if (data["status"] == 200) {
           mxgraphData = data["data"].rows[0];
           this.mxgraphData = data["data"].rows[0];
-          try{
-            var graphStorage = {
-              name: this.appService.config.siteName+"/graph/"+event.Id,
-              code: JSON.stringify(mxgraphData)
-            }
-            this.addRow(graphStorage);
             let doc = mxUtils.parseXml(mxgraphData["mxgraph_code"]);
             this.buildGraph(doc,event); 
-          }
-          catch {
-            let doc = mxUtils.parseXml(mxgraphData["mxgraph_code"]);
-            this.buildGraph(doc,event); 
-          } 
         }
       });
-   }
+   
   
   }
 
@@ -2879,38 +2858,6 @@ export class VisualizationComponent implements OnInit, OnDestroy {
     }
   }
 
-  makeDatabase(): void {
-    this.db = new Dexie('GraphDatabase');
-    this.db.version(1).stores({
-      graph: 'name, code'
-    });
-    this.loadRows();
-  }
-  
-  connectToDatabase(): void {
-    this.db.open().catch((error) => {
-      alert("Error during connecting to database : " + error);
-    });
-  }
-  
-  clearRows(): void {
-    this.db.graph.clear().then(result => console.log(result));
-    this.loadRows();
-  }
-  
-  loadRows(): void {
-    this.db.graph.toArray().then(p => this.rows = p);
-  }
-  
-  addRow(graph: Graph): void {
-    this.db.graph.add({
-      name: graph.name,
-      code: graph.code
-    });
-  
-    this.loadRows();
-  }
-  
 
 }
 
