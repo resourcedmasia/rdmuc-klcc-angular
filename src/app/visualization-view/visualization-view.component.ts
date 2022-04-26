@@ -21,6 +21,7 @@ import { DetailGraphComponent } from '../visualization/detail-graph/detail-graph
 import { LZStringService } from 'ng-lz-string';
 import Dexie from 'dexie';
 import { Graph } from '../../db/graph';
+import { GpTimerModalComponent } from '../visualization/gp-timer-modal/gp-timer-modal.component';
 
 declare var mxUtils: any;
 declare var mxCodec: any;
@@ -341,6 +342,15 @@ export class VisualizationViewComponent implements OnInit, OnDestroy {
 
     this.changeCellColour(this.cells);
     this.animateState(this.cells);
+  }
+
+  gpTimer() {
+    let parent = this.graph.getDefaultParent();
+    var custom1 = new Object();
+    custom1[mxConstants.STYLE_SHAPE] = 'image';
+    custom1[mxConstants.STYLE_IMAGE] = '../../assets/img/clock.png';
+    this.graph.getStylesheet().putCellStyle('customstyle1', custom1);
+    this.graph.insertVertex(parent,"gptimer",null,10,8,58,58,'customstyle1',false)
   }
 
   getActiveAlarm() {
@@ -899,6 +909,9 @@ export class VisualizationViewComponent implements OnInit, OnDestroy {
                     if(tmp.cell.id == "alarm-id") {
                       this.dragEnter(me.getEvent(), this.currentState, "Alarm", tmp, null, null);
                     }
+                    if(tmp.cell.id == "gptimer") {
+                      this.dragEnter(me.getEvent(), this.currentState, "Timer", tmp, null, null);
+                    }
                     for(let i = 0; i < tempNavArray.length; i++) {
                       if (tempNavArray[i].cell_id == tmp.cell.id) {
                         this.dragEnter(me.getEvent(), this.currentState, "Link", tmp, null, null);
@@ -938,6 +951,14 @@ export class VisualizationViewComponent implements OnInit, OnDestroy {
               thisContext.graph.getTooltipForCell = function(cell)
                 {
                   return thisContext.getAllActiveAlarms.length + ' Active Alarms.';
+                } 
+            }
+            else if (parameter == "Timer" && cellStyle == "image") {
+              thisContext.currentState = this.currentState
+              this.currentState.setCursor('pointer');
+              thisContext.graph.getTooltipForCell = function(cell)
+                {
+                  return 'GPTimer Channels.';
                 } 
             }
             else if (parameter == "Link" && cellStyle == "image") {
@@ -1011,6 +1032,22 @@ export class VisualizationViewComponent implements OnInit, OnDestroy {
           };
           const modalRef = modalService.open(ReadActiveAlarmComponent, options);
           modalRef.componentInstance.row = row;
+        }
+
+        if(cellId == "gptimer") {
+          let row = thisContext.getAllActiveAlarms;
+          const options: NgbModalOptions = {
+            backdropClass: '.app-session-modal-backdrop',
+            windowClass: '.app-session-modal-window',
+            centered: true,
+            container: '#fullScreen',
+            size: 'lg',
+          };
+          const modalRef = modalService.open(GpTimerModalComponent, options);
+          modalRef.componentInstance.row = row;
+          modalRef.result.then((result) => {}).catch(err => {
+            thisContext.spinner.hide();
+          })
         }
    
       }

@@ -18,6 +18,7 @@ import { ToastrService, ToastContainerDirective } from 'ngx-toastr';
 import { WriteVisualizationModalComponent } from '../visualization/write-visualization-modal/write-visualization-modal.component';
 import { ReadOnlyGptimerModalComponent } from '../visualization-user/read-only-gptimer-modal/read-only-gptimer-modal.component';
 import { ReadActiveAlarmComponent } from '../visualization/read-active-alarm/read-active-alarm.component';
+import { GpTimerModalComponent } from '../visualization/gp-timer-modal/gp-timer-modal.component';
 import { DetailGraphComponent } from '../visualization/detail-graph/detail-graph.component' ;
 import { LZStringService } from 'ng-lz-string';
 import Dexie from 'dexie';
@@ -345,6 +346,15 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
     this.animateState(this.cells);
   }
 
+  gpTimer() {
+    let parent = this.graph.getDefaultParent();
+    var custom1 = new Object();
+    custom1[mxConstants.STYLE_SHAPE] = 'image';
+    custom1[mxConstants.STYLE_IMAGE] = '../../assets/img/clock.png';
+    this.graph.getStylesheet().putCellStyle('customstyle1', custom1);
+    this.graph.insertVertex(parent,"gptimer",null,10,8,58,58,'customstyle1',false)
+  }
+
   getActiveAlarm() {
     this.restService.postData("getActiveAlarmSoap", this.authService.getToken()).subscribe(data => {  
       // Success
@@ -400,7 +410,7 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
           custom[mxConstants.STYLE_SHAPE] = 'image';
           custom[mxConstants.STYLE_IMAGE] = '../../assets/img/warning.gif';
           this.graph.getStylesheet().putCellStyle('customstyle', custom);
-          this.graph.insertVertex(parent,"alarm-id",null,0,0,70,70,'customstyle',false)
+          this.graph.insertVertex(parent,"alarm-id",null,65,0,70,70,'customstyle',false)
           if(!this.alarmSound){
             this.playAlarmAudio();
           }
@@ -687,6 +697,9 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
           this.config.asyncLocalStorage.setItem('mxgraph_id', event.Id);
           this.addClickListener();
 
+          // GPTimer Modal
+          this.gpTimer();
+
           // Get Active Alarm
           this.getActiveAlarm();
 
@@ -899,6 +912,9 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
                     if(tmp.cell.id == "alarm-id") {
                       this.dragEnter(me.getEvent(), this.currentState, "Alarm", tmp, null, null);
                     }
+                    if(tmp.cell.id == "gptimer") {
+                      this.dragEnter(me.getEvent(), this.currentState, "Timer", tmp, null, null);
+                    }
                     for(let i = 0; i < tempNavArray.length; i++) {
                       if (tempNavArray[i].cell_id == tmp.cell.id) {
                         this.dragEnter(me.getEvent(), this.currentState, "Link", tmp, null, null);
@@ -1006,6 +1022,14 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
               thisContext.graph.getTooltipForCell = function(cell)
                 {
                   return thisContext.getAllActiveAlarms.length + ' Active Alarms.';
+                } 
+            }
+            else if (parameter == "Timer" && cellStyle == "image") {
+              thisContext.currentState = this.currentState
+              this.currentState.setCursor('pointer');
+              thisContext.graph.getTooltipForCell = function(cell)
+                {
+                  return 'GPTimer Channels.';
                 } 
             }
             else if (parameter == "Link" && cellStyle == "image") {
@@ -1131,6 +1155,22 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
           };
           const modalRef = modalService.open(ReadActiveAlarmComponent, options);
           modalRef.componentInstance.row = row;
+        }
+
+        if(cellId == "gptimer") {
+          let row = thisContext.getAllActiveAlarms;
+          const options: NgbModalOptions = {
+            backdropClass: '.app-session-modal-backdrop',
+            windowClass: '.app-session-modal-window',
+            centered: true,
+            container: '#fullScreen',
+            size: 'lg',
+          };
+          const modalRef = modalService.open(GpTimerModalComponent, options);
+          modalRef.componentInstance.row = row;
+          modalRef.result.then((result) => {}).catch(err => {
+            thisContext.spinner.hide();
+          })
         }
    
       }
@@ -1292,6 +1332,7 @@ export class VisualizationUserComponent implements OnInit, OnDestroy {
     }   
         // Re-add the cells with new value
         this.refreshCells(cells);
+        // this.gpTimer();
         this.getActiveAlarm();
     });
   }
