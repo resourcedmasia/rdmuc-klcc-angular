@@ -76,7 +76,6 @@ export class GpTimerComponent implements OnInit {
   tdbArr: any;
   dmArr: any;
   userRole: any;
-  defaultFilterArr = [];
 
   ngOnInit() {
     this.userRole = this.authService.getRole();
@@ -90,7 +89,6 @@ export class GpTimerComponent implements OnInit {
         if (data["status"] == 200) {
 
           this.filterArray = data["data"].rows;
-          this.defaultFilterArr = [...this.filterArray];
           
           for (const item of this.filterArray) {                        
             let gpDetail = {};
@@ -118,10 +116,19 @@ export class GpTimerComponent implements OnInit {
       });
   }
 
-  assignGpTimer(i: number) {        
-    this.selectedGptimer = this.filterArray.filter(
-      (item, index) => index === i
-    );
+  assignGpTimer(name:string, description:string) {       
+    let filterObj = {};
+    filterObj['TdbName'] = name;
+    filterObj['Name'] = description;
+
+    this.selectedGptimer = this.filterArray.filter(function(item) {    
+      for (var key in filterObj) {
+        if (item[key] === undefined || item[key] != filterObj[key])
+          return false;
+      }
+      return true;
+    });
+    
     let selected = JSON.parse(JSON.stringify(this.selectedGptimer[0]));    
     const modalRef = this.modalService.open(SetGptimerComponent);
     modalRef.componentInstance.row = selected;
@@ -154,10 +161,6 @@ export class GpTimerComponent implements OnInit {
     this.searchText = this.searchText.replace(/\s/g, '');
     if (this.searchText.length > 0) {
       this.gpTimerChannelsDetail = this.defaultData.filter((data) =>  JSON.stringify(data).toLowerCase().indexOf(this.searchText.toLowerCase()) !== -1);
-      this.filterArray = this.filterArray.filter((data) =>  JSON.stringify(data).toLowerCase().indexOf(this.searchText.toLowerCase()) !== -1);
-      if (this.filterArray.length === 0) {
-        this.filterArray = this.defaultFilterArr;
-      }
     }
   }
 
@@ -173,6 +176,5 @@ export class GpTimerComponent implements OnInit {
     this.disabledSearch = false;
     this.searchText = '';
     this.gpTimerChannelsDetail = this.defaultData.filter((data) =>  JSON.stringify(data).toLowerCase().indexOf(this.searchText.toLowerCase()) !== -1);  
-    this.filterArray = this.filterArray.filter((data) =>  JSON.stringify(data).toLowerCase().indexOf(this.searchText.toLowerCase()) !== -1);  
   }
 }

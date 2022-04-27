@@ -117,10 +117,19 @@ export class GpTimerModalComponent implements OnInit {
       });
   }
 
-  assignGpTimer(i: number) {        
-    this.selectedGptimer = this.filterArray.filter(
-      (item, index) => index === i
-    );
+  assignGpTimer(name:string, description:string) {        
+    let filterObj = {};
+    filterObj['TdbName'] = name;
+    filterObj['Name'] = description;
+
+    this.selectedGptimer = this.filterArray.filter(function(item) {    
+      for (var key in filterObj) {
+        if (item[key] === undefined || item[key] != filterObj[key])
+          return false;
+      }
+      return true;
+    });
+
     let selected = JSON.parse(JSON.stringify(this.selectedGptimer[0]));    
     const options: NgbModalOptions = {
       backdropClass: '.app-session-modal-backdrop',

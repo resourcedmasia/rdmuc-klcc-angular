@@ -41,13 +41,13 @@
             <td *ngIf="this.appService.config.role1.indexOf(this.userRole) > -1">{{item.outputType}}</td>
             <td *ngIf="this.appService.config.role1.indexOf(this.userRole) > -1">{{item.outputMask}}</td>
             <td>
-              <button type="button" class="btn btn-primary" (click)="assignGpTimer(i)">View</button>
+              <button type="button" class="btn btn-primary" (click)="assignGpTimer(item.tdbName, item.description)">View</button>
             </td>
           </tr>
         </tbody>
       </table>
     </ng-container>
-    <ng-container  *ngIf="this.gpTimerChannelsDetail.length == 0 ||  this.filterArray.length == 0">
+    <ng-container  *ngIf="this.gpTimerChannelsDetail.length == 0">
       <div class="no-data">
         <h6>No Data To Display</h6>
       </div>
