@@ -89,7 +89,6 @@ export class GpTimerModalComponent implements OnInit {
         if (data["status"] == 200) {
 
           this.filterArray = data["data"].rows;
-          this.defaultFilterArr = [...this.filterArray];
           
           for (const item of this.filterArray) {                        
             let gpDetail = {};
@@ -169,10 +168,6 @@ export class GpTimerModalComponent implements OnInit {
     this.searchText = this.searchText.replace(/\s/g, '');
     if (this.searchText.length > 0) {
       this.gpTimerChannelsDetail = this.defaultData.filter((data) =>  JSON.stringify(data).toLowerCase().indexOf(this.searchText.toLowerCase()) !== -1);
-      this.filterArray = this.filterArray.filter((data) =>  JSON.stringify(data).toLowerCase().indexOf(this.searchText.toLowerCase()) !== -1);
-      if (this.filterArray.length === 0) {
-        this.filterArray = this.defaultFilterArr;
-      }
     }
   }
 
@@ -188,6 +183,5 @@ export class GpTimerModalComponent implements OnInit {
     this.disabledSearch = false;
     this.searchText = '';
     this.gpTimerChannelsDetail = this.defaultData.filter((data) =>  JSON.stringify(data).toLowerCase().indexOf(this.searchText.toLowerCase()) !== -1);  
-    this.filterArray = this.filterArray.filter((data) =>  JSON.stringify(data).toLowerCase().indexOf(this.searchText.toLowerCase()) !== -1);  
   }
 }
