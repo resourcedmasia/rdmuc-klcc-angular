@@ -132,7 +132,7 @@ export class AuditLogComponent implements OnInit {
   }
 
   onSelectController(event) {
-    this.router.navigate(['audit-log'], { queryParams: { page: 1 } });
+    this.router.navigate(['graph-log'], { queryParams: { page: 1 } });
     this.selectedAction = null;
     this.selectedGraph = null;
     this.selectedDateValue.nativeElement.value = "";
@@ -145,7 +145,7 @@ export class AuditLogComponent implements OnInit {
   }
 
   onSelectGraph(event) {
-    this.router.navigate(['audit-log'], { queryParams: { page: 1 } });
+    this.router.navigate(['graph-log'], { queryParams: { page: 1 } });
     this.selectedController = null;
     this.selectedAction = null;
     this.selectedDateValue.nativeElement.value = "";
@@ -158,7 +158,7 @@ export class AuditLogComponent implements OnInit {
   }
 
   onSelectAction(event) {
-    this.router.navigate(['audit-log'], { queryParams: { page: 1 } });
+    this.router.navigate(['graph-log'], { queryParams: { page: 1 } });
     this.selectedController = null;
     this.selectedGraph = null;
     this.selectedDateValue.nativeElement.value = "";
@@ -171,7 +171,7 @@ export class AuditLogComponent implements OnInit {
   }
 
   selectDateFn(event) {
-    this.router.navigate(['audit-log'], { queryParams: { page: 1 } });
+    this.router.navigate(['graph-log'], { queryParams: { page: 1 } });
     this.selectedController = null;
     this.selectedGraph = null;
     this.selectedAction = null;
@@ -205,7 +205,7 @@ export class AuditLogComponent implements OnInit {
   }
 
   pageChange(newPage: number) {
-		this.router.navigate(['audit-log'], { queryParams: { page: newPage } });
+		this.router.navigate(['graph-log'], { queryParams: { page: newPage } });
 	}
 
   print(): void {
