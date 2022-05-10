@@ -1,0 +1,156 @@
+<div class="card mb-4 p-3">
+  <h4 class="card-header">
+    <i class="ion ion-md-alert"></i>&nbsp;&nbsp; Current Alarms
+  </h4>
+  <div class="filter">
+    <ngx-spinner style="z-index: 2;" [fullScreen]="false" type="line-scale" size="small" bdColor="rgba(39,39,45,1)"></ngx-spinner>
+    <div style="width: 180px;">
+      <ng-select appendTo="body" placeholder="Controller" [clearable]="false" [items]="controllerCurrentDropdown" [(ngModel)]="selectedCurrentController" (change)="onSelectCurrentController($event)"></ng-select>
+    </div>
+    <button (click)="clearFilter()" class="btn btn-primary btn-filter">Clear</button>
+    <button name="Print" type="button" class="btn btn-default print" (click)="printCurrent()"><i class="ion ion-md-print"></i></button>
+  </div>
+  <div class="scroll-table">
+    <ng-container *ngIf="this.alarmHistoryCurrent.length > 0 && isLoading">
+      <table class="table table-bordered table-hover">
+        <thead>
+          <tr class="table-header">
+            <th>Index</th>
+            <th style="min-width: 120px;">Controller</th>
+            <th>Description</th>
+            <th>Date Occurred
+              <input class="input-date" #selectedDateCurrentOccured (change)="selectCurrentOccuredFn($event)" type="date">
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let item of alarmHistoryCurrent">
+            <td>{{item.serial}}</td>
+            <td>{{item.controller}}</td>
+            <td>{{item.description}}</td>
+            <td>{{item.occurred | date: 'medium'}}</td>
+          </tr>
+        </tbody>
+      </table>
+    </ng-container>
+    <ng-container *ngIf="this.alarmHistoryCurrent.length == 0">
+      <div class="no-data">
+        <h6>{{displayMessage}}</h6>
+      </div>
+    </ng-container>
+  </div>
+</div>
+
+<div class="card mb-4 p-3">
+  <h4 class="card-header">
+    <i class="ion ion-md-alert"></i>&nbsp;&nbsp; Old Alarms
+  </h4>
+  <div class="filter">
+    <ngx-spinner style="z-index: 2;" [fullScreen]="false" type="line-scale" size="small" bdColor="rgba(39,39,45,1)"></ngx-spinner>
+    <div style="width: 180px;">
+      <ng-select appendTo="body" placeholder="Controller" [clearable]="false" [items]="controllerDropdown" [(ngModel)]="selectedController" (change)="onSelectController($event)"></ng-select>
+    </div>
+    <div style="margin-left: 10px;width: 180px">
+      <ng-select appendTo="body" placeholder="Accepted By" [clearable]="false" [items]="acceptedByDropdown" [(ngModel)]="selectedAcceptedBy" (change)="onSelectAcceptedBy($event)"></ng-select>
+    </div>
+    <button (click)="clearFilter()" class="btn btn-primary btn-filter">Clear</button>
+    <button name="Print" type="button" class="btn btn-default print" (click)="print()"><i class="ion ion-md-print"></i></button>
+  </div>
+  <div class="scroll-table">
+    <ng-container *ngIf="this.alarmHistoryDetail.length > 0 && isLoading">
+      <table class="table table-bordered table-hover">
+        <thead>
+          <tr class="table-header">
+            <th>Index</th>
+            <th style="min-width: 120px;">Controller</th>
+            <th>Description</th>
+            <th>Accepted By</th>
+            <th>Date Occurred
+              <input class="input-date" #selectedDateOccured (change)="selectOccuredFn($event)" type="date">
+            </th>
+            <th>Accepted Date
+              <input class="input-date" #selectedDateAccept (change)="selectAcceptFn($event)" type="date">
+            </th>
+            <th>Cleared
+              <input class="input-date" #selectedDateCleared (change)="selectClearedFn($event)" type="date">
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let item of alarmHistoryDetail | paginate: config">
+            <td>{{item.serial}}</td>
+            <td>{{item.controller}}</td>
+            <td>{{item.description}}</td>
+            <td>{{item.acceptedBy}}</td>
+            <td>{{item.occurred | date: 'medium'}}</td>
+            <td>{{item.accepted | date: 'medium'}}</td>
+            <td>{{item.cleared | date: 'medium'}}</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="pagination">
+        <pagination-controls (pageChange)="pageChange($event)"></pagination-controls>
+      </div>
+    </ng-container>
+    <ng-container *ngIf="this.alarmHistoryDetail.length == 0">
+      <div class="no-data">
+        <h6>{{displayMessage}}</h6>
+      </div>
+    </ng-container>
+  </div>
+</div>
+
+<!---------------------------------------------- Alarm History Printable Table -------------------------------------->
+
+<div style="display: none;">
+  <div id="alarm-history-table" class="scroll">
+    <table class="table table-bordered table-hover">
+      <thead>
+        <tr class="table-header">
+          <th>Index</th>
+          <th>Controller</th>
+          <th>Description</th>
+          <th>Accepted By</th>
+          <th>Date Occurred</th>
+          <th>Accepted Date</th>
+          <th>Cleared</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let item of alarmHistoryDetail"> 
+          <td>{{item.serial}}</td>
+          <td>{{item.controller}}</td>
+          <td>{{item.description}}</td>
+          <td>{{item.acceptedBy}}</td>
+          <td>{{item.occurred | date: 'medium'}}</td>
+          <td>{{item.accepted | date: 'medium'}}</td>
+          <td>{{item.cleared | date: 'medium'}}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+
+<div style="display: none;">
+  <div id="alarm-history-current-table" class="scroll">
+    <table class="table table-bordered table-hover">
+      <thead>
+        <tr class="table-header">
+          <th>Index</th>
+          <th>Controller</th>
+          <th>Description</th>
+          <th>Date Occurred</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let item of alarmHistoryCurrent"> 
+          <td>{{item.serial}}</td>
+          <td>{{item.controller}}</td>
+          <td>{{item.description}}</td>
+          <td>{{item.occurred | date: 'medium'}}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

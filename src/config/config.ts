@@ -48,7 +48,7 @@ export class Config {
 
     CELL_VALUE_OFF = ['Off','OFF', 'AHU OFF', 'AHU Off', 'OF Off', 'OF OFF'];
 
-    CELL_VALUE_TRIP = ['AHU Trip', 'AHU TRIP', 'CLOG', 'Clog', 'OF TRIP', 'OF Trip', 'DIRTY', 'Dirty', 'Critical', 'CRITICAL', 'Alarm', 'ALARM'];
+    CELL_VALUE_TRIP = ['TRIP','AHU Trip','AHU TRIP', 'CLOG', 'Clog', 'OF TRIP', 'OF Trip', 'DIRTY', 'Dirty', 'Critical', 'CRITICAL', 'Alarm', 'ALARM'];
 
     CELL_VALUE_NORMAL = ['Normal', 'NORMAL'];
 

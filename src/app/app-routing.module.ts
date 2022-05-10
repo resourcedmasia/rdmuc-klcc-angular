@@ -38,6 +38,7 @@ import { GuardTourComponent } from './guard-tour/guard-tour.component';
 import { AuditLogComponent } from './audit-log/audit-log.component';
 import { TdbComponent } from './tdb/tdb.component';
 import { LoginLogComponent } from './login-log/login-log.component';
+import { AlarmHistoryComponent } from './alarm-history/alarm-history.component';
 
 // *******************************************************************************
 // Routes
@@ -217,6 +218,16 @@ const routes: Routes = [
   {
     path: 'tdb', component: Layout2Component, canActivate: [AuthGuard], runGuardsAndResolvers: 'always', children: [
        { path: '', component: TdbComponent },
+    ],
+    data: {
+        role: ['superadmin']
+      }
+  },
+
+    // alarm log
+  {
+    path: 'alarm-history', component: Layout2Component, canActivate: [AuthGuard], runGuardsAndResolvers: 'always', children: [
+       { path: '', component: AlarmHistoryComponent },
     ],
     data: {
         role: ['superadmin']
