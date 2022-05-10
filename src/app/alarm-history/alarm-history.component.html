@@ -7,7 +7,7 @@
     <div style="width: 180px;">
       <ng-select appendTo="body" placeholder="Controller" [clearable]="false" [items]="controllerCurrentDropdown" [(ngModel)]="selectedCurrentController" (change)="onSelectCurrentController($event)"></ng-select>
     </div>
-    <button (click)="clearFilter()" class="btn btn-primary btn-filter">Clear</button>
+    <button (click)="clearCurrentFilter()" class="btn btn-primary btn-filter">Clear</button>
     <button name="Print" type="button" class="btn btn-default print" (click)="printCurrent()"><i class="ion ion-md-print"></i></button>
   </div>
   <div class="scroll-table">

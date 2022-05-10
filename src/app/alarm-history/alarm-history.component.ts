@@ -28,7 +28,7 @@ export class AlarmHistoryComponent implements OnInit {
   @ViewChild("selectedDateOccured") selectedDateValue: ElementRef;
   @ViewChild("selectedDateAccept") selectedDateAccept: ElementRef;
   @ViewChild("selectedDateCleared") selectedDateCleared: ElementRef;
-  @ViewChild("selectedDateCurrentOccured") selectedDateCurrent: ElementRef;
+  @ViewChild("selectedDateCurrentOccured") selectedDateCurrentOccured: ElementRef;
 
 
   alarmDetail: AlarmList[] = [];
@@ -242,7 +242,7 @@ export class AlarmHistoryComponent implements OnInit {
   clearCurrentFilter() {
     this.getAlarmHistory();
     this.selectedCurrentController = null;
-    this.selectedDateCurrent.nativeElement.value = '';
+    this.selectedDateCurrentOccured.nativeElement.value = "";    
   }
 
   pageChange(newPage: number) {
