@@ -1,0 +1,78 @@
+<ngb-tabset class="nav-tabs-top mb-4">
+    <ngb-tab>
+        <ng-template ngbTabTitle>
+            <h4 style="margin-bottom: 0px !important">
+                Critical Alarms&nbsp;<span class="badge badge-danger">{{ rows_critical.length }}</span>
+            </h4>
+        </ng-template>
+        <ng-template ngbTabContent>
+            <div>
+                <div class="card-ngx-datatable table-responsive">
+                    <ngx-datatable #table style="min-width: 550px"
+                        [rows]="rows_critical"
+                        [loadingIndicator]="loadingIndicator"
+                        [columnMode]="'force'"
+                        [headerHeight]="43"
+                        [footerHeight]="'auto'"
+                        [rowHeight]="'auto'"
+                        [reorderable]="false"
+                        [selectionType]="'row'"
+                        (activate)="onActivate($event)"
+                        [limit]="10">
+                    <ngx-datatable-column name="ID" [maxWidth]="100"></ngx-datatable-column>
+                    <ngx-datatable-column name="Occurred" [maxWidth]="180"></ngx-datatable-column>
+                    <ngx-datatable-column name="Site" prop="siteid"></ngx-datatable-column>
+                    <ngx-datatable-column name="Controller" [maxWidth]="120"></ngx-datatable-column>
+                    <ngx-datatable-column name="Asset" prop="title"></ngx-datatable-column>
+                    <ngx-datatable-column name="Reason"></ngx-datatable-column>
+                    <ngx-datatable-column name="Status" [maxWidth]="120"></ngx-datatable-column>
+                    <ngx-datatable-column name="Action" [maxWidth]="180" prop="action_list">
+                        <ng-template let-row="row" let-value="value" ngx-datatable-cell-template>
+                            <div *ngIf="!row.rule" class="btn btn-xs btn-danger" (click)="addAlarmRule(row, $event)"><i class="ion ion-md-close"></i>&nbsp;&nbsp;<b>NO MATCHING RULE</b></div>
+                            <div *ngIf="row.rule" class="btn btn-xs btn-success" (click)="viewAlarmRule(row, $event)"><i class="ion ion-md-eye"></i>&nbsp;&nbsp;<b>VIEW MITIGATION</b></div>
+                        </ng-template>
+                    </ngx-datatable-column>
+                    </ngx-datatable>
+                </div>
+            </div>
+        </ng-template>
+    </ngb-tab>
+    <ngb-tab>
+        <ng-template ngbTabTitle>
+            <h4 style="margin-bottom: 0px !important">
+                Non-Critical Alarms&nbsp;<span class="badge badge-warning">{{ rows_noncritical.length }}</span>
+            </h4>
+        </ng-template>
+        <ng-template ngbTabContent>
+            <div>
+                <div class="card-ngx-datatable table-responsive">
+                    <ngx-datatable #table style="min-width: 550px"
+                        [rows]="rows_noncritical"
+                        [loadingIndicator]="loadingIndicator"
+                        [columnMode]="'force'"
+                        [headerHeight]="43"
+                        [footerHeight]="'auto'"
+                        [rowHeight]="'auto'"
+                        [reorderable]="false"
+                        [selectionType]="'row'"
+                        (activate)="onActivate($event)"
+                        [limit]="10">
+                    <ngx-datatable-column name="ID" [maxWidth]="100"></ngx-datatable-column>
+                    <ngx-datatable-column name="Occurred" [maxWidth]="180"></ngx-datatable-column>
+                    <ngx-datatable-column name="Site" prop="siteid"></ngx-datatable-column>
+                    <ngx-datatable-column name="Controller" [maxWidth]="120"></ngx-datatable-column>
+                    <ngx-datatable-column name="Asset" prop="title"></ngx-datatable-column>
+                    <ngx-datatable-column name="Reason"></ngx-datatable-column>
+                    <ngx-datatable-column name="Status" [maxWidth]="120"></ngx-datatable-column>
+                    <ngx-datatable-column name="Action" [maxWidth]="180" prop="action_list">
+                        <ng-template let-row="row" let-value="value" ngx-datatable-cell-template>
+                            <div *ngIf="!row.rule" class="btn btn-xs btn-danger" (click)="addAlarmRule(row, $event)"><i class="ion ion-md-close"></i>&nbsp;&nbsp;<b>NO MATCHING RULE</b></div>
+                            <div *ngIf="row.rule" class="btn btn-xs btn-success" (click)="viewAlarmRule(row, $event)"><i class="ion ion-md-eye"></i>&nbsp;&nbsp;<b>VIEW MITIGATION</b></div>
+                        </ng-template>
+                    </ngx-datatable-column>
+                    </ngx-datatable>
+                </div>
+            </div>
+        </ng-template>
+    </ngb-tab>
+</ngb-tabset>

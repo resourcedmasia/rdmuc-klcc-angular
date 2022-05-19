@@ -1,0 +1,54 @@
+<div class="modal-header">
+  <h5 class="modal-title">
+    Edit Graph Details<br>
+    
+  </h5>
+</div>
+<div class="modal-body">
+  <form [formGroup]="createUserForm">
+    <div class="form-group">
+      <label class="form-label">Slave</label>
+      <input type="text" formControlName="username" class="form-control"
+        [class.is-invalid]="createUserForm.get('username').touched && createUserForm.get('username').errors"
+        placeholder="Cell Name" [pattern]="'^[a-zA-Z0-9\_]+$'">
+      <small class="invalid-feedback">
+        This field is required.
+      </small>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Name</label>
+      <input type="text" formControlName="password" class="form-control"
+        [class.is-invalid]="createUserForm.get('password').touched && createUserForm.get('password').errors?.required"
+        placeholder="Slave Name">
+      <small class="invalid-feedback">
+        This field is required.
+      </small>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Value</label>
+      <input type="text" formControlName="name" class="form-control"
+        [class.is-invalid]="createUserForm.get('name').touched && createUserForm.get('name').errors?.required"
+        placeholder="Temperature Value">
+      <small class="invalid-feedback">
+        This field is required.
+      </small>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Units</label>
+      <input type="text" formControlName="email" class="form-control"
+        [class.is-invalid]="createUserForm.get('email').touched && createUserForm.get('email').errors?.required"
+        placeholder="Units">
+      <small class="invalid-feedback">
+        This field is required.
+      </small>
+    </div>
+ 
+
+  </form>
+</div>
+<div class="modal-footer">
+  <button type="button" class="btn btn-default" (click)="activeModal.dismiss('cancel');">Cancel</button>
+  <button type="button" class="btn btn-primary" [disabled]="!createUserForm.valid"
+    (click)="activeModal.dismiss('save'); this.createUser()">Save</button>
+</div>

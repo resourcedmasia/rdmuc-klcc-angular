@@ -1,0 +1,35 @@
+<div class="card">
+    <div class="card-header" style="display: inline-block;">
+      <h4 style="display: inline-block;">Historic Alarms&nbsp;<span class="badge badge-warning">{{ rows.length }}</span></h4>
+      <div class="float-sm-right" style="display: inline-block; padding-right: 10px; width: 550px">
+        <tag-input class="ngx-chips-primary" [(ngModel)]="items" [placeholder]="'Enter search tag ..'" [secondaryPlaceholder]="'Enter search tag ..'" (onAdd)="updateFilter($event)" (onRemove)="updateFilter($event)"></tag-input>
+      </div>
+    </div>
+    <div class="card-ngx-datatable table-responsive">
+      <ngx-datatable #table style="min-width: 550px"
+        [rows]="rows"
+        [loadingIndicator]="loadingIndicator"
+        [columnMode]="'force'"
+        [headerHeight]="43"
+        [footerHeight]="'auto'"
+        [rowHeight]="'auto'"
+        [reorderable]="false"
+        [selectionType]="'row'"
+        [limit]="25">
+        <ngx-datatable-column name="ID" [maxWidth]="100"></ngx-datatable-column>
+        <ngx-datatable-column name="Site" prop="siteid"></ngx-datatable-column>
+        <ngx-datatable-column name="Controller" [maxWidth]="120"></ngx-datatable-column>
+        <ngx-datatable-column name="Asset" prop="title"></ngx-datatable-column>
+        <ngx-datatable-column name="Reason"></ngx-datatable-column>
+        <ngx-datatable-column name="Occurred" [maxWidth]="180"></ngx-datatable-column>
+        <ngx-datatable-column name="Cleared" [maxWidth]="180"></ngx-datatable-column>
+        <ngx-datatable-column name="Serial" [maxWidth]="100"></ngx-datatable-column>
+        <ngx-datatable-column name="Action" [maxWidth]="180" prop="action_list">
+          <ng-template let-row="row" let-value="value" ngx-datatable-cell-template>
+            <div *ngIf="!row.rule" class="btn btn-xs btn-danger" (click)="addAlarmRule(row, $event)"><i class="ion ion-md-close"></i>&nbsp;&nbsp;<b>NO MATCHING RULE</b></div>
+            <div *ngIf="row.rule" class="btn btn-xs btn-success" (click)="viewAlarmRule(row, $event)"><i class="ion ion-md-eye"></i>&nbsp;&nbsp;<b>VIEW MITIGATION</b></div>
+          </ng-template>
+        </ngx-datatable-column>
+      </ngx-datatable>
+    </div>
+  </div>

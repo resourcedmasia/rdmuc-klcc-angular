@@ -1,0 +1,91 @@
+<sidenav [orientation]="orientation" [ngClass]="getClasses()">
+
+  <!-- Brand demo (see src/demo.css) -->
+  <div class="app-brand demo" *ngIf="orientation !== 'horizontal'">
+    <span class="app-brand-logo demo">
+      <img src="assets/img/ibcc_logo_small.svg">
+    </span>
+    <a routerLink="/" class="app-brand-text demo sidenav-text font-weight-normal ml-2">
+      <img src="assets/img/ibcc_textlogo_small_105x22.svg">
+    </a>
+    <a href="javascript:void(0)" class="layout-sidenav-toggle sidenav-link text-large ml-auto" (click)="toggleSidenav()">
+      <i class="ion ion-md-menu align-middle"></i>
+    </a>
+  </div>
+  <div class="sidenav-divider mt-0" style="border: 0px !important" *ngIf="orientation !== 'horizontal'"></div>
+
+  
+  <!-- Inner -->
+  <div class="sidenav-inner" [ngClass]="{ 'py-1': orientation !== 'horizontal' }">
+    <sidenav-router-link icon="ion ion-md-contact" route="/" [active]="isActive('/')">Home</sidenav-router-link>
+
+    <sidenav-menu icon="ion ion-md-today" text="WO Management" [active]="isMenuActive('/workorder')" [open]="isMenuOpen('/workorder')"  *ngIf=this.appService.config.moduleWorkOrder>
+      <sidenav-router-link icon="ion ion-md-today" route="/workorder/dashboard" [active]="isActive('/workorder/dashboard')">WO Dashboard</sidenav-router-link>
+    </sidenav-menu>
+
+    <sidenav-menu icon="ion ion-md-create" text="Data Entry" [active]="isMenuActive('/dataentry')" [open]="isMenuOpen('/dataentry')" *ngIf=this.appService.config.moduleDataEntry>
+      <sidenav-router-link icon="ion ion-md-today" route="/dataentry/facility" [active]="isActive('/dataentry/facility')">Facility Report</sidenav-router-link>
+    </sidenav-menu>
+
+    <sidenav-menu icon="ion ion-md-today" text="Visualization" [active]="isMenuActive('/visualization')" [open]="isMenuOpen('/visualization')" *ngIf=this.appService.config.moduleVisualization>
+      <sidenav-router-link icon="ion ion-md-today" route="/visualization" [active]="isActive('/visualization')">Dashboard</sidenav-router-link>
+    </sidenav-menu>
+
+    <sidenav-menu icon="ion ion-md-paper" text="EOD" [active]="isMenuActive('/eod')" [open]="isMenuOpen('/eod')" *ngIf=this.appService.config.moduleEOD>
+      <sidenav-router-link icon="ion ion-md-paper" route="/eod/generate" [queryParams]="{ type: 'eod'}" [active]="isActive('/eod/generate?type=eod')">EOD Report</sidenav-router-link>
+      <sidenav-router-link icon="ion ion-md-analytics" route="/eod/analytics" [active]="isActive('/eod/analytics')">Data Analytics</sidenav-router-link>
+      <sidenav-router-link icon="ion ion-md-cube" route="/eod/assetperformance" [active]="isActive('/eod/assetperformance')">Asset Performance</sidenav-router-link>
+    </sidenav-menu>
+
+    <sidenav-menu icon="ion ion-md-contact" text="Alarm Management" [active]="isMenuActive('/alarm')" [open]="isMenuOpen('/alarm')" *ngIf=this.appService.config.moduleAlarm>
+      <sidenav-router-link icon="ion ion-md-contact" route="/alarm/dashboard" [active]="isActive('/alarm/dashboard')">Alarm Dashboard</sidenav-router-link>
+      <sidenav-router-link icon="ion ion-md-timer" route="/alarm/historic" [active]="isActive('/alarm/historic')">Alarm History</sidenav-router-link>
+      <sidenav-router-link icon="ion ion-md-paper" route="/alarm/generate" [queryParams]="{ type: 'faultanalysis'}" [active]="isActive('/alarm/generate?type=faultanalysis')">Fault Analysis</sidenav-router-link>
+      <sidenav-router-link icon="ion ion-md-build" route="/alarm/rules" [active]="isActive('/alarm/rules')">Rule Engine</sidenav-router-link>
+    </sidenav-menu>
+  
+    <sidenav-router-link icon="ion ion-md-cube" route="/asset/manage" [active]="isActive('/asset/manage')" *ngIf=this.appService.config.moduleAsset>Asset List</sidenav-router-link>
+
+    <sidenav-menu icon="ion ion-md-flash" text="Energy Management" [active]="isMenuActive('/energy')" [open]="isMenuOpen('/energy')" *ngIf=this.appService.config.moduleEnergy>
+      <sidenav-router-link icon="ion ion-md-flash" route="/energy/dashboard" [active]="isActive('/energy/dashboard')">Energy Dashboard</sidenav-router-link>
+      <sidenav-router-link icon="ion ion-md-speedometer" route="/energy/energyindex" [active]="isActive('/energy/energyindex')">Energy Index</sidenav-router-link>
+      <sidenav-router-link icon="ion ion-md-rainy" route="/energy/carbonemission" [active]="isActive('/energy/carbonemission')">Carbon Emission</sidenav-router-link>
+    </sidenav-menu>
+        
+    <sidenav-router-link icon="ion ion-md-contacts" route="/user/manage" [active]="isActive('/user/manage')">User Management</sidenav-router-link>
+    <sidenav-router-link icon="ion ion-md-globe text-success" (click)="this.modalService.open(accessDMModal)" *ngIf=this.appService.config.moduleAccessDM>Access DM</sidenav-router-link>
+    <sidenav-divider class="mb-1" style="border: 0px !important"></sidenav-divider>
+    <sidenav-router-link icon="ion ion-ios-log-out text-danger" (click)="this.modalService.open(logoutModal)">Logout</sidenav-router-link>
+  </div>
+</sidenav>
+
+<!-- Modals -->
+<ng-template #logoutModal let-c="close" let-d="dismiss">
+  <div class="modal-header">
+    <h5 class="modal-title">
+      <i class="ion ion-ios-log-out text-danger"></i>&nbsp;Logout
+    </h5>
+  </div>
+  <div class="modal-body">
+    Are you sure you want to log out?
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-default" (click)="c('close modal');">Cancel</button>
+    <button type="button" class="btn btn-primary" (click)="c('close modal'); this.router.navigate(['/login'])">Confirm</button>
+  </div>
+</ng-template>
+
+<ng-template #accessDMModal let-c="close" let-d="dismiss">
+  <div class="modal-header">
+    <h5 class="modal-title">
+      <i class="ion ion-md-globe text-success"></i>&nbsp;&nbsp;Access DM
+    </h5>
+  </div>
+  <div class="modal-body">
+    Are you sure you want to access the Data Manager?
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-default" (click)="c('close modal');">Cancel</button>
+    <button type="button" class="btn btn-primary" (click)="c('close modal'); this.accessDM();">Confirm</button>
+  </div>
+</ng-template>

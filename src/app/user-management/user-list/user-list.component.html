@@ -1,0 +1,35 @@
+<div class="card">
+    <h4 class="card-header">
+        Users&nbsp;<span class="badge badge-primary">{{ rows.length }}</span>
+      <button class="float-sm-right btn btn-primary" (click)="openAddUserModal()"><i class="ion ion-md-add"></i>&nbsp;<b>Add New User</b></button>
+      <div class="float-sm-right" style="padding-right: 10px">
+        <input [(ngModel)]="filterkey" class="form-control" type='text' placeholder='Filter by ...' (keyup)='updateFilter($event)'>
+      </div>
+    </h4>
+    <div class="card-ngx-datatable table-responsive">
+      <ngx-datatable #table style="min-width: 550px"
+        [rows]="rows"
+        [loadingIndicator]="loadingIndicator"
+        [columnMode]="'force'"
+        [headerHeight]="43"
+        [footerHeight]="'auto'"
+        [rowHeight]="'auto'"
+        [reorderable]="false"
+        [selectionType]="'row'"
+        [limit]="20"
+        (activate)="onActivate($event)"
+        >
+        <ngx-datatable-column name="Username" [maxWidth]="250" prop="username"></ngx-datatable-column>
+        <ngx-datatable-column name="Email" prop="email"></ngx-datatable-column>
+        <ngx-datatable-column name="Name" prop="name"></ngx-datatable-column>
+        <ngx-datatable-column name="Role" [maxWidth]="120" prop="role"></ngx-datatable-column>
+        <ngx-datatable-column name="Action" [maxWidth]="200" prop="action_list">
+          <ng-template let-row="row" let-value="value" ngx-datatable-cell-template>
+            <div *ngIf="row.role != 'superadmin'" class="btn btn-xs btn-warning" (click)="modifyUserRow(row, $event)"><i class="ion ion-md-create"></i>&nbsp;&nbsp;<b>MODIFY</b></div>
+            &nbsp;
+            <div *ngIf="row.role != 'superadmin'" class="btn btn-xs btn-danger" (click)="deleteUserRow(row, $event)"><i class="ion ion-md-close"></i>&nbsp;&nbsp;<b>DELETE</b></div>
+          </ng-template>
+        </ngx-datatable-column>
+      </ngx-datatable>
+    </div>
+</div>
