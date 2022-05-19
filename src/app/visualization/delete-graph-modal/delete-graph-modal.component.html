@@ -1,0 +1,14 @@
+<div class="modal-header">
+  <h5 class="modal-title">
+    <i class="ion ion-md-information-circle text-danger"></i>&nbsp;Delete Graph<br>
+      <!-- <small class="text-muted">Please enter the user details.</small> -->
+  </h5>
+</div>
+<div class="modal-body">
+  <!-- <div class="ion ion-md-alert"></div> -->
+  <div >Are you sure you want to delete this graph? All of the linked cells will be gone for good. Once deleted, it <b style="color: red;">can't be recovered.</b></div>
+</div>
+<div class="modal-footer">
+  <button type="button" class="btn btn-default" (click)="activeModal.dismiss('no');">No</button>
+  <button type="button" class="btn btn-primary" (click)="activeModal.close('yes');">Yes</button>
+</div>

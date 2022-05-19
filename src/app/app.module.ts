@@ -7,11 +7,11 @@ import { HttpClientModule } from '@angular/common/http';
 // *******************************************************************************
 // NgBootstrap
 
-import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
+import { NgbModule, NgbCalendar } from '@ng-bootstrap/ng-bootstrap';
 
 // *******************************************************************************
 // App
-
+import { NgxPaginationModule } from 'ngx-pagination'; // <-- import the module
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { AppService } from './app.service';
@@ -31,6 +31,7 @@ import { OverviewModule } from './overview/overview.module';
 import { FacilityReportModule } from './facility-report/facility-report.module';
 import { MomentModule } from 'angular2-moment';
 import { ArchwizardModule } from 'ng2-archwizard';
+import { NgxSpinnerModule } from "ngx-spinner";
 
 // REST service
 import { RestService } from './rest.service';
@@ -55,18 +56,56 @@ import { EnergyIndexComponent } from './energy-index/energy-index.component';
 import { CarbonEmissionComponent } from './carbon-emission/carbon-emission.component';
 import { OverviewComponent } from './overview/overview.component';
 import { FacilityReportComponent } from './facility-report/facility-report.component';
-// import { MxgraphEditComponent } from './mxgraph-edit/mxgraph-edit.component';
 
 import { MxgraphEditModule } from '../app/mxgraph-edit/mxgraph-edit.module';
 import { NgxDatatableModule } from '@swimlane/ngx-datatable';
 import { NgSelectModule } from '@ng-select/ng-select';
 import { VisualizationComponent } from './visualization/visualization.component';
+import { VisualizationUserComponent } from './visualization-user/visualization-user.component';
+import { WriteVisualizationModalComponent } from './visualization/write-visualization-modal/write-visualization-modal.component';
+import { VerifyUserModalComponent } from './visualization/verify-user-modal/verify-user-modal.component';
+import { DeleteGraphModalComponent } from './visualization/delete-graph-modal/delete-graph-modal.component'; 
+import { VerifyDeleteGraphModalComponent } from './visualization/verify-delete-graph-modal/verify-delete-graph-modal.component'; 
+import { ReadOnlyGptimerModalComponent } from './visualization-user/read-only-gptimer-modal/read-only-gptimer-modal.component';
+import { SetGptimerModalComponent } from './visualization/set-gptimer-modal/set-gptimer-modal.component';
+import { AddScheduleModalComponent } from './visualization/add-schedule-modal/add-schedule-modal.component';
+import { ReadActiveAlarmComponent } from './visualization/read-active-alarm/read-active-alarm.component';
+import { ToastrModule, ToastContainerModule } from 'ngx-toastr';
+import { DragDropModule } from '@angular/cdk/drag-drop';
+import { ColorPickerModule } from 'ngx-color-picker';
+import { GpTimerComponent } from './gp-timer/gp-timer.component';
+import { SetGptimerComponent } from './gp-timer/set-gptimer/set-gptimer.component';
+import { GuardTourComponent } from './guard-tour/guard-tour.component';
+import { AuditLogComponent } from './audit-log/audit-log.component';
+import { VisualizationViewComponent } from './visualization-view/visualization-view.component';
+import { DetailGraphComponent } from './visualization/detail-graph/detail-graph.component';
+import { GpTimerModalComponent } from './visualization/gp-timer-modal/gp-timer-modal.component';
+import { ChartsModule } from 'ng2-charts';
+import { LZStringModule, LZStringService } from 'ng-lz-string';
 
-import { ToastrModule } from 'ngx-toastr';
 
 
 // *******************************************************************************
 //
+// Config File
+import { Config } from '../config/config';
+import { TdbModule } from './tdb/tdb.module';
+import { LoginLogComponent } from './login-log/login-log.component';
+
+import { PerfectScrollbarModule } from 'ngx-perfect-scrollbar';
+import { PERFECT_SCROLLBAR_CONFIG } from 'ngx-perfect-scrollbar';
+import { PerfectScrollbarConfigInterface } from 'ngx-perfect-scrollbar';
+import { AlarmHistoryComponent } from './alarm-history/alarm-history.component';
+
+
+
+const DEFAULT_PERFECT_SCROLLBAR_CONFIG: PerfectScrollbarConfigInterface = {
+  suppressScrollX: true
+};
+
+
+
+
 
 @NgModule({
   declarations: [
@@ -89,7 +128,25 @@ import { ToastrModule } from 'ngx-toastr';
     CarbonEmissionComponent,
     OverviewComponent,
     VisualizationComponent,
+    GpTimerComponent,
     FacilityReportComponent,
+    WriteVisualizationModalComponent,
+    VerifyUserModalComponent,
+    DeleteGraphModalComponent,
+    VerifyDeleteGraphModalComponent,
+    VisualizationUserComponent,
+    VisualizationViewComponent,
+    ReadOnlyGptimerModalComponent,
+    SetGptimerModalComponent,
+    AddScheduleModalComponent,
+    ReadActiveAlarmComponent,
+    GuardTourComponent,
+    AuditLogComponent,
+    DetailGraphComponent,
+    LoginLogComponent,
+    GpTimerModalComponent,
+    SetGptimerComponent,
+    AlarmHistoryComponent
   ],
 
   imports: [
@@ -101,6 +158,7 @@ import { ToastrModule } from 'ngx-toastr';
     HttpClientModule,
     NgxDatatableModule,
     NgSelectModule,
+    ChartsModule,
 
     // App
     AppRoutingModule,
@@ -110,6 +168,7 @@ import { ToastrModule } from 'ngx-toastr';
     AlarmRulesModule,
     AlarmHistoricModule,
     UserManagementModule,
+    TdbModule,
     MxgraphEditModule,
     ReportGenerationModule,
     EnergyManagementModule,
@@ -121,17 +180,45 @@ import { ToastrModule } from 'ngx-toastr';
     FacilityReportModule,
     ReactiveFormsModule,
     MomentModule,
+    NgxSpinnerModule,
     ArchwizardModule,
-    ToastrModule.forRoot()
+    DragDropModule,
+    ToastrModule.forRoot({
+      preventDuplicates: true,
+    }),
+    ToastContainerModule,
+    ColorPickerModule,
+    NgxPaginationModule,
+    LZStringModule,
+    PerfectScrollbarModule
   ],
   providers: [
     Title,
     AppService,
-    RestService
+    RestService,
+    Config,
+    LZStringService,
+    {
+      provide: PERFECT_SCROLLBAR_CONFIG,
+      useValue: DEFAULT_PERFECT_SCROLLBAR_CONFIG
+    }
   ],
 
   bootstrap: [
     AppComponent
+  ],
+  entryComponents: [
+    WriteVisualizationModalComponent,
+    VerifyUserModalComponent,
+    DeleteGraphModalComponent,
+    VerifyDeleteGraphModalComponent,
+    ReadOnlyGptimerModalComponent,
+    SetGptimerModalComponent,
+    AddScheduleModalComponent,
+    ReadActiveAlarmComponent,
+    DetailGraphComponent,
+    GpTimerModalComponent,
+    SetGptimerComponent
   ]
 })
 export class AppModule { }

@@ -1,3 +1,4 @@
+@import '~ngx-toastr/toastr.css';
 @mixin keyframes($name) {
   @-webkit-keyframes #{$name} {
     @content;
@@ -486,3 +487,65 @@ html:not(.material-style) .material-style-only {
 .data-analytics-clear-btn {
   line-height: 1.2 !important;
 }
+
+
+/*CSS Class for mxGraph Animation*/
+
+.clockwiseSpin {
+  animation-duration: 5s;
+  animation-iteration-count: infinite;
+  animation-name: clockwiseSpin;
+  animation-timing-function: linear;
+  transform-origin: center center;
+  transform-box: fill-box;
+}
+
+@keyframes clockwiseSpin {
+  0%  {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }	
+}
+
+.flow_1 {
+  stroke-dasharray: 8;
+  animation: dash1 0.5s linear;
+  animation-iteration-count: infinite;
+}
+@keyframes dash1 {
+  to {
+    stroke-dashoffset: -16;
+  }
+}
+
+.flow_2 {
+  stroke-dasharray: 8;
+  animation: dash2 0.5s linear;
+  animation-iteration-count: infinite;
+}
+@keyframes dash2 {
+  to {
+    stroke-dashoffset: 16;
+  }
+}
+
+  
+.nav-tabs .nav-link.active {
+  border-bottom-color: #efefef !important;
+  background-color: #efefef !important;
+}
+
+.nav-tabs .nav-link {
+  background-clip: padding-box !important;
+  background-color: #f8f8f8 !important;
+}
+
+.resize-sensor {
+  inset: 0px !important; 
+  position: relative !important;
+}
+
+
+

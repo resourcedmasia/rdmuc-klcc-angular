@@ -1,0 +1,28 @@
+<div class="modal-header">
+  <h5 class="modal-title">
+      Verify User<br>
+      <small class="text-muted">Please enter the user details.</small>
+  </h5>
+</div>
+<div class="modal-body">
+  <form [formGroup]="verifyUserForm">
+    <div class="form-group">
+      <label class="form-label">Username</label>
+      <input type="text" formControlName="username" class="form-control" [class.is-invalid]="verifyUserForm.get('username').touched && verifyUserForm.get('username').errors" placeholder="Username" [pattern]="'^[a-zA-Z0-9\_]+$'">
+      <small class="invalid-feedback">
+        This field is required.
+      </small>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Password</label>
+      <input type="password" formControlName="password" class="form-control" [class.is-invalid]="verifyUserForm.get('password').touched && verifyUserForm.get('password').errors?.required" placeholder="Password">
+      <small class="invalid-feedback">
+        This field is required.
+      </small>
+    </div> 
+  </form>
+</div>
+<div class="modal-footer">
+  <button type="button" class="btn btn-default" (click)="activeModal.dismiss('cancel');">Cancel</button>
+  <button type="button" class="btn btn-primary" [disabled]="!verifyUserForm.valid" (click)="this.verifyUser()">Delete</button>
+</div>

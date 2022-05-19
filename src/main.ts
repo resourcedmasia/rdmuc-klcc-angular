@@ -10,6 +10,7 @@ const options = {
 
 if (environment.production) {
   enableProdMode();
+  window.console.log = function() {};
 } else {
   options.preserveWhitespaces = true;
 }

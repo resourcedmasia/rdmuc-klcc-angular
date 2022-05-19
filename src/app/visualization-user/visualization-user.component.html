@@ -1,0 +1,43 @@
+<div class="row d-flex justify-content-center" id="fullScreen" #fullScreen>
+ 
+  <!-- Graph Selection -->
+  <div class="card mb-4 w-100 h-100" [ngStyle]="{'background-color': cardColour}" >
+    <ngx-spinner style="z-index: 1;" [fullScreen]="false" type = "line-scale" size="default" bdColor="rgba(39,39,45,1)">
+      <!-- <i style="color: white" > Loading... </i> -->
+    </ngx-spinner>
+    <div *ngIf="!isFullScreen" class="pl-4 pr-4"><ng-select style="padding-top: 1rem;" placeholder="Select Graph" [clearable]="false" [items]="selectedMxGraph" bindLabel="mxgraph_name"
+      [(ngModel)]="selectedGraph" (change)="onSelectGraph($event)">
+      </ng-select>
+    </div>
+    <div #container id="container" style="resize:vertical; overflow: auto;"  class="card-body scroll d-flex justify-content-center">
+      <div #graphContainer id="graphContainer"></div>
+      <div toastContainer></div>
+    </div>
+    
+    <p *ngIf="!isFullScreen"></p>
+    <i *ngIf="!isFullScreen"  class="ion ion-ios-expand full-screen" (click)="openFullscreen()"></i> 
+    
+  </div>
+
+  <!-- temporary -->
+  <!-- <div class="card mb-4 w-100 h-100">
+    <h4 class="card-header">
+      Card Background Colour
+    </h4>
+    <div class="card-body" style="padding: 1rem !important;">
+      <input 
+        [value]="colour"
+        (colorPickerClose)="changeCardColour($event)"
+        [style.background]="colour"
+        [cpOutputFormat]="hex"
+        [(colorPicker)]="colour"/>
+     </div>
+  </div> -->
+  
+
+</div>
+
+
+
+
+

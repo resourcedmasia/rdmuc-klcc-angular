@@ -1,0 +1,35 @@
+<div class="modal-header">
+  <h5 class="modal-title">
+      Set Value<br>
+  </h5>
+</div>
+<div class="modal-body">
+  <form [formGroup]="writeForm">
+    <div class="form-group">
+      <label class="form-label"><h4>{{row.slave}} - <i class="font-weight-light">{{row.slave_name}}</i> </h4></label> <br>
+      
+      
+      <!--If type String-->
+      <select (change)="onInputChange($event)" *ngIf="row.slave_detail.Type == 'String'" formControlName="slave_value" class="form-control">
+        <option [selected]="drop==row.slave_value" *ngFor="let drop of dropDownArray">{{drop}}</option>
+      </select>
+
+      <!--If type Time-->
+      <input *ngIf="row.slave_detail.Type == 'Time'" type="text" formControlName="slave_value" class="form-control" [class.is-invalid]="writeForm.get('slave_value').touched && writeForm.get('slave_value').errors?.required">
+  
+      <!--If type numeric-->
+      <!-- <input *ngIf="row.slave_detail.Type == 'Numeric'" onkeydown="return false" type="number" formControlName="slave_value" class="form-control" [class.is-invalid]="writeForm.get('slave_value').touched && writeForm.get('slave_value').errors?.required"  min="{{row.slave_detail.Min}}" max="{{row.slave_detail.Max}}" step="{{row.slave_detail.Step}}"><br>
+       -->
+      <input *ngIf="row.slave_detail.Type == 'Numeric'" type="number" (input)="onInputChange($event)" formControlName="slave_value" class="form-control" [class.is-invalid]="writeForm.get('slave_value').touched && writeForm.get('slave_value').errors?.required"  min="{{row.slave_detail.Min}}" max="{{row.slave_detail.Max}}" step="{{row.slave_detail.Step}}"><br>
+      <input *ngIf="row.slave_detail.Type == 'Numeric'" formControlName="slave_value" (input)="onInputChange($event)" style="width: 100%;" type="range" class="form-range" min="{{row.slave_detail.Min}}" max="{{row.slave_detail.Max}}" step="{{row.slave_detail.Step}}" id="typeRange">
+      
+      <small class="invalid-feedback">
+        This field is required.
+      </small>
+    </div>
+  </form>
+</div>
+<div class="modal-footer">
+  <button type="button" class="btn btn-primary" [disabled]="!writeForm.valid" (click)="verifyUser()">Save</button>
+  <button type="button" class="btn btn-default" (click)="activeModal.dismiss('cancel');">Cancel</button>
+</div>

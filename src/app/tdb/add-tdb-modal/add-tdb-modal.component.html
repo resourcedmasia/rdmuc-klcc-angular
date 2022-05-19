@@ -1,0 +1,35 @@
+<div class="modal-header">
+  <h5 class="modal-title">
+      Add New TDB<br>
+      <small class="text-muted">Please enter the tdb details.</small>
+  </h5>
+</div>
+<div class="modal-body">
+  <form [formGroup]="createTdbForm">
+    <div class="form-group">
+      <label class="form-label">TDB Name</label>
+      <input type="text" formControlName="tdbName" class="form-control" [class.is-invalid]="createTdbForm.get('tdbName').touched && createTdbForm.get('tdbName').errors" placeholder="TDB name">
+      <small class="invalid-feedback">
+        This field is required.
+      </small>
+    </div> 
+    <div class="form-group">
+      <label class="form-label">IP Address</label>
+      <input (input)="onChanges($event.target.value)" type="text" formControlName="ipAddress" class="form-control" [class.is-invalid]="createTdbForm.get('ipAddress').touched && createTdbForm.get('ipAddress').errors" placeholder="IP Address">
+      <small class="invalid-feedback">
+        This field is required.
+      </small>
+    </div> 
+    <p [ngStyle]="{'color':ipAddressText === 'Invalid IP address, Please enter valid IP address' ? 'red' : 'green' }">{{ipAddressText}}</p>
+  </form>
+</div>
+<div class="modal-footer">
+  <ng-container *ngIf="!isIpAddress">
+    <button [disabled]="!createTdbForm.valid" type="button" class="btn btn-primary" (click)="testIpConnection(); changeText(btnText)">{{btnText}}</button>
+  </ng-container>
+  <ng-container *ngIf="isIpAddress">
+    <button [disabled]="!createTdbForm.valid" type="button" class="btn btn-primary" (click)="activeModal.dismiss('save'); createTdb()">Save</button>
+  </ng-container>
+
+  <button type="button" class="btn btn-default" (click)="activeModal.dismiss('cancel');">Cancel</button>
+</div>
