@@ -1,0 +1,53 @@
+<h4 class="font-weight-bold py-3 mb-4"><i class="ion ion-md-today"></i>&nbsp;&nbsp;<span class="text-muted font-weight-light">Data Point /</span> Facility Data Input</h4>
+<hr class="border-light container-m--x mt-0 mb-4" />
+<div class="card">
+    <div class="card-body">
+        <div class="col-sm-9">
+            <div class="mb-4">
+                <h4>Upload Data Point</h4>
+            </div>
+            <div class="mb-4">Please select a facility and services before upload file. All fields are required.</div>
+            <form [formGroup]="uploadDataForm" (ngSubmit)="onSubmit()">
+            <div class="form-group">
+                <label class="form-label">Facility Name</label>
+                <ng-select placeholder="Select Facility" [clearable]="false" [items]="facilityList" bindLabel="name" bindValue="id" formControlName="facilityName"> </ng-select>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Services</label>
+                <ng-select placeholder="Select Services" [clearable]="false" [items]="servicesList" bindLabel="type" formControlName="services"> </ng-select>
+            </div>
+            <div class="form-group">
+                <label class="form-label">File</label>
+                <div class="custom-file">
+                    <input (change)="onFileChange($event)" multiple="false" type="file" class="custom-file-input" />
+                    <label  [ngStyle]="{ 'color': (placeholder !== 'Upload File' ? '#333' : '#aaa') }" class="custom-file-label" for="customFileInput">{{placeholder}}</label>
+                </div>
+                <ng-container *ngIf="hideTabPreview">
+                  <table class="table table-bordered table-hover mt-4">
+                      <thead>
+                          <tr class="table-header">
+                              <th style="width: 20px;">No.</th>
+                              <th>Tabs Sheet Name</th>
+                              <th>Action</th>
+                          </tr>
+                      </thead>
+                      <tbody>
+                          <tr *ngFor="let item of multipleTabData; let i = index">
+                              <td style="width: 20px;">{{i+1}}</td>
+                              <td>{{item.name}}</td>
+                              <td>
+                                  <button type="button" class="btn btn-primary" (click)="previewTable(item.data)">Preview</button>
+                              </td>
+                          </tr>
+                      </tbody>
+                  </table>
+              </ng-container>
+            </div>
+            <div class="text-right">
+              <button type="button" class="btn btn-default" (click)="cancel()">Cancel</button>
+              <button [disabled]="uploadDataForm.invalid" type="submit" class="btn btn-primary">Save</button>
+            </div>
+            </form>
+        </div>
+    </div>
+</div>

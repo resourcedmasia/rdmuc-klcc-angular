@@ -1,0 +1,13 @@
+.custom-file-input.selected:lang(en)::after {
+    content: "" !important;
+  }
+  .custom-file {
+    overflow: hidden;
+  }
+  .custom-file-input {
+    white-space: nowrap;
+  }
+
+.custom-file-input {
+  cursor: pointer;
+}
