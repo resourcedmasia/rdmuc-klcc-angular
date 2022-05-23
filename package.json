@@ -81,6 +81,7 @@
     "ngx-tour-core": "~3.0.0",
     "ngx-tour-ng-bootstrap": "~3.0.0",
     "ngx-trend": "~3.3.1",
+    "node-sass": "^4.12.0",
     "nouislider": "~12.0.0",
     "numeral": "~2.0.6",
     "plyr": "~2.0.18",
@@ -94,6 +95,7 @@
     "text-mask-addons": "~3.8.0",
     "toastr": "~2.1.4",
     "web-animations-js": "~2.3.1",
+    "xlsx": "^0.18.5",
     "zone.js": "~0.8.26"
   },
   "devDependencies": {
