@@ -63,6 +63,8 @@ import { NgSelectModule } from '@ng-select/ng-select';
 import { VisualizationComponent } from './visualization/visualization.component';
 
 import { ToastrModule } from 'ngx-toastr';
+import { DataPointComponent } from './data-point/data-point.component';
+import { DataPointModule } from './data-point/data-point.module';
 
 
 // *******************************************************************************
@@ -90,6 +92,7 @@ import { ToastrModule } from 'ngx-toastr';
     OverviewComponent,
     VisualizationComponent,
     FacilityReportComponent,
+    DataPointComponent
   ],
 
   imports: [
@@ -122,7 +125,8 @@ import { ToastrModule } from 'ngx-toastr';
     ReactiveFormsModule,
     MomentModule,
     ArchwizardModule,
-    ToastrModule.forRoot()
+    ToastrModule.forRoot(),
+    DataPointModule
   ],
   providers: [
     Title,

@@ -31,6 +31,7 @@ import { FacilityReportComponent } from './facility-report/facility-report.compo
 // Authentication
 import { AuthService } from './auth.service';
 import { AuthGuard } from './auth.guard';
+import { DataPointComponent } from './data-point/data-point.component';
 
 // *******************************************************************************
 // Routes
@@ -153,6 +154,13 @@ const routes: Routes = [
   {
     path: 'dataentry/facility', component: Layout2Component, canActivate: [AuthGuard], runGuardsAndResolvers: 'always', children: [
       { path: '', component: FacilityReportComponent },
+    ]
+  },
+
+  // Data point - Facility Data Input 
+  {
+    path: 'data-point/facility', component: Layout2Component, canActivate: [AuthGuard], runGuardsAndResolvers: 'always', children: [
+      { path: '', component: DataPointComponent },
     ]
   },
 
