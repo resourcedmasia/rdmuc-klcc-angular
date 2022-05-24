@@ -29,6 +29,7 @@
 
     <sidenav-menu icon="ion ion-md-archive" text="Data point" [active]="isMenuActive('/dataentry')" [open]="isMenuOpen('/dataentry')" *ngIf=this.appService.config.moduleDataEntry>
       <sidenav-router-link icon="ion ion-md-cloud-upload" route="/data-point/facility" [active]="isActive('/dataentry/facility')">Upload Data Point</sidenav-router-link>
+      <sidenav-router-link icon="ion ion-md-albums" route="/data-point/list" [active]="isActive('/dataentry/list')">List Data Point</sidenav-router-link>
     </sidenav-menu>
 
     <sidenav-menu icon="ion ion-md-today" text="Visualization" [active]="isMenuActive('/visualization')" [open]="isMenuOpen('/visualization')" *ngIf=this.appService.config.moduleVisualization>

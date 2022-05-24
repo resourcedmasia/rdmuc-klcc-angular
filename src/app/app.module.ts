@@ -62,9 +62,10 @@ import { NgxDatatableModule } from '@swimlane/ngx-datatable';
 import { NgSelectModule } from '@ng-select/ng-select';
 import { VisualizationComponent } from './visualization/visualization.component';
 
-import { ToastrModule } from 'ngx-toastr';
+import { ToastContainerModule, ToastrModule } from 'ngx-toastr';
 import { DataPointComponent } from './data-point/data-point.component';
 import { DataPointModule } from './data-point/data-point.module';
+
 
 
 // *******************************************************************************
@@ -125,7 +126,10 @@ import { DataPointModule } from './data-point/data-point.module';
     ReactiveFormsModule,
     MomentModule,
     ArchwizardModule,
-    ToastrModule.forRoot(),
+    ToastrModule.forRoot({
+      preventDuplicates: true,
+    }),
+    ToastContainerModule,    
     DataPointModule
   ],
   providers: [
