@@ -1,0 +1,50 @@
+  <div class="card">
+    <div class="card-body">
+            <div class="mb-4">
+                <h4>Data Point</h4>
+            </div>
+            <ng-container *ngIf="!isLoadTab">
+            <table class="table table-bordered table-hover">
+              <thead>
+                <tr class="table-header">
+                  <th style="min-width: 120px;">File Name</th>
+                  <th style="width: 200px;">Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let item of dataPoint">
+                  <td>{{item.file_name}}</td>
+                  <td>
+                    <button type="button" class="btn btn-primary" (click)="detail(item.file_sheets)">Detail</button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </ng-container>
+          <ng-container *ngIf="isLoadTab">
+            <button class="btn btn-primary header-btn" (click)="redirectBackUrl()">Back</button>
+            <ngb-tabset [destroyOnHide]="false">
+                <ngb-tab *ngFor="let item of dataSheet">
+                  <ng-template ngbTabTitle>{{item.name}}</ng-template>
+                  <ng-template ngbTabContent>
+                    <app-data-point-multiple-tab [rows]="item.data"></app-data-point-multiple-tab>
+                  </ng-template>
+                </ngb-tab>
+            </ngb-tabset>
+          </ng-container>
+        </div>
+  </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
