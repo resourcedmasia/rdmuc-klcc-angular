@@ -16,13 +16,16 @@
                   <td>{{item.file_name}}</td>
                   <td>
                     <button type="button" class="btn btn-primary" (click)="detail(item.file_sheets)">Detail</button>
+                    <button type="button" class="btn btn-danger" (click)="deleteData(item.id)">Delete</button>
                   </td>
                 </tr>
               </tbody>
             </table>
           </ng-container>
           <ng-container *ngIf="isLoadTab">
+            <div class="mb-4">
             <button class="btn btn-primary header-btn" (click)="redirectBackUrl()">Back</button>
+            </div>
             <ngb-tabset [destroyOnHide]="false">
                 <ngb-tab *ngFor="let item of dataSheet">
                   <ng-template ngbTabTitle>{{item.name}}</ng-template>

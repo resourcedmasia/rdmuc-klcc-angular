@@ -1,6 +1,8 @@
 import { Component, OnInit } from '@angular/core';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { AuthService } from '../../auth.service';
 import { RestService } from '../../rest.service';
+import { DeleteModalDataPointComponent } from '../delete-modal-data-point/delete-modal-data-point.component';
 
 @Component({
   selector: 'app-list-data-point',
@@ -14,16 +16,24 @@ export class ListDataPointComponent implements OnInit {
  isLoadTab = false;
 
   constructor(
-    private restService: RestService, private authService: AuthService,
+    private restService: RestService, 
+    private authService: AuthService,
+    private modalService: NgbModal,
   ) { }
 
   ngOnInit() {
+    this.getDataPoint();
+  }
+
+  getDataPoint() {
     this.restService.postData("getDataPoint", this.authService.getToken())
     .subscribe(data => {
       if (data["status"] == 200) {
-        console.log(JSON.parse(data["data"].rows[0].file_sheets));
+        // console.log(JSON.parse(data["data"].rows[0].file_sheets));
         
         this.dataPoint = data["data"].rows;
+        console.log(this.dataPoint);
+        
       }
     });
   }
@@ -35,6 +45,34 @@ export class ListDataPointComponent implements OnInit {
 
   redirectBackUrl() {
     this.isLoadTab = !this.isLoadTab;
+  }
+
+  deleteData(id) {
+    console.log(this.dataPoint);
+    
+    const selectedData = this.dataPoint.filter((el => el.id == id ));
+    console.log(selectedData);
+    
+    let modalRef = this.modalService.open(DeleteModalDataPointComponent);  
+    modalRef.componentInstance.data = selectedData;
+    modalRef.result.then((result) => {
+      if (result == "confirm") {
+        this.deleteDataPoint(id);
+      }
+    }).catch((error) => {
+      if (error == "confirm") {
+        this.deleteDataPoint(id);
+      };
+    });
+  }
+
+  deleteDataPoint(id:number) {
+    this.restService.postData("deleteDataPoint", this.authService.getToken(), {id: id})
+    .subscribe(data => {
+      if (data["status"] == 200) {
+        this.getDataPoint();
+      }
+    });
   }
 
 }
