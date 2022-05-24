@@ -1,0 +1,27 @@
+<div class="card">
+  <h4 class="card-header">
+    <button class="float-sm-right btn btn-primary" (click)="updateRow()"><b>Edit</b></button>
+    <!-- <button class="float-sm-right btn btn-primary" (click)="deleteRow()"><b>Delete</b></button> -->
+
+    <div class="float-sm-right" style="padding-right: 10px">
+      <input [(ngModel)]="filterkey" class="form-control" type='text' placeholder='Filter by ...' (keyup)='updateFilter($event)'>
+    </div>
+  </h4>
+  <div class="card-ngx-datatable table-responsive">
+    <ngx-datatable #table style="min-width: 550px"
+      [rows]="resultRows"
+      [columns]="resultColumns"
+      [loadingIndicator]="loadingIndicator"
+      [columnMode]="'force'"
+      [headerHeight]="43"
+      [footerHeight]="'auto'"
+      [rowHeight]="'auto'"
+      [reorderable]="false"
+      [selectionType]="'row'"
+      [limit]="20"
+      (activate)="onActivate($event)"
+      >
+    </ngx-datatable> 
+  </div>
+</div>
+
