@@ -1,7 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { Router } from '@angular/router';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { ToastrService } from 'ngx-toastr';
 import * as XLSX from 'xlsx';
+import { AuthService } from '../auth.service';
+import { RestService } from '../rest.service';
 import { ModalDataPointComponent } from './modal-data-point/modal-data-point.component';
 
 type AOA = any[][];
@@ -30,19 +34,22 @@ export class DataPointComponent implements OnInit {
 
   // table
   multipleTabData = [];
+  excelName:string;
 
 
   hideTabPreview = false;
 
 
-
-
-
-
   constructor(
     private formBuilder: FormBuilder,
-    private modalService: NgbModal
-  ) { }
+    private modalService: NgbModal,
+    private restService: RestService,
+    private authService: AuthService,
+    private toastr: ToastrService,
+    private router: Router
+  ) {
+    // this.toastr.overlayContainer = undefined;
+   }
 
   ngOnInit() {
     this.createUploadDataForm();
@@ -61,6 +68,7 @@ export class DataPointComponent implements OnInit {
     this.hideTabPreview = true;
     let file = evt.target.files[0];
     this.placeholder = file.name;
+    this.excelName = file.name;
     
     this.uploadDataForm.patchValue({
       fileUpload: evt.target.files[0]
@@ -82,7 +90,6 @@ export class DataPointComponent implements OnInit {
           objSheet['data'] = <AOA>(XLSX.utils.sheet_to_json(tempData, { header: 1 }));
           this.multipleTabData.push(objSheet);
         }
-        console.log(this.multipleTabData);
       } else {
         const objSheet = {};
         objSheet['name'] = wb.SheetNames[0];
@@ -91,6 +98,8 @@ export class DataPointComponent implements OnInit {
         objSheet['data'] = <AOA>(XLSX.utils.sheet_to_json(tempData, { header: 1 }));
         this.multipleTabData.push(objSheet);
       }
+
+      
 
       
       
@@ -111,9 +120,23 @@ export class DataPointComponent implements OnInit {
   }
 
   previewTable(data: any){
-    console.log(data);
-    const modalRef = this.modalService.open(ModalDataPointComponent, {size: 'lg'}); 
+    
+    const modalRef = this.modalService.open(ModalDataPointComponent, {size: 'lg', windowClass: 'modal-xl'}); 
     modalRef.componentInstance.data = data; 
   }
 
+  onSubmit() {
+    this.restService.postData("addDataPoint", this.authService.getToken(), 
+    {facility_name:this.uploadDataForm.value.facilityName, file_name:this.excelName, 
+    file_sheets:JSON.stringify(this.multipleTabData),
+    service_name: this.uploadDataForm.value.services
+    })
+    .subscribe(data => {
+      // Success
+      if (data["status"] == 200) {
+        this.uploadDataForm.reset();
+        this.router.navigate(['/data-point/list'])
+      }
+    });
+  }
 }
