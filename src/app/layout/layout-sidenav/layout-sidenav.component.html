@@ -32,6 +32,10 @@
       <sidenav-router-link icon="ion ion-md-albums" route="/data-point/list" [active]="isActive('/dataentry/list')">List Data Point</sidenav-router-link>
     </sidenav-menu>
 
+    <sidenav-menu icon="ion ion-md-eye" text="CCTV" [active]="isMenuActive('/cctv')" [open]="isMenuOpen('/cctv')" *ngIf=this.appService.config.moduleDataEntry>
+      <sidenav-router-link icon="ion ion-md-list-box" route="/cctv/list" [active]="isActive('/cctv/list')">List Of Event</sidenav-router-link>
+    </sidenav-menu>
+
     <sidenav-menu icon="ion ion-md-today" text="Visualization" [active]="isMenuActive('/visualization')" [open]="isMenuOpen('/visualization')" *ngIf=this.appService.config.moduleVisualization>
       <sidenav-router-link icon="ion ion-md-today" route="/visualization" [active]="isActive('/visualization')">Dashboard</sidenav-router-link>
     </sidenav-menu>
