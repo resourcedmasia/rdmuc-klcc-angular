@@ -33,6 +33,7 @@ import { AuthService } from './auth.service';
 import { AuthGuard } from './auth.guard';
 import { DataPointComponent } from './data-point/data-point.component';
 import { ListDataPointComponent } from './data-point/list-data-point/list-data-point.component';
+import { CctvComponent } from './cctv/cctv/cctv.component';
 
 // *******************************************************************************
 // Routes
@@ -169,6 +170,12 @@ const routes: Routes = [
   {
     path: 'data-point/list', component: Layout2Component, canActivate: [AuthGuard], runGuardsAndResolvers: 'always', children: [
       { path: '', component: ListDataPointComponent },
+    ]
+  },
+
+  {
+    path: 'cctv/list', component: Layout2Component, canActivate: [AuthGuard], runGuardsAndResolvers: 'always', children: [
+      { path: '', component: CctvComponent },
     ]
   },
 

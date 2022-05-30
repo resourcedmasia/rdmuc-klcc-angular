@@ -65,6 +65,7 @@ import { VisualizationComponent } from './visualization/visualization.component'
 import { ToastContainerModule, ToastrModule } from 'ngx-toastr';
 import { DataPointComponent } from './data-point/data-point.component';
 import { DataPointModule } from './data-point/data-point.module';
+import { CctvModule } from './cctv/cctv.module';
 
 
 
@@ -130,7 +131,8 @@ import { DataPointModule } from './data-point/data-point.module';
       preventDuplicates: true,
     }),
     ToastContainerModule,    
-    DataPointModule
+    DataPointModule,
+    CctvModule
   ],
   providers: [
     Title,
