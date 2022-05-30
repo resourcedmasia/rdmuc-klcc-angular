@@ -1,0 +1,44 @@
+<div class="card">
+  <div class="card-body">
+          <div class="mb-4">
+              <h4>CCTV Event List</h4>
+          </div>
+          <div class="float-sm-left" style="padding-top: 10px; padding-bottom: 10px">
+            <input [(ngModel)]="filterkey" class="form-control" type='text' placeholder='Filter by ...' (keyup)='updateFilter($event)'>
+          </div>
+          <table class="table table-bordered table-hover">
+            <thead>
+              <tr class="table-header">
+                <th style="width: 20px;">No</th>
+                <th style="min-width: 120px;">Identifier</th>
+                <th style="min-width: 120px;">Timestamp</th>
+                <th style="width: 200px;">Attachment</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let item of events">
+                <td>{{item.id}}</td>
+                <td>{{item.name}}</td>
+                <td>{{item.timestamp}}</td>
+                <td>
+                  <button type="button" class="btn btn-primary" (click)="view(item.id)">View</button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+      </div>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
