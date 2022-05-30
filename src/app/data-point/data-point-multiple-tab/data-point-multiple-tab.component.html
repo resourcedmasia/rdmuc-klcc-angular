@@ -1,6 +1,6 @@
 <div class="card">
   <h4 class="card-header">
-    <button class="float-sm-right btn btn-primary" (click)="updateRow()"><b>Edit</b></button>
+    <button [disabled]="!disabledEditButton" class="float-sm-right btn btn-primary" (click)="updateRow()"><b>Edit</b></button>
     <!-- <button class="float-sm-right btn btn-primary" (click)="deleteRow()"><b>Delete</b></button> -->
 
     <div class="float-sm-right" style="padding-right: 10px">

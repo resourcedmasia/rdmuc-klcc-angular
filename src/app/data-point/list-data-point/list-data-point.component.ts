@@ -28,12 +28,8 @@ export class ListDataPointComponent implements OnInit {
   getDataPoint() {
     this.restService.postData("getDataPoint", this.authService.getToken())
     .subscribe(data => {
-      if (data["status"] == 200) {
-        // console.log(JSON.parse(data["data"].rows[0].file_sheets));
-        
-        this.dataPoint = data["data"].rows;
-        console.log(this.dataPoint);
-        
+      if (data["status"] == 200) {        
+        this.dataPoint = data["data"].rows;        
       }
     });
   }
@@ -47,12 +43,8 @@ export class ListDataPointComponent implements OnInit {
     this.isLoadTab = !this.isLoadTab;
   }
 
-  deleteData(id) {
-    console.log(this.dataPoint);
-    
-    const selectedData = this.dataPoint.filter((el => el.id == id ));
-    console.log(selectedData);
-    
+  deleteData(id) {    
+    const selectedData = this.dataPoint.filter((el => el.id == id ));    
     let modalRef = this.modalService.open(DeleteModalDataPointComponent);  
     modalRef.componentInstance.data = selectedData;
     modalRef.result.then((result) => {
